@@ -1,21 +1,34 @@
 package solution;
 
 import scotlandyard.*;
+import scotlandyard.Player;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class ScotlandYardModel extends ScotlandYard {
-
+	
+	private List<PlayerInfo> playerinfo;
+	private int numberOfDetectives; 
 
     public ScotlandYardModel(int numberOfDetectives, List<Boolean> rounds, String graphFileName) throws IOException {
-        super(numberOfDetectives, rounds, graphFileName);
+		super(numberOfDetectives, rounds, graphFileName);
+		
+		//Get the graph from the input file.
+    	ScotlandYardGraphReader reader 	= new ScotlandYardGraphReader();
+		Graph<Integer, Route> graph 	= reader.readGraph(graphFileName);
+		
+		//Initialize detectives.
+		this.numberOfDetectives = numberOfDetectives;
+		playerinfo = new ArrayList<PlayerInfo>();
     }
 
     @Override
     protected Move getPlayerMove(Colour colour) {
+    	
         return null;
     }
 
@@ -51,12 +64,22 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public boolean join(Player player, Colour colour, int location, Map<Ticket, Integer> tickets) {
-        return false;
+    	if(playerExists(colour)){
+    		return false;
+    	}else{
+    		PlayerInfo p = new PlayerInfo(colour, location, tickets, player);
+    		playerinfo.add(p);
+    		return true;
+    	}
     }
 
     @Override
     public List<Colour> getPlayers() {
-        return null;
+    	List<Colour> c = new ArrayList<Colour>();
+    	for(PlayerInfo p : playerinfo){
+    		c.add(p.getColour());
+    	}
+        return c;
     }
 
     @Override
@@ -66,12 +89,20 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public int getPlayerLocation(Colour colour) {
-        return 0;
+    	if(playerExists(colour)){
+    		return getPlayer(colour).getLocation();
+    	}else{
+    		return 0;
+    	}
     }
 
     @Override
     public int getPlayerTickets(Colour colour, Ticket ticket) {
-        return 0;
+    	if(playerExists(colour)){
+    		return getPlayer(colour).getTickets(ticket);
+    	}else{
+    		return 0;
+    	}
     }
 
     @Override
@@ -81,7 +112,7 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public boolean isReady() {
-        return false;
+        return ((playerinfo.size() == (numberOfDetectives + 1)));
     }
 
     @Override
@@ -97,5 +128,18 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     public List<Boolean> getRounds() {
         return null;
+    }
+    
+    
+    private boolean playerExists(Colour colour){
+    	return getPlayer(colour) != null;
+    }
+    
+    private PlayerInfo getPlayer(Colour colour){
+    	for(PlayerInfo p : playerinfo){
+    		if(p.getColour() == colour)
+    			return p;
+    	}
+    	return null;
     }
 }
