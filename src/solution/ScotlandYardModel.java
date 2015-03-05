@@ -61,7 +61,13 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     protected void play(MoveDouble move) {
     	notifySpectators(move);
-    	play(move.moves.get(0));
+    	PlayerInfo player = getPlayer(move.colour);
+    	player.setLocation(((MoveTicket) move.moves.get(0)).target);
+    	player.removeTickets(((MoveTicket) move.moves.get(0)).ticket);
+    	if(move.colour == Colour.Black){
+    		round = round + 1;
+    	}
+    	//play(move.moves.get(0));
     	play(move.moves.get(1));
     }
 
