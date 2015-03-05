@@ -22,6 +22,14 @@ public class PlayerInfo {
 		player = p;
 	}
 	
+	public void setLocation(int l){
+		location = l;
+	}
+	
+	public void removeTickets(Ticket t){
+		tickets.put(t, tickets.get(t)-1);
+	}
+	
 	public Colour getColour(){
 		return colour;
 	}
@@ -32,6 +40,10 @@ public class PlayerInfo {
 	
 	public int getTickets(Ticket t){
 		return tickets.get(t);
+	}
+	
+	public Player getSPlayer(){
+		return player;
 	}
 		
 }
