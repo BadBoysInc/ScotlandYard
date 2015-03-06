@@ -18,6 +18,8 @@ public class ScotlandYardModel extends ScotlandYard {
 	private int round;
 	private Colour currentPlayer;
 	private List<Spectator> spectators;
+	private int MrXsLastKnownLocation;
+	private List<Boolean> rounds;
 
     public ScotlandYardModel(int numberOfDetectives, List<Boolean> rounds, String graphFileName) throws IOException {
 		super(numberOfDetectives, rounds, graphFileName);
@@ -25,11 +27,13 @@ public class ScotlandYardModel extends ScotlandYard {
 		//Get the graph from the input file.
     	ScotlandYardGraphReader reader 	= new ScotlandYardGraphReader();
 		graph = reader.readGraph(graphFileName);
+		this.rounds = rounds;
 		
 		//Initialise detectives.
 		this.numberOfDetectives = numberOfDetectives;
 		playerinfo = new ArrayList<PlayerInfo>();
 		spectators = new ArrayList<Spectator>();
+		MrXsLastKnownLocation = 0;
 
 		round = 0;
 		currentPlayer = Colour.Black;
@@ -38,7 +42,7 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     protected Move getPlayerMove(Colour colour) {
-    	return getPlayer(colour).getSPlayer().notify(getPlayerLocation(colour), validMoves(colour));
+    	return getPlayer(colour).getSPlayer().notify(getPlayer(colour).getLocation(), validMoves(colour));
     }
 
     @Override
@@ -49,25 +53,38 @@ public class ScotlandYardModel extends ScotlandYard {
     
     @Override
     protected void play(MoveTicket move) {
-    	notifySpectators(move);
     	PlayerInfo player = getPlayer(move.colour);
+    	if(player.getColour() != Colour.Black){
+    		notifySpectators(move);
+    	}else{
+    		MoveTicket dummy = new MoveTicket(Colour.Black, MrXsLastKnownLocation, move.ticket);
+    		notifySpectators(dummy);
+    	}
     	player.setLocation(move.target);
     	player.removeTickets(move.ticket);
+    	if(player.getColour() != Colour.Black){
+    		getPlayer(Colour.Black).addTickets(move.ticket);
+    	}
     	if(move.colour == Colour.Black){
     		round = round + 1;
+    		if(getRounds().get(getRound()) == true)
+        		MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();
     	}
     }
 
     @Override
     protected void play(MoveDouble move) {
-    	notifySpectators(move);
+    	MoveTicket dummy1 = new MoveTicket(Colour.Black, MrXsLastKnownLocation, ((MoveTicket) move.moves.get(0)).ticket);
+    	MoveTicket dummy2 = new MoveTicket(Colour.Black, MrXsLastKnownLocation, ((MoveTicket) move.moves.get(1)).ticket);
+    	MoveDouble dummy  = new MoveDouble(Colour.Black, dummy1, dummy2);
+    	notifySpectators(dummy);
     	PlayerInfo player = getPlayer(move.colour);
     	player.setLocation(((MoveTicket) move.moves.get(0)).target);
     	player.removeTickets(((MoveTicket) move.moves.get(0)).ticket);
-    	if(move.colour == Colour.Black){
-    		round = round + 1;
+    	round = round + 1;
+    	if(getRounds().get(getRound()) == true){
+        	MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();
     	}
-    	//play(move.moves.get(0));
     	play(move.moves.get(1));
     }
 
@@ -76,36 +93,71 @@ public class ScotlandYardModel extends ScotlandYard {
     	notifySpectators(move);
     	if(move.colour == Colour.Black){
     		round = round + 1;
+    		if(getRounds().get(getRound()) == true){
+        		MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();
+    		}
     	}
     }
 
     @Override
     protected List<Move> validMoves(Colour player) {
-        List<Move> movesSingle = singleMoves(getPlayerLocation(player), player);
+        List<Move> movesSingle = singleMoves(getPlayer(player).getLocation(), player);
         List<Move> moves = new ArrayList<Move>(movesSingle);
-        if(player == Colour.Black){
+        if(hasTickets(Ticket.DoubleMove, player)){
         	for(Move m: movesSingle){
         		List<Move> doubleMoves = singleMoves(((MoveTicket)  m).target, player);
         		for(Move dm: doubleMoves){
-        			moves.add(new MoveDouble(player, m, dm));
+        			if((((MoveTicket) dm).ticket == ((MoveTicket) m).ticket)){
+        				if(hasDoubleTickets(((MoveTicket) m).ticket, player)){
+        					moves.add(new MoveDouble(player, m, dm));
+        				}
+        			}else if(hasTickets(((MoveTicket) dm).ticket, player)){
+        				moves.add(new MoveDouble(player, m, dm));
+        			}
         		}
         	}
         }
-        moves.add(new MovePass(player));
+        if(moves.isEmpty() && player != Colour.Black)
+        	moves.add(new MovePass(player));
         return moves;
     }
     
     private List<Move> singleMoves(int location, Colour player){
     	List<Move> moves = new ArrayList<Move>();
-    	for(Edge<Integer, Route> e: graph.getEdges()){
-        	if(e.source()==location||e.target()==location){
+    	for(Edge<Integer, Route> e: graph.getEdges()){	       	
+    		if(e.source()==location||e.target()==location){   			
         		Move m = new MoveTicket(player, e.other(location), Ticket.fromRoute(e.data()));
-        		moves.add(m);
+        		if(!playerPresent(e.other(location), player) && hasTickets(((MoveTicket) m).ticket, player)) 
+        			if(player == Colour.Black){
+        				moves.add(m);
+        				if(hasTickets(Ticket.SecretMove, player)){
+        					Move secretm = new MoveTicket(Colour.Black, ((MoveTicket) m).target, Ticket.SecretMove);
+        					moves.add(secretm);
+        				}
+        			}else if(((MoveTicket) m).ticket != Ticket.SecretMove){
+        				moves.add(m);
+        			}
         	}
         }
     	return moves;
     }
-
+    
+    private boolean playerPresent(int location, Colour player){
+    	for(PlayerInfo p: playerinfo){
+    		if( (p.getLocation() == location) && (p != getPlayer(player)) && (p.getColour() != Colour.Black))
+    			return true;
+    	}
+    	return false;
+    }
+    
+    private boolean hasTickets(Ticket t, Colour player){
+    	return (getPlayer(player).getTickets(t) > 0);
+    }
+    
+    private boolean hasDoubleTickets(Ticket t, Colour player){
+    	return (getPlayer(player).getTickets(t) >= 2);
+    }
+    
     @Override
     public void spectate(Spectator spectator) {
     	spectators.add(spectator);
@@ -122,6 +174,8 @@ public class ScotlandYardModel extends ScotlandYard {
     	if(playerExists(colour)){
     		return false;
     	}else{
+    		if((colour == Colour.Black) && (getRounds().get(0) == true))
+        		MrXsLastKnownLocation = location;
     		PlayerInfo p = new PlayerInfo(colour, location, tickets, player);
     		playerinfo.add(p);
     		return true;
@@ -145,7 +199,11 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     public int getPlayerLocation(Colour colour) {
     	if(playerExists(colour)){
-    		return getPlayer(colour).getLocation();
+			if(colour == Colour.Black){
+				return MrXsLastKnownLocation;
+			}else{
+    			return getPlayer(colour).getLocation();    				
+			}
     	}else{
     		return 0;
     	}
@@ -182,7 +240,7 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public List<Boolean> getRounds() {
-        return Arrays.asList(true, false, true, false, true);
+        return rounds;
     }
     
     private boolean playerExists(Colour colour){

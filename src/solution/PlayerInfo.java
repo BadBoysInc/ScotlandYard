@@ -30,6 +30,10 @@ public class PlayerInfo {
 		tickets.put(t, tickets.get(t)-1);
 	}
 	
+	public void addTickets(Ticket t){
+		tickets.put(t, tickets.get(t)+1);
+	}
+	
 	public Colour getColour(){
 		return colour;
 	}
