@@ -57,8 +57,12 @@ public class ScotlandYardModel extends ScotlandYard {
     	if(player.getColour() != Colour.Black){
     		notifySpectators(move);
     	}else{
-    		MoveTicket dummy = new MoveTicket(Colour.Black, MrXsLastKnownLocation, move.ticket);
-    		notifySpectators(dummy);
+    		if(getRounds().get(getRound()+1) == true){
+    			notifySpectators(move);
+    		}else{
+    			MoveTicket dummy = new MoveTicket(Colour.Black, MrXsLastKnownLocation, move.ticket);
+    			notifySpectators(dummy);
+    		}
     	}
     	player.setLocation(move.target);
     	player.removeTickets(move.ticket);
@@ -70,6 +74,7 @@ public class ScotlandYardModel extends ScotlandYard {
     		if(getRounds().get(getRound()) == true)
         		MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();
     	}
+
     }
 
     @Override
