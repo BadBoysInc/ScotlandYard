@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.tools.ant.types.mappers.CutDirsMapper;
+
 public class ScotlandYardModel extends ScotlandYard {
 	
 	private List<PlayerInfo> playerinfo;
@@ -108,6 +110,7 @@ public class ScotlandYardModel extends ScotlandYard {
     protected List<Move> validMoves(Colour player) {
         List<Move> movesSingle = singleMoves(getPlayer(player).getLocation(), player);
         List<Move> moves = new ArrayList<Move>(movesSingle);
+        
         if(hasTickets(Ticket.DoubleMove, player)){
         	for(Move m: movesSingle){
         		List<Move> doubleMoves = singleMoves(((MoveTicket)  m).target, player);
@@ -225,10 +228,51 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public boolean isGameOver() {
-        return false;
+    	
+    	if(!isReady())
+    		return false;
+    	if(allDetectivesAreStuck())
+    		return true;
+    	if(endOfFinalRound())
+    		return true;
+    	if(isMrXCaught())
+    		return true;
+    	if(MrXHasNowhereToGo())
+    		return true;
+    	return false;
     }
 
-    @Override
+    private boolean MrXHasNowhereToGo() {
+    	return validMoves(Colour.Black).isEmpty();
+	}
+
+	private boolean isMrXCaught() {
+		for(PlayerInfo p: playerinfo){
+			if(p.getColour() != Colour.Black){
+				if(p.getLocation() == getPlayer(Colour.Black).getLocation())
+					return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean endOfFinalRound() {
+		return round>=(rounds.size()-1) && currentPlayer == Colour.Black;
+ 	}
+
+	private boolean allDetectivesAreStuck() {
+		for(PlayerInfo p: playerinfo){
+			if(p.getColour() != Colour.Black){
+				for(Ticket t: Ticket.values()){
+					if(p.getTickets(t)>0)
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	@Override
     public boolean isReady() {
         return ((playerinfo.size() == (numberOfDetectives + 1)));
     }
