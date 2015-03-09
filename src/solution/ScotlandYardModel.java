@@ -5,6 +5,7 @@ import scotlandyard.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -201,7 +202,22 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public Set<Colour> getWinningPlayers() {
-        return null;
+    	System.out.println(isGameOver());
+    	System.out.println(allDetectivesAreStuck());
+    	Set<Colour> winners = new HashSet<Colour>();
+    	System.out.println(winners);
+    	if(isGameOver()){
+        	if(allDetectivesAreStuck() || endOfFinalRound()){
+        		winners.add(Colour.Black);
+        		System.out.println(winners);
+        	}else{
+        		winners =  new HashSet<Colour>(getPlayers());
+        		winners.remove(Colour.Black);
+        		System.out.println(winners);
+        	}
+    	}
+    	System.out.println(winners);
+     	return winners;
     }
 
     @Override
@@ -228,7 +244,6 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public boolean isGameOver() {
-    	
     	if(!isReady())
     		return false;
     	if(allDetectivesAreStuck())
@@ -263,10 +278,9 @@ public class ScotlandYardModel extends ScotlandYard {
 	private boolean allDetectivesAreStuck() {
 		for(PlayerInfo p: playerinfo){
 			if(p.getColour() != Colour.Black){
-				for(Ticket t: Ticket.values()){
-					if(p.getTickets(t)>0)
-						return false;
-				}
+				if(!validMoves(p.getColour()).contains(new MovePass(p.getColour()))){
+					return false;
+				}	
 			}
 		}
 		return true;
