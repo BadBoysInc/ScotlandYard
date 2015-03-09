@@ -15,14 +15,20 @@ import org.apache.tools.ant.types.mappers.CutDirsMapper;
 
 public class ScotlandYardModel extends ScotlandYard {
 	
-	private List<PlayerInfo> playerinfo;
-	private int numberOfDetectives;
-	private Graph<Integer, Route> graph;
+	//Game Constants
+	final private int numberOfDetectives;
+	final private Graph<Integer, Route> graph;
+	final private List<Boolean> rounds;
+	
+	//Participants
+	private List<PlayerInfo> playerInfos;
+	private List<Spectator> spectators;
+	
+	//Game Variables
 	private int round;
 	private Colour currentPlayer;
-	private List<Spectator> spectators;
 	private int MrXsLastKnownLocation;
-	private List<Boolean> rounds;
+	
 
     public ScotlandYardModel(int numberOfDetectives, List<Boolean> rounds, String graphFileName) throws IOException {
 		super(numberOfDetectives, rounds, graphFileName);
@@ -30,14 +36,17 @@ public class ScotlandYardModel extends ScotlandYard {
 		//Get the graph from the input file.
     	ScotlandYardGraphReader reader 	= new ScotlandYardGraphReader();
 		graph = reader.readGraph(graphFileName);
-		this.rounds = rounds;
 		
-		//Initialise detectives.
+		//Initialise game constants
+		this.rounds = rounds;
 		this.numberOfDetectives = numberOfDetectives;
-		playerinfo = new ArrayList<PlayerInfo>();
+		
+		//Initialise Observer Lists.		
+		playerInfos = new ArrayList<PlayerInfo>();
 		spectators = new ArrayList<Spectator>();
-		MrXsLastKnownLocation = 0;
 
+		//Initialise Game Variables
+		MrXsLastKnownLocation = 0;
 		round = 0;
 		currentPlayer = Colour.Black;
 		
@@ -50,8 +59,8 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     protected void nextPlayer() {
-    	int i = playerinfo.indexOf(getPlayer(currentPlayer));
-    	currentPlayer = playerinfo.get((i+1)%(playerinfo.size())).getColour();
+    	int i = playerInfos.indexOf(getPlayer(currentPlayer));
+    	currentPlayer = playerInfos.get((i+1)%(playerInfos.size())).getColour();
     }
     
     @Override
@@ -109,6 +118,7 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     protected List<Move> validMoves(Colour player) {
+    	
         List<Move> movesSingle = singleMoves(getPlayer(player).getLocation(), player);
         List<Move> moves = new ArrayList<Move>(movesSingle);
         
@@ -152,7 +162,7 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     private boolean playerPresent(int location, Colour player){
-    	for(PlayerInfo p: playerinfo){
+    	for(PlayerInfo p: playerInfos){
     		if( (p.getLocation() == location) && (p != getPlayer(player)) && (p.getColour() != Colour.Black))
     			return true;
     	}
@@ -185,8 +195,7 @@ public class ScotlandYardModel extends ScotlandYard {
     	}else{
     		if((colour == Colour.Black) && (getRounds().get(0) == true))
         		MrXsLastKnownLocation = location;
-    		PlayerInfo p = new PlayerInfo(colour, location, tickets, player);
-    		playerinfo.add(p);
+    		playerInfos.add(new PlayerInfo(colour, location, tickets, player));
     		return true;
     	}
     }
@@ -194,7 +203,7 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     public List<Colour> getPlayers() {
     	List<Colour> c = new ArrayList<Colour>();
-    	for(PlayerInfo p : playerinfo){
+    	for(PlayerInfo p : playerInfos){
     		c.add(p.getColour());
     	}
         return c;
@@ -202,26 +211,20 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public Set<Colour> getWinningPlayers() {
-    	System.out.println(isGameOver());
-    	System.out.println(allDetectivesAreStuck());
     	Set<Colour> winners = new HashSet<Colour>();
-    	System.out.println(winners);
     	if(isGameOver()){
         	if(allDetectivesAreStuck() || endOfFinalRound()){
         		winners.add(Colour.Black);
-        		System.out.println(winners);
         	}else{
         		winners =  new HashSet<Colour>(getPlayers());
         		winners.remove(Colour.Black);
-        		System.out.println(winners);
         	}
     	}
-    	System.out.println(winners);
      	return winners;
     }
 
     @Override
-    public int getPlayerLocation(Colour colour) {
+    public int getPlayerVisibleLocation(Colour colour) {
     	if(playerExists(colour)){
 			if(colour == Colour.Black){
 				return MrXsLastKnownLocation;
@@ -262,7 +265,7 @@ public class ScotlandYardModel extends ScotlandYard {
 	}
 
 	private boolean isMrXCaught() {
-		for(PlayerInfo p: playerinfo){
+		for(PlayerInfo p: playerInfos){
 			if(p.getColour() != Colour.Black){
 				if(p.getLocation() == getPlayer(Colour.Black).getLocation())
 					return true;
@@ -276,7 +279,7 @@ public class ScotlandYardModel extends ScotlandYard {
  	}
 
 	private boolean allDetectivesAreStuck() {
-		for(PlayerInfo p: playerinfo){
+		for(PlayerInfo p: playerInfos){
 			if(p.getColour() != Colour.Black){
 				if(!validMoves(p.getColour()).contains(new MovePass(p.getColour()))){
 					return false;
@@ -288,7 +291,7 @@ public class ScotlandYardModel extends ScotlandYard {
 
 	@Override
     public boolean isReady() {
-        return ((playerinfo.size() == (numberOfDetectives + 1)));
+        return ((playerInfos.size() == (numberOfDetectives + 1)));
     }
 
     @Override
@@ -311,7 +314,7 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     private PlayerInfo getPlayer(Colour colour){
-    	for(PlayerInfo p : playerinfo){
+    	for(PlayerInfo p : playerInfos){
     		if(p.getColour() == colour)
     			return p;
     	}

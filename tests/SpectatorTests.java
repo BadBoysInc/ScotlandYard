@@ -124,11 +124,11 @@ public class SpectatorTests {
 
 
         assertEquals("If Mr X is not currently visible, the location in the move should be " +
-                "his last known location", game.getPlayerLocation(Colour.Black), moveTicket.target);
+                "his last known location", game.getPlayerVisibleLocation(Colour.Black), moveTicket.target);
         assertEquals("If Mr X is not currently visible, the location in the move should be " +
                 "his last known location", 0, moveTicket.target);
         assertEquals("If Mr X is not currently visible, the location in the move should be " +
-                "his last known location", game.getPlayerLocation(Colour.Black), 0);
+                "his last known location", game.getPlayerVisibleLocation(Colour.Black), 0);
     }
 
     @Test
@@ -150,16 +150,16 @@ public class SpectatorTests {
         TestSpectator spectator = new TestSpectator();
         game.spectate(spectator);
         assertEquals("If Mr X is not currently visible, the location in the move should be " +
-                "his last known location", game.getPlayerLocation(Colour.Black), 0);
+                "his last known location", game.getPlayerVisibleLocation(Colour.Black), 0);
         game.turn();
         assertEquals("If Mr X is not currently visible, the location in the move should be " +
-                "his last known location", game.getPlayerLocation(Colour.Black), 2);
+                "his last known location", game.getPlayerVisibleLocation(Colour.Black), 2);
         game.turn();
         assertEquals("If Mr X is not currently visible, the location in the move should be " +
-                "his last known location", game.getPlayerLocation(Colour.Black), 2);
+                "his last known location", game.getPlayerVisibleLocation(Colour.Black), 2);
         game.turn();
         assertEquals("If Mr X is not currently visible, the location in the move should be " +
-                "his last known location", game.getPlayerLocation(Colour.Black), 1);
+                "his last known location", game.getPlayerVisibleLocation(Colour.Black), 1);
         MoveTicket moveTicket = (MoveTicket) spectator.move;
 
 

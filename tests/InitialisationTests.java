@@ -78,11 +78,11 @@ public class InitialisationTests {
 
         assertEquals("After the players have been added, the values returned from getPlayerLocations" +
                 " should match the locations used in join game",
-                mrXLocationToCheck, game.getPlayerLocation(Colour.Black));
+                mrXLocationToCheck, game.getPlayerVisibleLocation(Colour.Black));
 
         assertEquals("After the players have been added, the values returned from getPlayerLocations" +
                         " should match the locations used in join game",
-                detectiveLocationToCheck,  game.getPlayerLocation(Colour.Blue));
+                detectiveLocationToCheck,  game.getPlayerVisibleLocation(Colour.Blue));
     }
 
     @Test

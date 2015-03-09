@@ -199,7 +199,7 @@ public class MrXValidMovesTests extends ValidMovesTests {
             if(move instanceof MoveTicket) {
                 MoveTicket ticketMove = (MoveTicket) move;
                 assertFalse("Mr X can't move onto a location occupied by another player",
-                        ticketMove.target == game.getPlayerLocation(Colour.Blue));
+                        ticketMove.target == game.getPlayerVisibleLocation(Colour.Blue));
             }
         }
     }
@@ -220,9 +220,9 @@ public class MrXValidMovesTests extends ValidMovesTests {
                 MoveTicket m1 = (MoveTicket) ((MoveDouble) move).moves.get(0);
                 MoveTicket m2 = (MoveTicket) ((MoveDouble) move).moves.get(1);
                 assertFalse("Mr X can't move onto a location occupied by another player during a double move",
-                        m1.target == game.getPlayerLocation(Colour.Blue));
+                        m1.target == game.getPlayerVisibleLocation(Colour.Blue));
                 assertFalse("Mr X can't move onto a location occupied by another player during a double move",
-                        m2.target == game.getPlayerLocation(Colour.Blue));
+                        m2.target == game.getPlayerVisibleLocation(Colour.Blue));
             }
         }
     }
