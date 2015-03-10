@@ -44,7 +44,7 @@ public class PlayerInfo {
 		return tickets.get(t);
 	}
 	
-	public Player getSPlayer(){
+	public Player getPlayer(){
 		return player;
 	}
 		
