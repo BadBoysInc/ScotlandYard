@@ -21,7 +21,7 @@ public class MrXLocationsTests  {
 
 
         assertEquals("If Mr X has not yet revealed himself, his last known location " +
-                "should be zero", 0, game.getPlayerVisibleLocation(Colour.Black));
+                "should be zero", 0, game.getPlayerLocation(Colour.Black));
     }
 
 
@@ -40,7 +40,7 @@ public class MrXLocationsTests  {
 
 
         assertEquals("If at the current round, Mr X is visible, Mr X's last known location " +
-                "is his current location", mrXLocation, game.getPlayerVisibleLocation(Colour.Black));
+                "is his current location", mrXLocation, game.getPlayerLocation(Colour.Black));
     }
 
 
@@ -66,7 +66,7 @@ public class MrXLocationsTests  {
 
         MoveTicket mt = player.chosenMove;
         assertEquals("If Mr X is due to display himself N rounds into the game, the display data" +
-                " should be accurate at that round", mt.target, game.getPlayerVisibleLocation(Colour.Black));
+                " should be accurate at that round", mt.target, game.getPlayerLocation(Colour.Black));
 
     }
 

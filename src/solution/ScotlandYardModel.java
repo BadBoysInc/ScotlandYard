@@ -23,16 +23,16 @@ import scotlandyard.Ticket;
 
 public class ScotlandYardModel extends ScotlandYard {
 	
-	//Game Constants
+	//Game Constants:
 	final private int numberOfDetectives;
 	final private Graph<Integer, Route> graph;
 	final private List<Boolean> rounds;
 	
-	//Participants
-	private List<PlayerInfo> playerInfos;
-	private List<Spectator> spectators;
+	//Participants:
+	final private List<PlayerInfo> playerInfos;
+	final private List<Spectator> spectators;
 	
-	//Game Variables
+	//Game Variables:
 	private int round;
 	private Colour currentPlayer;
 	private int MrXsLastKnownLocation;
@@ -45,7 +45,7 @@ public class ScotlandYardModel extends ScotlandYard {
     	ScotlandYardGraphReader reader 	= new ScotlandYardGraphReader();
 		graph = reader.readGraph(graphFileName);
 		
-		//Initialise game constants
+		//Initialise game constants.
 		this.rounds = rounds;
 		this.numberOfDetectives = numberOfDetectives;
 		
@@ -250,7 +250,7 @@ public class ScotlandYardModel extends ScotlandYard {
     }
 
     @Override
-    public int getPlayerVisibleLocation(Colour colour) {
+    public int getPlayerLocation(Colour colour) {
     	if(playerExists(colour)){
 			if(colour == Colour.Black){
 				return MrXsLastKnownLocation;

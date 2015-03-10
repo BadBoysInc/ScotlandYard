@@ -21,7 +21,7 @@ public class PlayTests {
 
         for(Colour col : locs1.keySet()) {
             assertEquals("When it is not a players move they should not move",
-                    (int) locs1.get(col), (int) game.getPlayerVisibleLocation(col));
+                    (int) locs1.get(col), (int) game.getPlayerLocation(col));
         }
 
         Map<Colour, Integer> locs2 = getCurrentLocations(game, Colour.Blue);
@@ -29,7 +29,7 @@ public class PlayTests {
 
         for(Colour col : locs2.keySet()) {
             assertEquals("When it is not a players move they should not move",
-                    (int) locs2.get(col), (int) game.getPlayerVisibleLocation(col));
+                    (int) locs2.get(col), (int) game.getPlayerLocation(col));
         }
 
         Map<Colour, Integer> locs3 = getCurrentLocations(game, Colour.Yellow);
@@ -37,7 +37,7 @@ public class PlayTests {
 
         for(Colour col : locs3.keySet()) {
             assertEquals("When it is not a players move they should not move",
-                    (int) locs3.get(col), (int) game.getPlayerVisibleLocation(col));
+                    (int) locs3.get(col), (int) game.getPlayerLocation(col));
         }
     }
 
@@ -48,7 +48,7 @@ public class PlayTests {
         List<Colour> cols = game.getPlayers();
         for(Colour col : cols) {
             if(col != exclude)
-                locations.put(col, game.getPlayerVisibleLocation(col));
+                locations.put(col, game.getPlayerLocation(col));
 
         }
         return locations;
@@ -78,12 +78,12 @@ public class PlayTests {
         TestHelper.addDetectiveToGame(game, testPlayer, Colour.Blue, 7);
 
         // get the initial position
-        int initialPosition = game.getPlayerVisibleLocation(Colour.Blue);
+        int initialPosition = game.getPlayerLocation(Colour.Blue);
         game.turn();
         game.turn();
 
         assertEquals("After a pass move is played, the player should not have changed location",
-                initialPosition, game.getPlayerVisibleLocation(Colour.Blue));
+                initialPosition, game.getPlayerLocation(Colour.Blue));
 
 
     }
@@ -182,7 +182,7 @@ public class PlayTests {
 
 
         assertEquals("After playing a move ticket, the new location of the player should match " +
-                "the ticket's target", testPlayer.chosen.target, game.getPlayerVisibleLocation(Colour.Blue));
+                "the ticket's target", testPlayer.chosen.target, game.getPlayerLocation(Colour.Blue));
 
 
     }
@@ -237,7 +237,7 @@ public class PlayTests {
         MoveTicket secondLocation = (MoveTicket) testPlayer.chosen.moves.get(1);
 
         assertEquals("After playing a double move the player should have moved to the correct " +
-                        "location", secondLocation.target, game.getPlayerVisibleLocation(Colour.Black));
+                        "location", secondLocation.target, game.getPlayerLocation(Colour.Black));
     }
 
     public void testDoubleMoveUsesTheCorrectTickets() throws Exception {

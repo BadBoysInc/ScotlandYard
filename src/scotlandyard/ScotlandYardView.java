@@ -31,7 +31,7 @@ public interface ScotlandYardView {
    * otherwise returns the location of MrX in his last known location.
    * MrX is revealed in round n when {@code rounds.get(n)} is true.
    */
-  int getPlayerVisibleLocation(Colour colour);
+  int getPlayerLocation(Colour colour);
 
   /**
    * The number of a particular ticket that a player has.

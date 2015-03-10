@@ -46,7 +46,7 @@ public class PlayerNotifyTests {
 
 
         game.turn();
-        int locationBeforeMove = game.getPlayerVisibleLocation(Colour.Blue);
+        int locationBeforeMove = game.getPlayerLocation(Colour.Blue);
         game.turn();
         assertEquals("The player is notified with their position which is correct",
                 locationBeforeMove, player.location);
@@ -81,7 +81,7 @@ public class PlayerNotifyTests {
 
         game.turn();
         assertFalse("Mr X player should be notified of his actual location, not his last " +
-                        "known location", game.getPlayerVisibleLocation(Colour.Black) == player.location);
+                        "known location", game.getPlayerLocation(Colour.Black) == player.location);
     }
 
 
