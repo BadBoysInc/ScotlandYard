@@ -1,17 +1,25 @@
 package solution;
 
-import scotlandyard.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.tools.ant.types.mappers.CutDirsMapper;
+import scotlandyard.Colour;
+import scotlandyard.Edge;
+import scotlandyard.Graph;
+import scotlandyard.Move;
+import scotlandyard.MoveDouble;
+import scotlandyard.MovePass;
+import scotlandyard.MoveTicket;
+import scotlandyard.Player;
+import scotlandyard.Route;
+import scotlandyard.ScotlandYard;
+import scotlandyard.ScotlandYardGraphReader;
+import scotlandyard.Spectator;
+import scotlandyard.Ticket;
 
 public class ScotlandYardModel extends ScotlandYard {
 	
@@ -91,10 +99,26 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     protected void play(MoveDouble move) {
-    	MoveTicket dummy1 = new MoveTicket(Colour.Black, MrXsLastKnownLocation, ((MoveTicket) move.moves.get(0)).ticket);
-    	MoveTicket dummy2 = new MoveTicket(Colour.Black, MrXsLastKnownLocation, ((MoveTicket) move.moves.get(1)).ticket);
+    	//Need to check can you have a double move inside a double move????
+    	
+    	//If the round visibility is false hide the location of the move when telling the spectators;
+    	Move dummy1, dummy2;
+    	
+    	if(getRounds().get(getRound()+1) == true){
+    		dummy1 = move.moves.get(0);
+    	}else{
+    		dummy1 = new MoveTicket(Colour.Black, MrXsLastKnownLocation, ((MoveTicket) move.moves.get(0)).ticket);
+    	}
+    	if(getRounds().get(getRound()+2) == true){
+    		dummy2 = move.moves.get(1);
+    	}else{
+    		dummy2 = new MoveTicket(Colour.Black, MrXsLastKnownLocation, ((MoveTicket) move.moves.get(1)).ticket);
+    	}
+    	
     	MoveDouble dummy  = new MoveDouble(Colour.Black, dummy1, dummy2);
     	notifySpectators(dummy);
+    	
+    	//Do first move;
     	PlayerInfo player = getPlayer(move.colour);
     	player.setLocation(((MoveTicket) move.moves.get(0)).target);
     	player.removeTickets(((MoveTicket) move.moves.get(0)).ticket);
@@ -102,6 +126,8 @@ public class ScotlandYardModel extends ScotlandYard {
     	if(getRounds().get(getRound()) == true){
         	MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();
     	}
+    	
+    	//Do second move;
     	play(move.moves.get(1));
     }
 
