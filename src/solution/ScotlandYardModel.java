@@ -173,16 +173,12 @@ public class ScotlandYardModel extends ScotlandYard {
     		if(e.source()==location||e.target()==location){   			
         		Move m = new MoveTicket(player, e.other(location), Ticket.fromRoute(e.data()));
         		if(!playerPresent(e.other(location), player) && hasTickets(((MoveTicket) m).ticket, player, 1)){ 
-        			//Add a secret ticket alternative for Mr. X.
-        			if(player == Colour.Black){
-        				moves.add(m);
-        				if(((MoveTicket) m).ticket != Ticket.SecretMove && hasTickets(Ticket.SecretMove, player, 1)){
-        					Move secretm = new MoveTicket(Colour.Black, ((MoveTicket) m).target, Ticket.SecretMove);
-        					moves.add(secretm);
-        				}
-        			}else if(((MoveTicket) m).ticket != Ticket.SecretMove){
-        				moves.add(m);
-        			}
+        			moves.add(m);
+        		}
+        		//Add a secret ticket alternative for Mr. X.
+        		if(hasTickets(Ticket.SecretMove, player, 1) && ((MoveTicket) m).ticket != Ticket.SecretMove && !playerPresent(e.other(location), player)){
+        			Move secretm = new MoveTicket(player, e.other(location), Ticket.SecretMove);
+        			moves.add(secretm);
         		}
         	}
         }
@@ -190,7 +186,7 @@ public class ScotlandYardModel extends ScotlandYard {
     }
 
     //Checks whether a player is on the specified location.
-    private boolean playerPresent(int location, Colour player) {
+    boolean playerPresent(int location, Colour player) {
     	for(PlayerInfo p: playerInfos){
     		if( (p.getLocation() == location) && (p != getPlayer(player)) && (p.getColour() != Colour.Black))
     			return true;

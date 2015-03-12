@@ -5,55 +5,29 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.*;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import scotlandyard.Colour;
+import scotlandyard.Move;
 
-public class Graphics extends JFrame{
+public class IntroScreen extends JFrame{
 	
-	
-	
-	public Graphics(){
+	public IntroScreen(){
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
-	    /*JPanel mainContainer = new JPanel();
-	    
-	    JPanel rightContainer = new JPanel();
-	    JPanel leftContainer = new JPanel();
-	    
-	    URL u = this.getClass().getResource("map.jpg");
-	    ImageIcon icon = new ImageIcon(u);
-	    leftContainer.add(new JLabel(icon));
-	   
-	    JButton quit = new JButton("KILL ME!!!");
-	    quit.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-	    });
-	    
-	    rightContainer.add(quit);
-	    
-	    mainContainer.add(leftContainer);
-	    mainContainer.add(rightContainer);
-	    
-	    add(mainContainer);
-	    
-	    pack();
-	    setLocationByPlatform(true);
-	    setVisible(true);*/
 	}
 
 	void setupScreen(final Presenter p){
 		
 		//Panel to hold all buttons
-		JPanel main = new JPanel();
+		final JPanel main = new JPanel();
 		main.setLayout(new GridLayout(7,1));
 		//init list of buttons
 		final Map<String, JToggleButton> buttons = new HashMap<String, JToggleButton>();
@@ -84,10 +58,12 @@ public class Graphics extends JFrame{
 						colours.add(Colour.valueOf(id));
 				}
 				if(colours.contains(Colour.Black) && colours.size()>1){
+					closeWindow();
 					p.beginGame(colours);
-					setVisible(false);
 				}
 			}
+
+			
 		});
 		main.add(play);
 		
@@ -100,7 +76,7 @@ public class Graphics extends JFrame{
 	}
 
 	void closeWindow(){
-		
+		this.dispose();
 	}
 	
 }
