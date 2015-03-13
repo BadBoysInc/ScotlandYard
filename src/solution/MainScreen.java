@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
+import org.apache.tools.ant.taskdefs.WaitFor;
+
 import scotlandyard.Colour;
 import scotlandyard.Move;
 
@@ -31,10 +33,13 @@ public class MainScreen extends JFrame{
     JLabel mrXStat;
     JLabel currentStat;
     
+    private boolean waitingForUser;
+    
     Presenter presenter;
 	
 	public MainScreen(Presenter p){
 		presenter = p;
+		waitingForUser = true;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
 		JPanel mainContainer = new JPanel();	    
@@ -63,13 +68,13 @@ public class MainScreen extends JFrame{
 	    stats.setLayout(new GridLayout(3,2));
 	    stats.setPreferredSize(new Dimension(100, 100));
 	    
-	    JLabel roundTitle = new JLabel("<html>Round Number</html>");
-	    JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X's Location is Revealed</html>");
-	    JLabel currentTitle = new JLabel("<html>Current Player</html>");
+	    JLabel roundTitle = new JLabel("<html>Round Number:</html>");
+	    JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X's Location is Revealed:</html>");
+	    JLabel currentTitle = new JLabel("<html>Current Player:</html>");
 	    
-	    roundStat = new JLabel(":            0", SwingConstants.RIGHT);
-	    mrXStat = new JLabel(":            4", SwingConstants.RIGHT);
-	    currentStat = new JLabel(":	 ", SwingConstants.RIGHT);
+	    roundStat = new JLabel("####", SwingConstants.RIGHT);
+	    mrXStat = new JLabel("####", SwingConstants.RIGHT);
+	    currentStat = new JLabel("####", SwingConstants.RIGHT);
 	    
 	    stats.add(roundTitle, 0);
 	    stats.add(roundStat, 1);
@@ -118,12 +123,14 @@ public class MainScreen extends JFrame{
 	}
 
 	public Move chooseMove(List<Move> list, int location, Colour currentPlayer, int round, int roundsUntilReveal) {
-		/*currentStat.setText(currentPlayer.toString());
-		roundStat.setText(Integer.toString(round));*/
-		while(1<2){
+		currentStat.setText(currentPlayer.toString());
+		roundStat.setText(Integer.toString(round));
+		
+		while(waitingForUser){
 			
 		}
-		return null;
+		
+		return list.get(0);
 	}
 	
 }

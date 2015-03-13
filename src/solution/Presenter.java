@@ -30,6 +30,7 @@ public class Presenter implements Player{
 
 	public void beginGame(Set<Colour> colours) {
 		introGui = null;
+		System.err.println("Will now make the game model");
 		try {
 			model = new ScotlandYardModel(colours.size()-1, Arrays.asList(false, false, false, true,  false, 
 																	 	  false, false, false, true,  false, 
@@ -42,19 +43,25 @@ public class Presenter implements Player{
 		for(Colour c: colours){
 			model.join(this, c , getStartingLocation(c), getStartingTickets(c));
 		}
+		
+		System.err.println("Have made the game and added all the players");
+		System.err.println("Will now make the game window");
 		mainGui = new MainScreen(this);
+		System.err.println("Have made the game window");
 		System.out.println(model.getPlayerLocation(Colour.Black));
+		System.err.println("Will now start the game");
 		model.start();
+		System.err.println("Game is Over");
 	}
 	
-	private int getStartingLocation(Colour c) {
+	int getStartingLocation(Colour c) {
 		Random r = new Random();
 		int i;
 		do{
-			i = (r.nextInt()%199) + 1;
-			i = i<1? -i: i;
-		}while(model.playerPresent(i, c));
-		return i;
+			i = (r.nextInt()%199);
+			i = i<0? -i: i;
+		}while(model.playerPresent(i + 1, c));
+		return i + 1;
 	}
 
 
