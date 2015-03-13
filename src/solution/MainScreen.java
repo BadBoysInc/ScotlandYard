@@ -5,9 +5,13 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,8 +19,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
-
-import org.apache.tools.ant.taskdefs.WaitFor;
 
 import scotlandyard.Colour;
 import scotlandyard.Move;
@@ -41,16 +43,22 @@ public class MainScreen extends JFrame{
 		presenter = p;
 		waitingForUser = true;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
+
 		JPanel mainContainer = new JPanel();	    
 		JPanel infoContainer = new JPanel();
 		JPanel mapContainer = new JPanel();
 	    infoContainer.setLayout(new BorderLayout());
 	    
 	    //Map
-	    URL u = this.getClass().getResource("map.jpg");
-	    ImageIcon icon = new ImageIcon(u);
-	    mapContainer.add(new JLabel(icon));
+		BufferedImage myPicture;
+		try {
+			myPicture = ImageIO.read(new File("resources/map.jpg"));
+			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
+			mapContainer.add(picLabel);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
 	    
 	    
 	    //Quit
@@ -63,14 +71,14 @@ public class MainScreen extends JFrame{
 			}
 	    });
 	    
-	    //Stats
+	    //Statistics
 	    JPanel stats = new JPanel();
 	    stats.setLayout(new GridLayout(3,2));
 	    stats.setPreferredSize(new Dimension(100, 100));
 	    
-	    JLabel roundTitle = new JLabel("<html>Round Number:</html>");
-	    JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X's Location is Revealed:</html>");
-	    JLabel currentTitle = new JLabel("<html>Current Player:</html>");
+	    JLabel roundTitle = new JLabel("<html>Round Number</html>");
+	    JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X's Location is Revealed</html>");
+	    JLabel currentTitle = new JLabel("<html>Current Player</html>");
 	    
 	    roundStat = new JLabel("####", SwingConstants.RIGHT);
 	    mrXStat = new JLabel("####", SwingConstants.RIGHT);
@@ -97,7 +105,7 @@ public class MainScreen extends JFrame{
 	    taxi.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				presenter.response = true;
 			}
 	    });
 	    
@@ -120,17 +128,16 @@ public class MainScreen extends JFrame{
 	    pack();
 	    setLocationByPlatform(true);
 	    setVisible(true);
+
 	}
 
-	public Move chooseMove(List<Move> list, int location, Colour currentPlayer, int round, int roundsUntilReveal) {
-		currentStat.setText(currentPlayer.toString());
-		roundStat.setText(Integer.toString(round));
+	public void updateDisplay(String currentPlayer, String round, String roundsUntilReveal) {
 		
-		while(waitingForUser){
-			
-		}
+		roundStat.setText(round);
+	    mrXStat.setText(roundsUntilReveal);
+	    currentStat.setText(currentPlayer);
 		
-		return list.get(0);
+		
 	}
 	
 }

@@ -13,10 +13,20 @@ import scotlandyard.Move;
 import scotlandyard.Player;
 import scotlandyard.Ticket;
 
+
+
 public class Presenter implements Player{
+	boolean response; 
 	IntroScreen introGui;
 	MainScreen	mainGui;
 	ScotlandYardModel model;
+	final Presenter presenter = this;
+	
+	Thread guiThread = new Thread(){
+		public void run(){
+			mainGui = new MainScreen(presenter);
+		}
+	};
 	
 	Presenter(){
 		introGui = new IntroScreen();
@@ -31,6 +41,8 @@ public class Presenter implements Player{
 	public void beginGame(Set<Colour> colours) {
 		introGui = null;
 		System.err.println("Will now make the game model");
+		
+		
 		try {
 			model = new ScotlandYardModel(colours.size()-1, Arrays.asList(false, false, false, true,  false, 
 																	 	  false, false, false, true,  false, 
@@ -46,11 +58,15 @@ public class Presenter implements Player{
 		
 		System.err.println("Have made the game and added all the players");
 		System.err.println("Will now make the game window");
-		mainGui = new MainScreen(this);
+		
+		
+		guiThread.start();
+		
 		System.err.println("Have made the game window");
 		System.out.println(model.getPlayerLocation(Colour.Black));
 		System.err.println("Will now start the game");
 		model.start();
+		
 		System.err.println("Game is Over");
 	}
 	
@@ -84,9 +100,17 @@ public class Presenter implements Player{
 			return tickets;
 		}
 	}
-
+	
 	@Override
 	public Move notify(int location, List<Move> list) {
-		return mainGui.chooseMove(list, location, model.getCurrentPlayer(), model.getRound(), 4);
+		System.out.println("REPONSE REQUESTED");
+		//mainGui.updateDisplay(list, location, Colour.Blue.toString(), 1, 1);
+		response = false;
+		
+		while(!response){
+			
+		}
+		
+		return list.get(0);
 	}	
 }
