@@ -22,11 +22,7 @@ public class Presenter implements Player{
 	ScotlandYardModel model;
 	final Presenter presenter = this;
 	
-	Thread guiThread = new Thread(){
-		public void run(){
-			mainGui = new MainScreen(presenter);
-		}
-	};
+	
 	
 	Presenter(){
 		introGui = new IntroScreen();
@@ -40,9 +36,8 @@ public class Presenter implements Player{
 
 	public void beginGame(Set<Colour> colours) {
 		introGui = null;
-		System.err.println("Will now make the game model");
 		
-		
+		//Make Model
 		try {
 			model = new ScotlandYardModel(colours.size()-1, Arrays.asList(false, false, false, true,  false, 
 																	 	  false, false, false, true,  false, 
@@ -52,22 +47,22 @@ public class Presenter implements Player{
 		} catch (IOException e) {
 			System.err.println("File not Found, possibly");
 		}
+		
+		//Add Players to model;
 		for(Colour c: colours){
 			model.join(this, c , getStartingLocation(c), getStartingTickets(c));
 		}
 		
-		System.err.println("Have made the game and added all the players");
-		System.err.println("Will now make the game window");
+		//Make gui
+		mainGui = new MainScreen(presenter, colours);
 		
+		//model.start();
+		if(!model.isReady() || model.isGameOver()){
+			System.exit(1);
+		}
 		
-		guiThread.start();
-		
-		System.err.println("Have made the game window");
-		System.out.println(model.getPlayerLocation(Colour.Black));
-		System.err.println("Will now start the game");
-		model.start();
-		
-		System.err.println("Game is Over");
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1");
+
 	}
 	
 	int getStartingLocation(Colour c) {
@@ -112,5 +107,10 @@ public class Presenter implements Player{
 		}
 		
 		return list.get(0);
+	}
+
+	public void sendMove() {
+		model.playMove(model.validMoves(model.getCurrentPlayer()).get(0));
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1");
 	}	
 }

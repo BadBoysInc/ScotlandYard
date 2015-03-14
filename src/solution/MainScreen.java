@@ -1,6 +1,7 @@
 package solution;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -9,9 +10,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
+
+import javafx.scene.layout.Border;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,35 +41,82 @@ public class MainScreen extends JFrame{
     JLabel mrXStat;
     JLabel currentStat;
     
-    private boolean waitingForUser;
+    Hashtable<Colour, JLabel[]> borderImages;
+    
+    JLabel map;
+    
+    ImageIcon imagemain;
+    ImageIcon imagetaxi;
+    ImageIcon imagebus;
+    ImageIcon imageunder;
+    
+    JPanel mapContainer;
     
     Presenter presenter;
-	
-	public MainScreen(Presenter p){
+    Colour currentPlayer;
+    
+	public MainScreen(Presenter p, Set<Colour> players){
 		presenter = p;
-		waitingForUser = true;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-
+		
 		JPanel mainContainer = new JPanel();	    
 		JPanel infoContainer = new JPanel();
-		JPanel mapContainer = new JPanel();
+		mapContainer = new JPanel();
 	    infoContainer.setLayout(new BorderLayout());
+	    infoContainer.setPreferredSize(new Dimension(200, 900));
 	    
 	    //Map
-		BufferedImage myPicture;
+	    JPanel insideMapContainer = new JPanel();
+	    insideMapContainer.setLayout(new BorderLayout());
+	    
+	    BufferedImage mainimage;
+	    BufferedImage taxiimage;
+	    BufferedImage busimage;
+	    BufferedImage underimage;
+	    BufferedImage imageTop;
+	    BufferedImage imageBottom;
+	    BufferedImage imageSide;
+
 		try {
-			myPicture = ImageIO.read(new File("resources/map.jpg"));
-			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
-			mapContainer.add(picLabel);
+			
+			mainimage = ImageIO.read(new File("resources/map.png"));
+			imagemain = new ImageIcon(mainimage);
+			taxiimage = ImageIO.read(new File("resources/taximap.png"));
+			imagetaxi = new ImageIcon(taxiimage);
+			busimage = ImageIO.read(new File("resources/busmap.png"));
+			imagebus = new ImageIcon(busimage);
+			underimage = ImageIO.read(new File("resources/undergroundmap.png"));
+			imageunder = new ImageIcon(underimage);
+			map = new JLabel(imagetaxi);
+			
+
+			borderImages = new Hashtable<Colour, JLabel[]>();
+			for(Colour c: players){
+				imageTop = ImageIO.read(new File("resources/" + c.toString() + "BorderTop.png"));
+				imageBottom = ImageIO.read(new File("resources/" + c.toString() + "BorderBottom.png"));
+				imageSide = ImageIO.read(new File("resources/" + c.toString() + "BorderSide.png"));
+				
+				JLabel[] labels = {new JLabel(new ImageIcon(imageTop)), new JLabel(new ImageIcon(imageBottom)),new JLabel(new ImageIcon(imageSide)),new JLabel(new ImageIcon(imageSide))};
+				borderImages.put(c, labels);
+			}
+			
+			//starting image
+			insideMapContainer.add(borderImages.get(Colour.Black)[0], BorderLayout.NORTH);
+			insideMapContainer.add(borderImages.get(Colour.Black)[1], BorderLayout.SOUTH);
+			insideMapContainer.add(borderImages.get(Colour.Black)[2], BorderLayout.EAST);
+			insideMapContainer.add(borderImages.get(Colour.Black)[3], BorderLayout.WEST);
+			insideMapContainer.add(map, BorderLayout.CENTER);
+			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 		
+		mapContainer.add(insideMapContainer);
 	    
 	    
-	    //Quit
+	    //Quit and Rules
 	    JButton quit = new JButton("Quit");
-	    quit.setPreferredSize(new Dimension(100, 100));
+	    quit.setSize(new Dimension(400, 50));
 	    quit.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -71,10 +124,25 @@ public class MainScreen extends JFrame{
 			}
 	    });
 	    
+	    JButton rules = new JButton("Rules");
+	    rules.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				taxi.setSelected(false);
+				bus.setSelected(false);
+				underground.setSelected(false);
+				secret.setSelected(false);
+				presenter.sendMove();
+			}
+	    });
+	    quit.setPreferredSize(new Dimension(100, 50));
+
+	    
 	    //Statistics
 	    JPanel stats = new JPanel();
+	    stats.setBorder(BorderFactory.createTitledBorder("Statistics"));
 	    stats.setLayout(new GridLayout(3,2));
-	    stats.setPreferredSize(new Dimension(100, 100));
+	    stats.setPreferredSize(new Dimension(100, 150));
 	    
 	    JLabel roundTitle = new JLabel("<html>Round Number</html>");
 	    JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X's Location is Revealed</html>");
@@ -105,10 +173,44 @@ public class MainScreen extends JFrame{
 	    taxi.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				presenter.response = true;
+				bus.setSelected(false);
+				underground.setSelected(false);
+				secret.setSelected(false);
+				if(taxi.isSelected()){
+					taxiMap();
+				}else{
+					mainMap();
+				}
+			}
+	    });
+	    bus.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				taxi.setSelected(false);
+				underground.setSelected(false);
+				secret.setSelected(false);
+				if(bus.isSelected()){
+					busMap();
+				}else{
+					mainMap();
+				}
+			}
+	    });
+	    underground.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				taxi.setSelected(false);
+				bus.setSelected(false);
+				secret.setSelected(false);
+				if(underground.isSelected()){
+					undergroundMap();
+				}else{
+					mainMap();
+				}
 			}
 	    });
 	    
+	    ticketContainer.setBorder(BorderFactory.createTitledBorder("Tickets"));
 	    ticketContainer.add(taxi);
 	    ticketContainer.add(bus);
 	    ticketContainer.add(underground);
@@ -116,8 +218,18 @@ public class MainScreen extends JFrame{
 	    ticketContainer.add(doublemove);
 	    
 	    //Adding
-	    infoContainer.add(quit, BorderLayout.SOUTH);
-	    infoContainer.add(stats, BorderLayout.NORTH);
+	    JPanel north = new JPanel();
+	    north.setLayout(new BorderLayout());
+	    north.add(rules, BorderLayout.NORTH);
+	    north.add(stats, BorderLayout.SOUTH);
+
+	    JPanel south = new JPanel();
+	    south.setLayout(new BorderLayout());
+	    south.setBorder(BorderFactory.createBevelBorder(0));
+	    south.add(quit, BorderLayout.CENTER);
+	    
+	    infoContainer.add(south, BorderLayout.SOUTH);
+	    infoContainer.add(north, BorderLayout.NORTH);
 	    infoContainer.add(ticketContainer ,BorderLayout.CENTER);
 	    
 	    mainContainer.add(mapContainer);
@@ -131,13 +243,72 @@ public class MainScreen extends JFrame{
 
 	}
 
-	public void updateDisplay(String currentPlayer, String round, String roundsUntilReveal) {
-		
+	protected void mainMap() {
+		mapContainer.setVisible(false);
+		map.setIcon(imagemain);
+		JPanel insideMapContainer = new JPanel();
+		insideMapContainer.setLayout(new BorderLayout());
+		insideMapContainer.add(borderImages.get(currentPlayer)[0], BorderLayout.NORTH);
+		insideMapContainer.add(borderImages.get(currentPlayer)[1], BorderLayout.SOUTH);
+		insideMapContainer.add(borderImages.get(currentPlayer)[2], BorderLayout.EAST);
+		insideMapContainer.add(borderImages.get(currentPlayer)[3], BorderLayout.WEST);
+		insideMapContainer.add(map, BorderLayout.CENTER);
+		mapContainer.removeAll();
+		mapContainer.add(insideMapContainer);
+		mapContainer.setVisible(true);
+	}
+
+	protected void undergroundMap() {
+		mapContainer.setVisible(false);
+		map.setIcon(imageunder);
+		JPanel insideMapContainer = new JPanel();
+		insideMapContainer.setLayout(new BorderLayout());
+		insideMapContainer.add(borderImages.get(currentPlayer)[0], BorderLayout.NORTH);
+		insideMapContainer.add(borderImages.get(currentPlayer)[1], BorderLayout.SOUTH);
+		insideMapContainer.add(borderImages.get(currentPlayer)[2], BorderLayout.EAST);
+		insideMapContainer.add(borderImages.get(currentPlayer)[3], BorderLayout.WEST);
+		insideMapContainer.add(map, BorderLayout.CENTER);
+		mapContainer.removeAll();
+		mapContainer.add(insideMapContainer);
+		mapContainer.setVisible(true);
+	}
+
+	protected void busMap() {
+		mapContainer.setVisible(false);
+		map.setIcon(imagebus);
+		JPanel insideMapContainer = new JPanel();
+		insideMapContainer.setLayout(new BorderLayout());
+		insideMapContainer.add(borderImages.get(currentPlayer)[0], BorderLayout.NORTH);
+		insideMapContainer.add(borderImages.get(currentPlayer)[1], BorderLayout.SOUTH);
+		insideMapContainer.add(borderImages.get(currentPlayer)[2], BorderLayout.EAST);
+		insideMapContainer.add(borderImages.get(currentPlayer)[3], BorderLayout.WEST);
+		insideMapContainer.add(map, BorderLayout.CENTER);
+		mapContainer.removeAll();
+		mapContainer.add(insideMapContainer);
+		mapContainer.setVisible(true);
+	}
+
+	protected void taxiMap() {
+		mapContainer.setVisible(false);
+		map.setIcon(imagetaxi);
+		JPanel insideMapContainer = new JPanel();
+		insideMapContainer.setLayout(new BorderLayout());
+		insideMapContainer.add(borderImages.get(currentPlayer)[0], BorderLayout.NORTH);
+		insideMapContainer.add(borderImages.get(currentPlayer)[1], BorderLayout.SOUTH);
+		insideMapContainer.add(borderImages.get(currentPlayer)[2], BorderLayout.EAST);
+		insideMapContainer.add(borderImages.get(currentPlayer)[3], BorderLayout.WEST);
+		insideMapContainer.add(map, BorderLayout.CENTER);
+		mapContainer.removeAll();
+		mapContainer.add(insideMapContainer);
+		mapContainer.setVisible(true);
+	}
+
+	public void updateDisplay(Colour c, String round, String roundsUntilReveal) {
+		currentPlayer = c;
 		roundStat.setText(round);
 	    mrXStat.setText(roundsUntilReveal);
-	    currentStat.setText(currentPlayer);
-		
-		
+	    currentStat.setText(currentPlayer.toString());	    
+	    mainMap();
 	}
 	
 }

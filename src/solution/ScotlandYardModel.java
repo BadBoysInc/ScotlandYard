@@ -85,20 +85,15 @@ public class ScotlandYardModel extends ScotlandYard {
     		notifySpectators(getDummyTicket(move));
     	}  	
     }
+    
+    public void playMove(Move move){
+    	play(move);
+    	nextPlayer();
+    }
 
     @Override
     //Changes the game-state to after a double-move has been played and notifies the spectators.
     protected void play(MoveDouble move) {
-    	/*
-    	 * Dear Future Peter and/or Sam,
-    	 * 
-    	 * 		You need to check whether or not you can have a double move inside a double move, move?  
-    	 * 		Please ask one of the Lab Assistants during a lab session, or alternatively email the unit lecturers.
-    	 * 
-    	 * Regards, Past Peter
-    	 * P.S. Remember to remove this message once you have completed this task.
-    	 * 
-    	 */
     	Move dummy1 = move.moves.get(0);
     	Move dummy2 = move.moves.get(1);
     	if(getRounds().get(getRound()+1) != true)
