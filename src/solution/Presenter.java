@@ -1,8 +1,11 @@
 package solution;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -10,6 +13,8 @@ import java.util.Set;
 
 import scotlandyard.Colour;
 import scotlandyard.Move;
+import scotlandyard.MovePass;
+import scotlandyard.MoveTicket;
 import scotlandyard.Player;
 import scotlandyard.Ticket;
 
@@ -21,8 +26,6 @@ public class Presenter implements Player{
 	MainScreen	mainGui;
 	ScotlandYardModel model;
 	final Presenter presenter = this;
-	
-	
 	
 	Presenter(){
 		introGui = new IntroScreen();
@@ -61,8 +64,111 @@ public class Presenter implements Player{
 			System.exit(1);
 		}
 		
-		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1");
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(), 
+							  getBusMoves(), getUndergroundMoves(), getSecretMoves(), getLocations());
 
+	}
+	
+	Set<Integer> getTaxiMoves(){
+		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+		if(moves.contains(new MovePass(model.getCurrentPlayer())))
+			moves.remove(new MovePass(model.getCurrentPlayer()));
+		List<Move> newMoves = new ArrayList<Move>();
+		//REMOVE DOUBLE MOVES FOR NOW
+		for(Move m: moves){
+			if(!m.toString().contains("Move Double ")){
+				newMoves.add(m);
+			}
+		}
+		
+		Set<Integer> taximoves = new HashSet<Integer>();
+		for(Move m: newMoves){
+			if(((MoveTicket) m).ticket == Ticket.Taxi){
+				taximoves.add(((MoveTicket) m).target);
+			}
+		}
+		
+		return taximoves;
+	}
+	
+	Set<Integer> getBusMoves(){
+		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+		if(moves.contains(new MovePass(model.getCurrentPlayer())))
+			moves.remove(new MovePass(model.getCurrentPlayer()));
+		List<Move> newMoves = new ArrayList<Move>();
+		//REMOVE DOUBLE MOVES
+		for(Move m: moves){
+			if(!m.toString().contains("Move Double ")){
+				newMoves.add(m);
+			}
+		}
+		
+		Set<Integer> busmoves = new HashSet<Integer>();
+		for(Move m: newMoves){
+			if(((MoveTicket) m).ticket == Ticket.Bus){
+				busmoves.add(((MoveTicket) m).target);
+			}
+		}
+		
+		return busmoves;
+	}
+	
+	Set<Integer> getUndergroundMoves(){
+		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+		if(moves.contains(new MovePass(model.getCurrentPlayer())))
+			moves.remove(new MovePass(model.getCurrentPlayer()));
+		List<Move> newMoves = new ArrayList<Move>();
+		//REMOVE DOUBLE MOVES
+		for(Move m: moves){
+			if(!m.toString().contains("Move Double ")){
+				newMoves.add(m);
+			}
+		}
+		
+		Set<Integer> undergroundmoves = new HashSet<Integer>();
+		for(Move m: newMoves){
+			if(((MoveTicket) m).ticket == Ticket.Underground){
+				undergroundmoves.add(((MoveTicket) m).target);
+			}
+		}
+		
+		return undergroundmoves;
+	}
+	
+	Set<Integer> getSecretMoves(){
+		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+		if(moves.contains(new MovePass(model.getCurrentPlayer())))
+			moves.remove(new MovePass(model.getCurrentPlayer()));
+		List<Move> newMoves = new ArrayList<Move>();
+		//REMOVE DOUBLE MOVES
+		for(Move m: moves){
+			if(!m.toString().contains("Move Double ")){
+				newMoves.add(m);
+			}
+		}
+		
+		Set<Integer> secretmoves = new HashSet<Integer>();
+		for(Move m: newMoves){
+			if(((MoveTicket) m).ticket == Ticket.SecretMove){
+				secretmoves.add(((MoveTicket) m).target);
+			}
+		}
+		
+		return secretmoves;
+	}
+	
+	Hashtable<Colour, Integer> getLocations(){
+		Hashtable<Colour, Integer> locations = new Hashtable<Colour, Integer>();
+		for(Colour p: model.getPlayers()){
+			locations.put(p, model.getPlayerLocation(p));
+		}
+		if(model.getCurrentPlayer() == Colour.Black){
+			locations.remove(Colour.Black);
+			locations.put(Colour.Black, model.getMrXLocation());
+		}
+		if(locations.get(Colour.Black) == 0)
+			locations.remove(Colour.Black);
+		return locations;
 	}
 	
 	int getStartingLocation(Colour c) {
@@ -98,19 +204,14 @@ public class Presenter implements Player{
 	
 	@Override
 	public Move notify(int location, List<Move> list) {
-		System.out.println("REPONSE REQUESTED");
-		//mainGui.updateDisplay(list, location, Colour.Blue.toString(), 1, 1);
-		response = false;
-		
-		while(!response){
-			
-		}
-		
-		return list.get(0);
+		return null;
 	}
 
 	public void sendMove() {
 		model.playMove(model.validMoves(model.getCurrentPlayer()).get(0));
-		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1");
+		if(model.isGameOver())
+			System.exit(0);
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(), 
+							  getBusMoves(), getUndergroundMoves(), getSecretMoves(), getLocations());
 	}	
 }

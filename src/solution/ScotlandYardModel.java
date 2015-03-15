@@ -355,4 +355,8 @@ public class ScotlandYardModel extends ScotlandYard {
     	}
     	return null;
     }
+    
+    public int getMrXLocation(){
+    	return getPlayer(Colour.Black).getLocation();
+    }
 }

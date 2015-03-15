@@ -3,15 +3,20 @@ package solution;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javafx.scene.layout.Border;
@@ -41,76 +46,211 @@ public class MainScreen extends JFrame{
     JLabel mrXStat;
     JLabel currentStat;
     
-    Hashtable<Colour, JLabel[]> borderImages;
+    Hashtable<Colour, ImageIcon[]> borderImages;
     
     JLabel map;
+    JLabel top;
+    JLabel bottom;
+    JLabel side1;
+    JLabel side2;
     
-    ImageIcon imagemain;
-    ImageIcon imagetaxi;
-    ImageIcon imagebus;
-    ImageIcon imageunder;
+    BufferedImage imagemain;
+    BufferedImage imagetaxi;
+    BufferedImage imagebus;
+    BufferedImage imageunder;
+    BufferedImage imagesecret;
     
+    BufferedImage taxiOverlay;
+    BufferedImage busOverlay;
+    BufferedImage underOverlay;
+    BufferedImage secretOverlay;
+    
+    BufferedImage taxiSelected;
+    BufferedImage busSelected;
+    BufferedImage underSelected; 
+    BufferedImage secretSelected;
+	
+    BufferedImage blackToken;
+    BufferedImage whiteToken;
+    BufferedImage yellowToken;
+    BufferedImage blueToken;
+    BufferedImage greenToken;
+    BufferedImage redToken;
+    
+    ImageIcon image;
+    
+
     JPanel mapContainer;
     
     Presenter presenter;
+    GraphDisplay position;
     Colour currentPlayer;
+    Set<Integer> taxiMoves;
+    Set<Integer> busMoves;
+    Set<Integer> undergroundMoves;
+    Set<Integer> secretMoves;
+    Map<Colour, Integer> locations;
+    int selected;
     
 	public MainScreen(Presenter p, Set<Colour> players){
+		//Initialise Variables
+		position = new GraphDisplay();
+		currentPlayer = Colour.Black;
 		presenter = p;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
+		//MainContainer
 		JPanel mainContainer = new JPanel();	    
+		mainContainer.setBackground(Color.DARK_GRAY);
+		
+		//RightContainer
 		JPanel infoContainer = new JPanel();
-		mapContainer = new JPanel();
 	    infoContainer.setLayout(new BorderLayout());
-	    infoContainer.setPreferredSize(new Dimension(200, 900));
+	    infoContainer.setPreferredSize(new Dimension(270, 918));
+	    infoContainer.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 	    
-	    //Map
+	    //Left Container
+	    mapContainer = new JPanel();
+	    
+	    JPanel mouseContainer = new JPanel();
 	    JPanel insideMapContainer = new JPanel();
 	    insideMapContainer.setLayout(new BorderLayout());
+	    mouseContainer.setLayout(new BorderLayout());
 	    
-	    BufferedImage mainimage;
-	    BufferedImage taxiimage;
-	    BufferedImage busimage;
-	    BufferedImage underimage;
+	    insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
+
+	    //Load All Images
+	    image = new ImageIcon();
+	    
+	    top = new JLabel();
+	    bottom = new JLabel();
+	    side1 = new JLabel();
+	    side2 = new JLabel();
+
 	    BufferedImage imageTop;
 	    BufferedImage imageBottom;
 	    BufferedImage imageSide;
-
 		try {
 			
-			mainimage = ImageIO.read(new File("resources/map.png"));
-			imagemain = new ImageIcon(mainimage);
-			taxiimage = ImageIO.read(new File("resources/taximap.png"));
-			imagetaxi = new ImageIcon(taxiimage);
-			busimage = ImageIO.read(new File("resources/busmap.png"));
-			imagebus = new ImageIcon(busimage);
-			underimage = ImageIO.read(new File("resources/undergroundmap.png"));
-			imageunder = new ImageIcon(underimage);
-			map = new JLabel(imagetaxi);
+			taxiOverlay   = ImageIO.read(new File("resources/taxiMove.png"));
+			busOverlay 	  = ImageIO.read(new File("resources/busMove.png"));
+			underOverlay  = ImageIO.read(new File("resources/underMove.png"));
+			secretOverlay = ImageIO.read(new File("resources/secretMove.png"));
 			
-
-			borderImages = new Hashtable<Colour, JLabel[]>();
+			taxiSelected = ImageIO.read(new File("resources/taxiMoveSelected.png"));
+			busSelected = ImageIO.read(new File("resources/busMoveSelected.png"));
+			underSelected = ImageIO.read(new File("resources/underMoveSelected.png"));
+			secretSelected = ImageIO.read(new File("resources/secretMoveSelected.png"));
+			
+		    blackToken	  = ImageIO.read(new File("resources/BlackToken.png"));
+		    whiteToken	  = ImageIO.read(new File("resources/WhiteToken.png")); 
+		    yellowToken   = ImageIO.read(new File("resources/YellowToken.png"));
+		    blueToken     = ImageIO.read(new File("resources/BlueToken.png"));  
+		    greenToken    = ImageIO.read(new File("resources/GreenToken.png"));
+		    redToken      = ImageIO.read(new File("resources/RedToken.png"));
+			
+			map = new JLabel();
+			borderImages = new Hashtable<Colour, ImageIcon[]>();
 			for(Colour c: players){
 				imageTop = ImageIO.read(new File("resources/" + c.toString() + "BorderTop.png"));
 				imageBottom = ImageIO.read(new File("resources/" + c.toString() + "BorderBottom.png"));
 				imageSide = ImageIO.read(new File("resources/" + c.toString() + "BorderSide.png"));
 				
-				JLabel[] labels = {new JLabel(new ImageIcon(imageTop)), new JLabel(new ImageIcon(imageBottom)),new JLabel(new ImageIcon(imageSide)),new JLabel(new ImageIcon(imageSide))};
+				ImageIcon[] labels = {new ImageIcon(imageTop), new ImageIcon(imageBottom), new ImageIcon(imageSide), new ImageIcon(imageSide)};
 				borderImages.put(c, labels);
 			}
 			
-			//starting image
-			insideMapContainer.add(borderImages.get(Colour.Black)[0], BorderLayout.NORTH);
-			insideMapContainer.add(borderImages.get(Colour.Black)[1], BorderLayout.SOUTH);
-			insideMapContainer.add(borderImages.get(Colour.Black)[2], BorderLayout.EAST);
-			insideMapContainer.add(borderImages.get(Colour.Black)[3], BorderLayout.WEST);
-			insideMapContainer.add(map, BorderLayout.CENTER);
+			//Initial Map
+			imagemain = ImageIO.read(new File("resources/map.png"));
+			ImageIcon mainimage = new ImageIcon(imagemain);
+			map.setIcon(mainimage);
+			mouseContainer.add(map);
+			top.setIcon(borderImages.get(Colour.Black)[0]);
+			bottom.setIcon(borderImages.get(Colour.Black)[1]);
+			side1.setIcon(borderImages.get(Colour.Black)[2]);
+			side2.setIcon(borderImages.get(Colour.Black)[3]);
+			insideMapContainer.add(top, BorderLayout.NORTH);
+			insideMapContainer.add(bottom, BorderLayout.SOUTH);
+			insideMapContainer.add(side1, BorderLayout.EAST);
+			insideMapContainer.add(side2, BorderLayout.WEST);
+			insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
+			
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 		
+		//Add Mouse Events
+		mouseContainer.addMouseListener(new MouseListener(){
+			
+			@Override
+			public void mouseReleased(MouseEvent a) {
+				int x = a.getX();
+				int y = a.getY();
+				if(position.getX(selected)-15 < x && x < position.getX(selected)+15 && position.getY(selected)-15 < y && y < position.getY(selected)+15 ){
+					selected = 0;
+					taxi.setSelected(false);
+					bus.setSelected(false);
+					underground.setSelected(false);
+					secret.setSelected(false);
+					presenter.sendMove();
+				}else{
+					selected = 0;
+					if(taxi.isSelected()){
+						taxiMap();
+					}else if(bus.isSelected()){
+						busMap();
+					}else if(underground.isSelected()){
+						undergroundMap();
+					}else if(secret.isSelected()){
+						secretMap();
+					}
+				}
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				int x = e.getX();
+				int y = e.getY();
+				if(taxi.isSelected()){
+					for(int i: taxiMoves){
+						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
+							selected = i;
+							taxiMap();
+						}
+					}
+				}else if(bus.isSelected()){
+					for(int i: busMoves){
+						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
+							selected = i;
+							busMap();
+						}
+					}
+				}else if(underground.isSelected()){
+					for(int i: undergroundMoves){
+						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
+							selected = i;
+							undergroundMap();
+						}
+					}
+				}else if(secret.isSelected()){
+					for(int i: secretMoves){
+						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
+							selected = i;
+							secretMap();
+						}
+					}
+				}
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+
+		});
 		mapContainer.add(insideMapContainer);
 	    
 	    
@@ -142,7 +282,7 @@ public class MainScreen extends JFrame{
 	    JPanel stats = new JPanel();
 	    stats.setBorder(BorderFactory.createTitledBorder("Statistics"));
 	    stats.setLayout(new GridLayout(3,2));
-	    stats.setPreferredSize(new Dimension(100, 150));
+	    stats.setPreferredSize(new Dimension(200, 180));
 	    
 	    JLabel roundTitle = new JLabel("<html>Round Number</html>");
 	    JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X's Location is Revealed</html>");
@@ -209,6 +349,19 @@ public class MainScreen extends JFrame{
 				}
 			}
 	    });
+	   secret.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				taxi.setSelected(false);
+				bus.setSelected(false);
+				underground.setSelected(false);
+				if(secret.isSelected()){
+					secretMap();
+				}else{
+					mainMap();
+				}
+			}
+	    });
 	    
 	    ticketContainer.setBorder(BorderFactory.createTitledBorder("Tickets"));
 	    ticketContainer.add(taxi);
@@ -245,66 +398,187 @@ public class MainScreen extends JFrame{
 
 	protected void mainMap() {
 		mapContainer.setVisible(false);
-		map.setIcon(imagemain);
-		JPanel insideMapContainer = new JPanel();
-		insideMapContainer.setLayout(new BorderLayout());
-		insideMapContainer.add(borderImages.get(currentPlayer)[0], BorderLayout.NORTH);
-		insideMapContainer.add(borderImages.get(currentPlayer)[1], BorderLayout.SOUTH);
-		insideMapContainer.add(borderImages.get(currentPlayer)[2], BorderLayout.EAST);
-		insideMapContainer.add(borderImages.get(currentPlayer)[3], BorderLayout.WEST);
-		insideMapContainer.add(map, BorderLayout.CENTER);
-		mapContainer.removeAll();
-		mapContainer.add(insideMapContainer);
+		
+		try {
+			imagemain = ImageIO.read(new File("resources/map.png"));
+		} catch (IOException e) {}
+		Graphics2D g = imagemain.createGraphics();
+
+		g.drawImage(imagemain, 0, 0, null);
+		addPlayerTokens(g);
+
+		g.dispose();
+		image.setImage(imagemain);
+		
+		map.setIcon(image);
+
+		top.setIcon(borderImages.get(currentPlayer)[0]);
+		bottom.setIcon(borderImages.get(currentPlayer)[1]);
+		side1.setIcon(borderImages.get(currentPlayer)[2]);
+		side2.setIcon(borderImages.get(currentPlayer)[3]);
+
 		mapContainer.setVisible(true);
 	}
+	
+	protected void secretMap() {
+		mapContainer.setVisible(false);
+		try {
+			imagesecret = ImageIO.read(new File("resources/secretmap.png"));
+		} catch (IOException e) {}
+		Graphics2D g = imagesecret.createGraphics();
 
+		g.drawImage(imagesecret, 0, 0, null);
+		addPlayerTokens(g);
+		for(int i: secretMoves){
+			g.drawImage(secretOverlay, position.getX(i)-16, position.getY(i)-16, null);
+		}
+		if(selected != 0){
+			g.drawImage(secretSelected, position.getX(selected)-19, position.getY(selected)-19, null);
+		}
+		g.dispose();
+		
+		image.setImage(imagesecret);
+		map.setIcon(image);
+		
+		top.setIcon(borderImages.get(currentPlayer)[0]);
+		bottom.setIcon(borderImages.get(currentPlayer)[1]);
+		side1.setIcon(borderImages.get(currentPlayer)[2]);
+		side2.setIcon(borderImages.get(currentPlayer)[3]);
+
+		mapContainer.setVisible(true);
+	}
+	
 	protected void undergroundMap() {
 		mapContainer.setVisible(false);
-		map.setIcon(imageunder);
-		JPanel insideMapContainer = new JPanel();
-		insideMapContainer.setLayout(new BorderLayout());
-		insideMapContainer.add(borderImages.get(currentPlayer)[0], BorderLayout.NORTH);
-		insideMapContainer.add(borderImages.get(currentPlayer)[1], BorderLayout.SOUTH);
-		insideMapContainer.add(borderImages.get(currentPlayer)[2], BorderLayout.EAST);
-		insideMapContainer.add(borderImages.get(currentPlayer)[3], BorderLayout.WEST);
-		insideMapContainer.add(map, BorderLayout.CENTER);
-		mapContainer.removeAll();
-		mapContainer.add(insideMapContainer);
+		try {
+			imageunder = ImageIO.read(new File("resources/undergroundmap.png"));
+		} catch (IOException e) {}
+		Graphics2D g = imageunder.createGraphics();
+
+		g.drawImage(imageunder, 0, 0, null);
+		addPlayerTokens(g);
+		for(int i: undergroundMoves){
+			g.drawImage(underOverlay, position.getX(i)-16, position.getY(i)-16, null);
+		}
+		if(selected != 0){
+			g.drawImage(underSelected, position.getX(selected)-19, position.getY(selected)-19, null);
+		}
+		g.dispose();
+		
+		image.setImage(imageunder);
+		map.setIcon(image);
+
+		top.setIcon(borderImages.get(currentPlayer)[0]);
+		bottom.setIcon(borderImages.get(currentPlayer)[1]);
+		side1.setIcon(borderImages.get(currentPlayer)[2]);
+		side2.setIcon(borderImages.get(currentPlayer)[3]);
+
 		mapContainer.setVisible(true);
 	}
 
 	protected void busMap() {
 		mapContainer.setVisible(false);
-		map.setIcon(imagebus);
-		JPanel insideMapContainer = new JPanel();
-		insideMapContainer.setLayout(new BorderLayout());
-		insideMapContainer.add(borderImages.get(currentPlayer)[0], BorderLayout.NORTH);
-		insideMapContainer.add(borderImages.get(currentPlayer)[1], BorderLayout.SOUTH);
-		insideMapContainer.add(borderImages.get(currentPlayer)[2], BorderLayout.EAST);
-		insideMapContainer.add(borderImages.get(currentPlayer)[3], BorderLayout.WEST);
-		insideMapContainer.add(map, BorderLayout.CENTER);
-		mapContainer.removeAll();
-		mapContainer.add(insideMapContainer);
+		try {
+			imagebus = ImageIO.read(new File("resources/busmap.png"));
+		} catch (IOException e) {}
+		Graphics2D g = imagebus.createGraphics();
+
+		g.drawImage(imagebus, 0, 0, null);
+		addPlayerTokens(g);
+		for(int i: busMoves){
+			g.drawImage(busOverlay, position.getX(i)-16, position.getY(i)-16, null);
+		}
+		if(selected != 0){
+			g.drawImage(busSelected, position.getX(selected)-19, position.getY(selected)-19, null);
+		}
+		g.dispose();
+		
+		image.setImage(imagebus);
+		map.setIcon(image);
+
+		top.setIcon(borderImages.get(currentPlayer)[0]);
+		bottom.setIcon(borderImages.get(currentPlayer)[1]);
+		side1.setIcon(borderImages.get(currentPlayer)[2]);
+		side2.setIcon(borderImages.get(currentPlayer)[3]);
+
 		mapContainer.setVisible(true);
 	}
 
 	protected void taxiMap() {
 		mapContainer.setVisible(false);
-		map.setIcon(imagetaxi);
-		JPanel insideMapContainer = new JPanel();
-		insideMapContainer.setLayout(new BorderLayout());
-		insideMapContainer.add(borderImages.get(currentPlayer)[0], BorderLayout.NORTH);
-		insideMapContainer.add(borderImages.get(currentPlayer)[1], BorderLayout.SOUTH);
-		insideMapContainer.add(borderImages.get(currentPlayer)[2], BorderLayout.EAST);
-		insideMapContainer.add(borderImages.get(currentPlayer)[3], BorderLayout.WEST);
-		insideMapContainer.add(map, BorderLayout.CENTER);
-		mapContainer.removeAll();
-		mapContainer.add(insideMapContainer);
+		try {
+			imagetaxi = ImageIO.read(new File("resources/taximap.png"));
+		} catch (IOException e) {}
+		Graphics2D g = imagetaxi.createGraphics();
+		
+
+		g.drawImage(imagetaxi, 0, 0, null);
+		addPlayerTokens(g);
+		
+		for(int i: taxiMoves){
+			g.drawImage(taxiOverlay, position.getX(i)-16, position.getY(i)-16, null);
+		}
+		if(selected != 0){
+			g.drawImage(taxiSelected, position.getX(selected)-19, position.getY(selected)-19, null);
+		}
+		g.dispose();
+
+		image.setImage(imagetaxi);
+		map.setIcon(image);
+
+		top.setIcon(borderImages.get(currentPlayer)[0]);
+		bottom.setIcon(borderImages.get(currentPlayer)[1]);
+		side1.setIcon(borderImages.get(currentPlayer)[2]);
+		side2.setIcon(borderImages.get(currentPlayer)[3]);
+
 		mapContainer.setVisible(true);
 	}
+	
+	private void addPlayerTokens(Graphics2D g){
+		for(Colour c: Colour.values()){
+			if(locations.containsKey(c)){
+				switch (c.toString()){
+				case ("Black"):
+					g.drawImage(blackToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+				break;
+				case ("White"):
+					g.drawImage(whiteToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+				break;
+				case ("Green"):
+					g.drawImage(greenToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+				break;
+				case ("Yellow"):
+					g.drawImage(yellowToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+				break;
+				case ("Red"):
+					g.drawImage(redToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+				break;
+				case ("Blue"):
+					g.drawImage(blueToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+				break;
+				}
+			}
+		}
 
-	public void updateDisplay(Colour c, String round, String roundsUntilReveal) {
+	}
+
+	public void updateDisplay(Colour c, String round, String roundsUntilReveal, 
+							  Set<Integer> taximoves, Set<Integer> busmoves, Set<Integer> undergroundmoves, 
+							  Set<Integer> secretmoves, Hashtable<Colour, Integer> l) {
+		
 		currentPlayer = c;
+		taxiMoves = taximoves;
+		busMoves = busmoves;
+		undergroundMoves = undergroundmoves;
+		secretMoves = secretmoves;
+		locations = l;
+		if(currentPlayer != Colour.Black){
+			secret.setVisible(false);
+			doublemove.setVisible(false);
+		}else{
+			secret.setVisible(true);
+			doublemove.setVisible(true);
+		}
 		roundStat.setText(round);
 	    mrXStat.setText(roundsUntilReveal);
 	    currentStat.setText(currentPlayer.toString());	    
