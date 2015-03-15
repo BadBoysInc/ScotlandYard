@@ -83,12 +83,23 @@ public class ScotlandYardModel extends ScotlandYard {
     		notifySpectators(move);
     	}else{
     		notifySpectators(getDummyTicket(move));
-    	}  	
+    	}
     }
     
-    public void playMove(Move move){
+    public void playMove(Move move, Presenter p){
+    	if(Debug.debug){System.out.println("Move recieved, playing move");}
     	play(move);
     	nextPlayer();
+    	if(Debug.debug){System.out.println("Notifiying presenter of state change");}
+    	
+    	List<Move> moves = validMoves(currentPlayer);
+    	while(moves.contains(new MovePass(currentPlayer))){
+        	nextPlayer();
+        	moves = validMoves(currentPlayer);
+    	}
+    	
+    	
+    	p.notifyModelChange(moves);
     }
 
     @Override
@@ -348,7 +359,7 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     //Returns a the player's information from a colour.
-    private PlayerInfo getPlayer(Colour colour) {
+    PlayerInfo getPlayer(Colour colour) {
     	for(PlayerInfo p : playerInfos){
     		if(p.getColour() == colour)
     			return p;

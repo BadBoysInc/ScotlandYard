@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +32,12 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
+import org.apache.tools.ant.types.CommandlineJava.SysProperties;
+
 import scotlandyard.Colour;
 import scotlandyard.Move;
+import scotlandyard.MoveTicket;
+import scotlandyard.Ticket;
 
 public class MainScreen extends JFrame{
 	
@@ -91,6 +96,7 @@ public class MainScreen extends JFrame{
     Set<Integer> secretMoves;
     Map<Colour, Integer> locations;
     int selected;
+	private List<Move> currentPlayersValidMoves;
     
 	public MainScreen(Presenter p, Set<Colour> players){
 		//Initialise Variables
@@ -185,29 +191,62 @@ public class MainScreen extends JFrame{
 			
 			@Override
 			public void mouseReleased(MouseEvent a) {
+				
+				System.out.println("release");
 				int x = a.getX();
 				int y = a.getY();
-				if(position.getX(selected)-15 < x && x < position.getX(selected)+15 && position.getY(selected)-15 < y && y < position.getY(selected)+15 ){
-					selected = 0;
-					taxi.setSelected(false);
-					bus.setSelected(false);
-					underground.setSelected(false);
-					secret.setSelected(false);
-					presenter.sendMove();
+				System.out.println("has coords");
+				if(selected != -1){
+					if(position.getX(selected)-15 < x && x < position.getX(selected)+15 && position.getY(selected)-15 < y && y < position.getY(selected)+15 ){
+						System.out.println("inside params");
+						if(Debug.debug){System.out.println("Move choosen, sending to presenter");}
+						
+						int temp = selected;
+						Ticket ticketUsed = null;
+						
+						if(taxi.isSelected()){
+							ticketUsed = Ticket.Taxi;
+						}else if(bus.isSelected()){
+							ticketUsed = Ticket.Bus;
+						}else if(underground.isSelected()){
+							ticketUsed = Ticket.Underground;
+						}else if(secret.isSelected()){
+							ticketUsed = Ticket.SecretMove;
+						}
+						
+						//reset buttons
+						selected = 0;
+						
+						taxi.setSelected(false);
+						bus.setSelected(false);
+						underground.setSelected(false);
+						secret.setSelected(false);
+						
+				
+						presenter.sendMove(findMoveFromFields(currentPlayersValidMoves, temp, ticketUsed, currentPlayer));
+						
+						
+					}else{
+						System.out.println("outside");
+						selected = 0;
+						if(taxi.isSelected()){
+							taxiMap();
+						}else if(bus.isSelected()){
+							busMap();
+						}else if(underground.isSelected()){
+							undergroundMap();
+						}else if(secret.isSelected()){
+							secretMap();
+						}
+					}
 				}else{
 					selected = 0;
-					if(taxi.isSelected()){
-						taxiMap();
-					}else if(bus.isSelected()){
-						busMap();
-					}else if(underground.isSelected()){
-						undergroundMap();
-					}else if(secret.isSelected()){
-						secretMap();
-					}
 				}
 			}
 			
+			
+			
+
 			@Override
 			public void mousePressed(MouseEvent e) {
 				int x = e.getX();
@@ -217,30 +256,40 @@ public class MainScreen extends JFrame{
 						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
 							selected = i;
 							taxiMap();
+							return;
 						}
 					}
+					selected = -1;
 				}else if(bus.isSelected()){
 					for(int i: busMoves){
 						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
 							selected = i;
 							busMap();
+							return;
 						}
 					}
+					selected = -1;
 				}else if(underground.isSelected()){
 					for(int i: undergroundMoves){
 						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
 							selected = i;
 							undergroundMap();
+							return;
 						}
 					}
+					selected = -1;
 				}else if(secret.isSelected()){
 					for(int i: secretMoves){
 						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
 							selected = i;
 							secretMap();
+							return;
 						}
 					}
-				}
+					selected = -1;
+				}else{
+					selected = -1;
+				}	
 			}
 
 			@Override
@@ -272,7 +321,7 @@ public class MainScreen extends JFrame{
 				bus.setSelected(false);
 				underground.setSelected(false);
 				secret.setSelected(false);
-				presenter.sendMove();
+				//presenter.sendMove(); ---- What???????
 			}
 	    });
 	    quit.setPreferredSize(new Dimension(100, 50));
@@ -396,6 +445,16 @@ public class MainScreen extends JFrame{
 
 	}
 
+	private Move findMoveFromFields(List<Move> currentPlayersValidMoves, int target, Ticket ticketUsed, Colour currentPlayer) {
+		for(Move m: currentPlayersValidMoves){
+			MoveTicket mt = (MoveTicket) m;
+			if(mt.target == target && mt.colour == currentPlayer && mt.ticket == ticketUsed){
+				return m;
+			}
+		}
+		return null;
+	}
+	
 	protected void mainMap() {
 		mapContainer.setVisible(false);
 		
@@ -562,9 +621,13 @@ public class MainScreen extends JFrame{
 
 	}
 
+	//Called by presenter to render updates
 	public void updateDisplay(Colour c, String round, String roundsUntilReveal, 
 							  Set<Integer> taximoves, Set<Integer> busmoves, Set<Integer> undergroundmoves, 
-							  Set<Integer> secretmoves, Hashtable<Colour, Integer> l) {
+							  Set<Integer> secretmoves, Hashtable<Colour, Integer> l, Map<Ticket, Integer> tickets, List<Move> validMoves) {
+		if(Debug.debug){System.out.println("update recieved, rendering data");}
+		currentPlayersValidMoves = validMoves;
+		displayTicketNumbers(tickets);
 		
 		currentPlayer = c;
 		taxiMoves = taximoves;
@@ -583,6 +646,22 @@ public class MainScreen extends JFrame{
 	    mrXStat.setText(roundsUntilReveal);
 	    currentStat.setText(currentPlayer.toString());	    
 	    mainMap();
+	}
+
+	
+	
+	private void displayTicketNumbers(Map<Ticket, Integer> tickets) {
+		taxi.setText(String.format("Taxi (%d)", tickets.get(Ticket.Taxi)));
+		bus.setText(String.format("Bus (%d)", tickets.get(Ticket.Bus)));
+		underground.setText(String.format("Underground (%d)", tickets.get(Ticket.Underground)));
+		secret.setText(String.format("Secret Move (%d)", tickets.get(Ticket.SecretMove)));
+		doublemove.setText(String.format("Double Move (%d)", tickets.get(Ticket.DoubleMove)));	
+	}
+
+	//NEED TO DO
+	public void displayWinner(Set<Colour> winningPlayers) {
+		System.out.println(winningPlayers + "  won");
+		System.exit(0);
 	}
 	
 }

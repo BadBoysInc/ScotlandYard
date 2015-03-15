@@ -1,5 +1,6 @@
 package solution;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import scotlandyard.Colour;
@@ -47,5 +48,9 @@ public class PlayerInfo {
 	public Player getPlayer(){
 		return player;
 	}
-		
+	
+	public Map<Ticket, Integer> getCopyOfAllTickets(){
+		return new HashMap<Ticket, Integer>(tickets);
+	}
+
 }

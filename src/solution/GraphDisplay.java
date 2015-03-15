@@ -1,24 +1,12 @@
 package solution;
 
-import scotlandyard.Edge;
-import scotlandyard.Graph;
-import scotlandyard.GraphReader;
-import scotlandyard.Route;
-import scotlandyard.ScotlandYardGraphReader;
-
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Graphics2D;
-import java.awt.image.*;
-import java.io.*;
-import java.text.*;
-import java.util.*;
-
-import javax.imageio.*;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 public class GraphDisplay {
 	

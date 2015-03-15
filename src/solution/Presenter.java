@@ -48,7 +48,7 @@ public class Presenter implements Player{
 																		  false, false, false, true,  false, 
 																		  false, false, false, false, true ), "resources/graph.txt");
 		} catch (IOException e) {
-			System.err.println("File not Found, possibly");
+			System.err.println("File not Found.");
 		}
 		
 		//Add Players to model;
@@ -59,18 +59,15 @@ public class Presenter implements Player{
 		//Make gui
 		mainGui = new MainScreen(presenter, colours);
 		
-		//model.start();
-		if(!model.isReady() || model.isGameOver()){
-			System.exit(1);
-		}
+		//game must be playable
+		assert(!model.isReady() || model.isGameOver());
 		
-		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(), 
-							  getBusMoves(), getUndergroundMoves(), getSecretMoves(), getLocations());
-
+		Colour c = model.getCurrentPlayer();
+		List<Move> validMoves = model.validMoves(c);
+		mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets(), validMoves);
 	}
 	
-	Set<Integer> getTaxiMoves(){
-		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+	Set<Integer> getTaxiMoves(List<Move> moves){
 		if(moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
@@ -87,12 +84,10 @@ public class Presenter implements Player{
 				taximoves.add(((MoveTicket) m).target);
 			}
 		}
-		
 		return taximoves;
 	}
 	
-	Set<Integer> getBusMoves(){
-		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+	Set<Integer> getBusMoves(List<Move> moves){
 		if(moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
@@ -113,8 +108,7 @@ public class Presenter implements Player{
 		return busmoves;
 	}
 	
-	Set<Integer> getUndergroundMoves(){
-		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+	Set<Integer> getUndergroundMoves(List<Move> moves){
 		if(moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
@@ -135,8 +129,7 @@ public class Presenter implements Player{
 		return undergroundmoves;
 	}
 	
-	Set<Integer> getSecretMoves(){
-		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+	Set<Integer> getSecretMoves(List<Move> moves){
 		if(moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
@@ -207,11 +200,20 @@ public class Presenter implements Player{
 		return null;
 	}
 
-	public void sendMove() {
-		model.playMove(model.validMoves(model.getCurrentPlayer()).get(0));
-		if(model.isGameOver())
-			System.exit(0);
-		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(), 
-							  getBusMoves(), getUndergroundMoves(), getSecretMoves(), getLocations());
-	}	
+	//Called by gui, tells model to play move
+	public void sendMove(Move m) {
+		if(Debug.debug){System.out.println("Move received: "+ m + ", Sending move to model");}
+		model.playMove(m, this);
+	}
+
+	//called by model, tells gui to update
+	public void notifyModelChange(List<Move> validMoves) {
+		if(Debug.debug){System.out.println("Presenter notified, updating gui");}
+		if(model.isGameOver()){
+			mainGui.displayWinner(model.getWinningPlayers());
+		}else{
+			Colour c = model.getCurrentPlayer();
+			mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets(), validMoves);
+		}
+	}
 }
