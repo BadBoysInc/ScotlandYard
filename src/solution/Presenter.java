@@ -13,6 +13,7 @@ import java.util.Set;
 
 import scotlandyard.Colour;
 import scotlandyard.Move;
+import scotlandyard.MoveDouble;
 import scotlandyard.MovePass;
 import scotlandyard.MoveTicket;
 import scotlandyard.Player;
@@ -21,11 +22,13 @@ import scotlandyard.Ticket;
 
 
 public class Presenter implements Player{
-	boolean response; 
-	IntroScreen introGui;
-	MainScreen	mainGui;
-	ScotlandYardModel model;
+	//boolean response; 
+	private IntroScreen introGui;
+	private MainScreen	mainGui;
+	private ScotlandYardModel model;
 	final Presenter presenter = this;
+	private Move firstMove;
+	private boolean moveDouble;
 	
 	Presenter(){
 		introGui = new IntroScreen();
@@ -64,14 +67,14 @@ public class Presenter implements Player{
 		
 		Colour c = model.getCurrentPlayer();
 		List<Move> validMoves = model.validMoves(c);
-		mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets(), validMoves);
+		mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 	}
 	
 	Set<Integer> getTaxiMoves(List<Move> moves){
 		if(moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
-		//REMOVE DOUBLE MOVES FOR NOW
+		//REMOVE DOUBLE MOVES
 		for(Move m: moves){
 			if(!m.toString().contains("Move Double ")){
 				newMoves.add(m);
@@ -201,7 +204,14 @@ public class Presenter implements Player{
 	}
 
 	//Called by gui, tells model to play move
-	public void sendMove(Move m) {
+	public void sendMove(int target, Ticket t, Colour currentPlayer) {
+			Move m = null;
+		if(moveDouble = true){
+			Move secondMove = new MoveTicket(currentPlayer, target, t);
+			m = new MoveDouble(currentPlayer, firstMove, secondMove);
+		}else{
+			m = new MoveTicket(currentPlayer, target, t);
+		}
 		if(Debug.debug){System.out.println("Move received: "+ m + ", Sending move to model");}
 		model.playMove(m, this);
 	}
@@ -213,7 +223,31 @@ public class Presenter implements Player{
 			mainGui.displayWinner(model.getWinningPlayers());
 		}else{
 			Colour c = model.getCurrentPlayer();
-			mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets(), validMoves);
+			mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 		}
+	}
+
+	public void sendFirstMove(int target, Ticket t, Colour currentPlayer) {
+		firstMove = new MoveTicket(currentPlayer, target, t);
+		moveDouble = true;
+		List<Move> moves = model.validMoves(model.getCurrentPlayer());
+		List<Move> newMoves = new ArrayList<Move>();
+		
+		for(Move m: moves){
+			if(m.toString().contains("Move Double ") && ((MoveDouble) m).moves.get(0).equals(firstMove)){
+				newMoves.add(((MoveDouble) m).moves.get(1));
+			}
+		}
+		
+		Hashtable<Colour, Integer> locations = getLocations();
+		locations.put(Colour.Black, ((MoveTicket)firstMove).target);
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(newMoves), getBusMoves(newMoves), getUndergroundMoves(newMoves), getSecretMoves(newMoves), locations, model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
+		
+	}
+	
+	public void doubleMoveFalse() {
+		List<Move> validMoves = model.validMoves(model.getCurrentPlayer());
+		moveDouble = false;
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
 	}
 }

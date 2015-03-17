@@ -97,8 +97,6 @@ public class ScotlandYardModel extends ScotlandYard {
         	nextPlayer();
         	moves = validMoves(currentPlayer);
     	}
-    	
-    	
     	p.notifyModelChange(moves);
     }
 

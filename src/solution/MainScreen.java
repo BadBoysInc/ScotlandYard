@@ -82,6 +82,9 @@ public class MainScreen extends JFrame{
     BufferedImage greenToken;
     BufferedImage redToken;
     
+    BufferedImage firstMoveText;
+    BufferedImage secondMoveText;
+    
     ImageIcon image;
     
 
@@ -96,13 +99,15 @@ public class MainScreen extends JFrame{
     Set<Integer> secretMoves;
     Map<Colour, Integer> locations;
     int selected;
-	private List<Move> currentPlayersValidMoves;
+    int target;
+	boolean firstMove;
     
 	public MainScreen(Presenter p, Set<Colour> players){
 		//Initialise Variables
 		position = new GraphDisplay();
 		currentPlayer = Colour.Black;
 		presenter = p;
+		firstMove = true;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
 		//MainContainer
@@ -117,7 +122,7 @@ public class MainScreen extends JFrame{
 	    
 	    //Left Container
 	    mapContainer = new JPanel();
-	    
+	    mapContainer.setLayout(new BorderLayout());
 	    JPanel mouseContainer = new JPanel();
 	    JPanel insideMapContainer = new JPanel();
 	    insideMapContainer.setLayout(new BorderLayout());
@@ -154,6 +159,11 @@ public class MainScreen extends JFrame{
 		    blueToken     = ImageIO.read(new File("resources/BlueToken.png"));  
 		    greenToken    = ImageIO.read(new File("resources/GreenToken.png"));
 		    redToken      = ImageIO.read(new File("resources/RedToken.png"));
+		    
+		    firstMoveText  = ImageIO.read(new File("resources/make-first-Move.png"));
+		    secondMoveText = ImageIO.read(new File("resources/make-second-Move.png"));
+		    
+		    BufferedImage ticketPanel = ImageIO.read(new File("resources/ticketPanel.png"));
 			
 			map = new JLabel();
 			borderImages = new Hashtable<Colour, ImageIcon[]>();
@@ -180,7 +190,9 @@ public class MainScreen extends JFrame{
 			insideMapContainer.add(side1, BorderLayout.EAST);
 			insideMapContainer.add(side2, BorderLayout.WEST);
 			insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
-			
+			ImageIcon ticketPanelIcon = new ImageIcon(ticketPanel);
+			JLabel ticketPanelLabel = new JLabel(ticketPanelIcon);
+			mapContainer.add(ticketPanelLabel, BorderLayout.SOUTH);
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -191,7 +203,6 @@ public class MainScreen extends JFrame{
 			
 			@Override
 			public void mouseReleased(MouseEvent a) {
-				
 				System.out.println("release");
 				int x = a.getX();
 				int y = a.getY();
@@ -200,10 +211,8 @@ public class MainScreen extends JFrame{
 					if(position.getX(selected)-15 < x && x < position.getX(selected)+15 && position.getY(selected)-15 < y && y < position.getY(selected)+15 ){
 						System.out.println("inside params");
 						if(Debug.debug){System.out.println("Move choosen, sending to presenter");}
-						
-						int temp = selected;
+
 						Ticket ticketUsed = null;
-						
 						if(taxi.isSelected()){
 							ticketUsed = Ticket.Taxi;
 						}else if(bus.isSelected()){
@@ -214,18 +223,22 @@ public class MainScreen extends JFrame{
 							ticketUsed = Ticket.SecretMove;
 						}
 						
-						//reset buttons
-						selected = 0;
-						
 						taxi.setSelected(false);
 						bus.setSelected(false);
 						underground.setSelected(false);
 						secret.setSelected(false);
-						
-				
-						presenter.sendMove(findMoveFromFields(currentPlayersValidMoves, temp, ticketUsed, currentPlayer));
-						
-						
+
+						selected = 0;
+						if(doublemove.isSelected() && firstMove == true){
+							System.out.println("DoubleMOVE1");
+							firstMove = false;
+							presenter.sendFirstMove(target, ticketUsed, currentPlayer);
+						}else{
+							firstMove = true;
+							doublemove.setSelected(false);
+							presenter.sendMove(target, ticketUsed, currentPlayer);
+						}
+
 					}else{
 						System.out.println("outside");
 						selected = 0;
@@ -255,6 +268,7 @@ public class MainScreen extends JFrame{
 					for(int i: taxiMoves){
 						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
 							selected = i;
+							target = selected;
 							taxiMap();
 							return;
 						}
@@ -264,6 +278,7 @@ public class MainScreen extends JFrame{
 					for(int i: busMoves){
 						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
 							selected = i;
+							target = selected;
 							busMap();
 							return;
 						}
@@ -273,6 +288,7 @@ public class MainScreen extends JFrame{
 					for(int i: undergroundMoves){
 						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
 							selected = i;
+							target = selected;
 							undergroundMap();
 							return;
 						}
@@ -282,6 +298,7 @@ public class MainScreen extends JFrame{
 					for(int i: secretMoves){
 						if(position.getX(i)-15 < x && x < position.getX(i)+15 && position.getY(i)-15 < y && y < position.getY(i)+15 ){
 							selected = i;
+							target = selected;
 							secretMap();
 							return;
 						}
@@ -300,7 +317,7 @@ public class MainScreen extends JFrame{
 			public void mouseExited(MouseEvent e) {}
 
 		});
-		mapContainer.add(insideMapContainer);
+		mapContainer.add(insideMapContainer, BorderLayout.NORTH);
 	    
 	    
 	    //Quit and Rules
@@ -321,7 +338,6 @@ public class MainScreen extends JFrame{
 				bus.setSelected(false);
 				underground.setSelected(false);
 				secret.setSelected(false);
-				//presenter.sendMove(); ---- What???????
 			}
 	    });
 	    quit.setPreferredSize(new Dimension(100, 50));
@@ -411,6 +427,26 @@ public class MainScreen extends JFrame{
 				}
 			}
 	    });
+	   
+	   doublemove.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(doublemove.isSelected()){
+					taxi.setSelected(false);
+					bus.setSelected(false);
+					underground.setSelected(false);
+					secret.setSelected(false);
+					firstMove = true;
+					mainMap();
+				}else{
+					taxi.setSelected(false);
+					bus.setSelected(false);
+					underground.setSelected(false);
+					secret.setSelected(false);
+					presenter.doubleMoveFalse();
+				}
+			}
+	    });
 	    
 	    ticketContainer.setBorder(BorderFactory.createTitledBorder("Tickets"));
 	    ticketContainer.add(taxi);
@@ -444,16 +480,6 @@ public class MainScreen extends JFrame{
 	    setVisible(true);
 
 	}
-
-	private Move findMoveFromFields(List<Move> currentPlayersValidMoves, int target, Ticket ticketUsed, Colour currentPlayer) {
-		for(Move m: currentPlayersValidMoves){
-			MoveTicket mt = (MoveTicket) m;
-			if(mt.target == target && mt.colour == currentPlayer && mt.ticket == ticketUsed){
-				return m;
-			}
-		}
-		return null;
-	}
 	
 	protected void mainMap() {
 		mapContainer.setVisible(false);
@@ -465,6 +491,8 @@ public class MainScreen extends JFrame{
 
 		g.drawImage(imagemain, 0, 0, null);
 		addPlayerTokens(g);
+		
+		addDoubleMoveText(g);
 
 		g.dispose();
 		image.setImage(imagemain);
@@ -487,13 +515,18 @@ public class MainScreen extends JFrame{
 		Graphics2D g = imagesecret.createGraphics();
 
 		g.drawImage(imagesecret, 0, 0, null);
-		addPlayerTokens(g);
+		
 		for(int i: secretMoves){
-			g.drawImage(secretOverlay, position.getX(i)-16, position.getY(i)-16, null);
+			g.drawImage(secretOverlay, position.getX(i)-17, position.getY(i)-17, null);
 		}
 		if(selected != 0){
-			g.drawImage(secretSelected, position.getX(selected)-19, position.getY(selected)-19, null);
+			g.drawImage(secretSelected, position.getX(selected)-17, position.getY(selected)-17, null);
 		}
+		
+		addPlayerTokens(g);
+		
+		addDoubleMoveText(g);
+		
 		g.dispose();
 		
 		image.setImage(imagesecret);
@@ -515,13 +548,18 @@ public class MainScreen extends JFrame{
 		Graphics2D g = imageunder.createGraphics();
 
 		g.drawImage(imageunder, 0, 0, null);
-		addPlayerTokens(g);
+		
 		for(int i: undergroundMoves){
-			g.drawImage(underOverlay, position.getX(i)-16, position.getY(i)-16, null);
+			g.drawImage(underOverlay, position.getX(i)-17, position.getY(i)-17, null);
 		}
 		if(selected != 0){
-			g.drawImage(underSelected, position.getX(selected)-19, position.getY(selected)-19, null);
+			g.drawImage(underSelected, position.getX(selected)-17, position.getY(selected)-17, null);
 		}
+		
+		addPlayerTokens(g);
+		
+		addDoubleMoveText(g);
+		
 		g.dispose();
 		
 		image.setImage(imageunder);
@@ -543,13 +581,18 @@ public class MainScreen extends JFrame{
 		Graphics2D g = imagebus.createGraphics();
 
 		g.drawImage(imagebus, 0, 0, null);
-		addPlayerTokens(g);
+		
 		for(int i: busMoves){
-			g.drawImage(busOverlay, position.getX(i)-16, position.getY(i)-16, null);
+			g.drawImage(busOverlay, position.getX(i)-17, position.getY(i)-17, null);
 		}
 		if(selected != 0){
-			g.drawImage(busSelected, position.getX(selected)-19, position.getY(selected)-19, null);
+			g.drawImage(busSelected, position.getX(selected)-17, position.getY(selected)-18, null);
 		}
+		
+		addPlayerTokens(g);
+		
+		addDoubleMoveText(g);
+		
 		g.dispose();
 		
 		image.setImage(imagebus);
@@ -570,16 +613,19 @@ public class MainScreen extends JFrame{
 		} catch (IOException e) {}
 		Graphics2D g = imagetaxi.createGraphics();
 		
-
 		g.drawImage(imagetaxi, 0, 0, null);
-		addPlayerTokens(g);
 		
 		for(int i: taxiMoves){
-			g.drawImage(taxiOverlay, position.getX(i)-16, position.getY(i)-16, null);
+			g.drawImage(taxiOverlay, position.getX(i)-17, position.getY(i)-17, null);
 		}
 		if(selected != 0){
-			g.drawImage(taxiSelected, position.getX(selected)-19, position.getY(selected)-19, null);
+			g.drawImage(taxiSelected, position.getX(selected)-17, position.getY(selected)-17, null);
 		}
+		
+		addPlayerTokens(g);
+		
+		addDoubleMoveText(g);
+		
 		g.dispose();
 
 		image.setImage(imagetaxi);
@@ -598,35 +644,42 @@ public class MainScreen extends JFrame{
 			if(locations.containsKey(c)){
 				switch (c.toString()){
 				case ("Black"):
-					g.drawImage(blackToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+					g.drawImage(blackToken, position.getX(locations.get(c))-18, position.getY(locations.get(c))-18, null);
 				break;
 				case ("White"):
-					g.drawImage(whiteToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+					g.drawImage(whiteToken, position.getX(locations.get(c))-18, position.getY(locations.get(c))-18, null);
 				break;
 				case ("Green"):
-					g.drawImage(greenToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+					g.drawImage(greenToken, position.getX(locations.get(c))-18, position.getY(locations.get(c))-18, null);
 				break;
 				case ("Yellow"):
-					g.drawImage(yellowToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+					g.drawImage(yellowToken, position.getX(locations.get(c))-18, position.getY(locations.get(c))-18, null);
 				break;
 				case ("Red"):
-					g.drawImage(redToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+					g.drawImage(redToken, position.getX(locations.get(c))-18, position.getY(locations.get(c))-18, null);
 				break;
 				case ("Blue"):
-					g.drawImage(blueToken, position.getX(locations.get(c))-15, position.getY(locations.get(c))-15, null);
+					g.drawImage(blueToken, position.getX(locations.get(c))-18, position.getY(locations.get(c))-18, null);
 				break;
 				}
 			}
 		}
 
 	}
+	
+	private void addDoubleMoveText(Graphics2D g){
+		if(doublemove.isSelected() && firstMove){
+			g.drawImage(firstMoveText, 0, 761, null);
+		}else if(doublemove.isSelected() && !firstMove){
+			g.drawImage(secondMoveText, 0, 761, null);
+		}
+	}
 
 	//Called by presenter to render updates
 	public void updateDisplay(Colour c, String round, String roundsUntilReveal, 
 							  Set<Integer> taximoves, Set<Integer> busmoves, Set<Integer> undergroundmoves, 
-							  Set<Integer> secretmoves, Hashtable<Colour, Integer> l, Map<Ticket, Integer> tickets, List<Move> validMoves) {
+							  Set<Integer> secretmoves, Hashtable<Colour, Integer> l, Map<Ticket, Integer> tickets) {
 		if(Debug.debug){System.out.println("update recieved, rendering data");}
-		currentPlayersValidMoves = validMoves;
 		displayTicketNumbers(tickets);
 		
 		currentPlayer = c;
@@ -642,6 +695,7 @@ public class MainScreen extends JFrame{
 			secret.setVisible(true);
 			doublemove.setVisible(true);
 		}
+		System.out.println(doublemove.isSelected());
 		roundStat.setText(round);
 	    mrXStat.setText(roundsUntilReveal);
 	    currentStat.setText(currentPlayer.toString());	    
