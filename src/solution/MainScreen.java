@@ -16,21 +16,23 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javafx.scene.layout.Border;
+
+
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.tools.ant.types.CommandlineJava.SysProperties;
 
@@ -363,7 +365,8 @@ public class MainScreen extends JFrame {
 		quit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				JFileChooser chooser = new JFileChooser();
+			    chooser.showSaveDialog(map);
 			}
 		});
 
