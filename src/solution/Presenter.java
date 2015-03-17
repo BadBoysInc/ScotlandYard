@@ -37,10 +37,12 @@ public class Presenter implements Player{
 	private ScotlandYardModel model;
 	final Presenter presenter = this;
 	private Move firstMove;
+	List<Ticket> mrXUsedTickets;
 	
 	Presenter(){
 		introGui = new IntroScreen();
 		introGui.setupScreen(this);
+		mrXUsedTickets = new ArrayList<Ticket>();
 	}
 	
 	public static void main(String[] args) {
@@ -218,11 +220,15 @@ public class Presenter implements Player{
 			Move secondMove = new MoveTicket(currentPlayer, target, t);
 			m = new MoveDouble(currentPlayer, firstMove, secondMove);
 			mainGui.updateTicketPanel(((MoveTicket)firstMove).ticket, model.getRound());
+			mrXUsedTickets.add(((MoveTicket)firstMove).ticket);
 			mainGui.updateTicketPanel(((MoveTicket)secondMove).ticket, model.getRound()+1);
+			mrXUsedTickets.add(((MoveTicket)secondMove).ticket);
 		}else{
 			m = new MoveTicket(currentPlayer, target, t);
-			if(currentPlayer == Colour.Black)
+			if(currentPlayer == Colour.Black){
+				mrXUsedTickets.add(((MoveTicket)m).ticket);
 				mainGui.updateTicketPanel(((MoveTicket)m).ticket, model.getRound());
+			}
 		}
 		if(Debug.debug){System.out.println("Move received: "+ m + ", Sending move to model");}
 		
@@ -279,7 +285,11 @@ public class Presenter implements Player{
 			PlayerInfo p = model.getPlayer(c);
 			data = data + String.format("%s %d %d %d %d %d %d%n", c.toString(), p.getLocation(), p.getTickets(Ticket.Taxi), p.getTickets(Ticket.Bus), p.getTickets(Ticket.Underground), p.getTickets(Ticket.SecretMove), p.getTickets(Ticket.DoubleMove) );
 		}
-		data = data + Integer.toString(model.getRound());		
+		data = data + String.format("%s%n", Integer.toString(model.getRound()));
+		data = data + String.format("%s%n", Integer.toString(mrXUsedTickets.size()));
+		for(Ticket t: mrXUsedTickets){
+			data = data + String.format("%s%n", t.toString());
+		}
 		
 		try {
 			Writer writer = new BufferedWriter(new FileWriter(file));
