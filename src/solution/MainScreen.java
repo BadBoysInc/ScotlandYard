@@ -5,11 +5,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
@@ -20,11 +22,13 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import scotlandyard.Colour;
 import scotlandyard.Ticket;
@@ -48,6 +52,7 @@ public class MainScreen extends JFrame {
 	JLabel bottom;
 	JLabel side1;
 	JLabel side2;
+	JLabel ticketPanelLabel;
 
 	BufferedImage imagemain;
 	BufferedImage imagetaxi;
@@ -107,7 +112,7 @@ public class MainScreen extends JFrame {
 
 		// MainContainer
 		JPanel mainContainer = new JPanel();
-		mainContainer.setBackground(Color.DARK_GRAY);
+		//mainContainer.setBackground(Color.DARK_GRAY);
 
 		// RightContainer
 		JPanel infoContainer = new JPanel();
@@ -198,7 +203,7 @@ public class MainScreen extends JFrame {
 			insideMapContainer.add(side2, BorderLayout.WEST);
 			insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
 			ImageIcon ticketPanelIcon = new ImageIcon(ticketPanel);
-			JLabel ticketPanelLabel = new JLabel(ticketPanelIcon);
+			ticketPanelLabel = new JLabel(ticketPanelIcon);
 			mapContainer.add(ticketPanelLabel, BorderLayout.SOUTH);
 
 		} catch (IOException e1) {
@@ -353,7 +358,8 @@ public class MainScreen extends JFrame {
 		quit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				JFileChooser chooser = new JFileChooser();
+			    chooser.showSaveDialog(map);
 			}
 		});
 
@@ -541,6 +547,7 @@ public class MainScreen extends JFrame {
 		} catch (IOException e) {
 		}
 		Graphics2D g = imagesecret.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
 
 		g.drawImage(imagesecret, 0, 0, null);
 
@@ -556,7 +563,6 @@ public class MainScreen extends JFrame {
 		addPlayerTokens(g);
 
 		addDoubleMoveText(g);
-
 		g.dispose();
 
 		image.setImage(imagesecret);
@@ -653,12 +659,10 @@ public class MainScreen extends JFrame {
 		g.drawImage(imagetaxi, 0, 0, null);
 
 		for (int i : taxiMoves) {
-			g.drawImage(taxiOverlay, position.getX(i) - 17,
-					position.getY(i) - 17, null);
+			g.drawImage(taxiOverlay, position.getX(i) - 17, position.getY(i) - 17, null);
 		}
 		if (selected != 0) {
-			g.drawImage(taxiSelected, position.getX(selected) - 17,
-					position.getY(selected) - 17, null);
+			g.drawImage(taxiSelected, position.getX(selected) - 17, position.getY(selected) - 17, null);
 		}
 
 		addPlayerTokens(g);
@@ -774,7 +778,11 @@ public class MainScreen extends JFrame {
 
 	public void updateTicketPanel(Ticket ticket, int r) {
 		Graphics2D g = ticketPanel.createGraphics();
-		g.drawImage(taxiTicket, 5 + (r * 20), 5, null);
+		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_DEFAULT);
+		g.drawImage(taxiTicket, 6 + (r * 45), 5, null);
+		g.dispose();
+		ticketPanelLabel.setIcon(new ImageIcon(ticketPanel));
+		
 	}
 
 }
