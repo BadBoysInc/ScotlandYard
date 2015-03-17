@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -13,14 +12,9 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javafx.scene.layout.Border;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -32,11 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
-import org.apache.tools.ant.types.CommandlineJava.SysProperties;
-
 import scotlandyard.Colour;
-import scotlandyard.Move;
-import scotlandyard.MoveTicket;
 import scotlandyard.Ticket;
 
 public class MainScreen extends JFrame {
@@ -174,7 +164,7 @@ public class MainScreen extends JFrame {
 			secondMoveText = ImageIO.read(new File(
 					"resources/make-second-Move.png"));
 
-			ticketPanel = ImageIO.read(new File("resources/ticketPanel.png"));
+			ticketPanel = ImageIO.read(new File("resources/TicketPanel.png"));
 			taxiTicket = ImageIO.read(new File("resources/taxiTicket.png"));
 
 			map = new JLabel();
