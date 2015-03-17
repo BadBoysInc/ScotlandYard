@@ -112,12 +112,12 @@ public class MainScreen extends JFrame {
 
 		// MainContainer
 		JPanel mainContainer = new JPanel();
-		//mainContainer.setBackground(Color.DARK_GRAY);
+		mainContainer.setBackground(Color.DARK_GRAY);
 
 		// RightContainer
 		JPanel infoContainer = new JPanel();
 		infoContainer.setLayout(new BorderLayout());
-		infoContainer.setPreferredSize(new Dimension(270, 918));
+		infoContainer.setPreferredSize(new Dimension(270, 920));
 		infoContainer.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		// Left Container
@@ -752,6 +752,23 @@ public class MainScreen extends JFrame {
 		undergroundMoves = undergroundmoves;
 		secretMoves = secretmoves;
 		locations = l;
+		
+		setButtonVisibility(tickets);
+		
+		System.out.println(doublemove.isSelected());
+		roundStat.setText(round);
+		mrXStat.setText(roundsUntilReveal);
+		currentStat.setText(currentPlayer.toString());
+		mainMap();
+	}
+
+	private void setButtonVisibility(Map<Ticket, Integer> tickets) {
+		taxi.setEnabled(tickets.get(Ticket.Taxi) != 0);
+		bus.setEnabled(tickets.get(Ticket.Bus) != 0);
+		underground.setEnabled(tickets.get(Ticket.Underground) != 0);
+		secret.setEnabled(tickets.get(Ticket.SecretMove) != 0);
+		doublemove.setEnabled(tickets.get(Ticket.DoubleMove) != 0);
+		
 		if (currentPlayer != Colour.Black) {
 			secret.setVisible(false);
 			doublemove.setVisible(false);
@@ -759,11 +776,6 @@ public class MainScreen extends JFrame {
 			secret.setVisible(true);
 			doublemove.setVisible(true);
 		}
-		System.out.println(doublemove.isSelected());
-		roundStat.setText(round);
-		mrXStat.setText(roundsUntilReveal);
-		currentStat.setText(currentPlayer.toString());
-		mainMap();
 	}
 
 	private void displayTicketNumbers(Map<Ticket, Integer> tickets) {
@@ -801,7 +813,6 @@ public class MainScreen extends JFrame {
 		}
 		g.dispose();
 		ticketPanelLabel.setIcon(new ImageIcon(ticketPanel));
-		
 	}
 
 }
