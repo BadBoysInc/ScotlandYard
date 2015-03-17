@@ -367,6 +367,10 @@ public class MainScreen extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
 			    chooser.showSaveDialog(map);
+			    
+			    File file = chooser.getSelectedFile();
+			    presenter.saveCurrentState(file);
+			    
 			}
 		});
 
