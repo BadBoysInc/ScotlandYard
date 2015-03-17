@@ -1,6 +1,12 @@
 package solution;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -261,5 +267,25 @@ public class Presenter implements Player{
 	public void doubleMoveFalse() {
 		List<Move> validMoves = model.validMoves(model.getCurrentPlayer());
 		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
+	}
+
+	public void saveCurrentState(File file) {
+		
+		String data = String.format("%s%n",Integer.toString(model.getPlayers().size()));
+		for(Colour c : model.getPlayers()){
+			PlayerInfo p = model.getPlayer(c);
+			data = data + String.format("%s %d %d %d %d %d %d%n", c.toString(), p.getLocation(), p.getTickets(Ticket.Taxi), p.getTickets(Ticket.Bus), p.getTickets(Ticket.Underground), p.getTickets(Ticket.SecretMove), p.getTickets(Ticket.DoubleMove) );
+		}
+		data = data + Integer.toString(model.getRound());		
+		
+		try {
+			Writer writer = Files.newBufferedWriter(file.toPath());
+			writer.write(data);
+			writer.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }
