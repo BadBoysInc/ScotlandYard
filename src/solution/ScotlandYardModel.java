@@ -115,6 +115,8 @@ public class ScotlandYardModel extends ScotlandYard {
     	notifySpectators(dummy1);
     	makeMove((MoveTicket)move.moves.get(1));
     	notifySpectators(dummy2);
+    	
+    	getPlayer(Colour.Black).removeTickets(Ticket.DoubleMove); 	
     }
     
     //Changes the game-state to after a move has been played.
@@ -126,6 +128,8 @@ public class ScotlandYardModel extends ScotlandYard {
     	if(player.getColour() != Colour.Black){
     		getPlayer(Colour.Black).addTickets(move.ticket);
     	}else{
+    		if(Debug.debug)
+    			System.out.println("Round Increment.");
     		round = round + 1;
     		if(getRounds().get(getRound()) == true)
         		MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();

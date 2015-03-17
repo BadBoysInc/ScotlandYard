@@ -28,7 +28,6 @@ public class Presenter implements Player{
 	private ScotlandYardModel model;
 	final Presenter presenter = this;
 	private Move firstMove;
-	private boolean moveDouble;
 	
 	Presenter(){
 		introGui = new IntroScreen();
@@ -204,15 +203,20 @@ public class Presenter implements Player{
 	}
 
 	//Called by gui, tells model to play move
-	public void sendMove(int target, Ticket t, Colour currentPlayer) {
-			Move m = null;
-		if(moveDouble = true){
+	public void sendMove(int target, Ticket t, Colour currentPlayer, boolean moveDouble) {
+		Move m = null;
+		if(moveDouble){
 			Move secondMove = new MoveTicket(currentPlayer, target, t);
 			m = new MoveDouble(currentPlayer, firstMove, secondMove);
+			mainGui.updateTicketPanel(((MoveTicket)firstMove).ticket, model.getRound());
+			mainGui.updateTicketPanel(((MoveTicket)secondMove).ticket, model.getRound()+1);
 		}else{
 			m = new MoveTicket(currentPlayer, target, t);
+			if(currentPlayer == Colour.Black)
+				mainGui.updateTicketPanel(((MoveTicket)m).ticket, model.getRound());
 		}
 		if(Debug.debug){System.out.println("Move received: "+ m + ", Sending move to model");}
+		
 		model.playMove(m, this);
 	}
 
@@ -223,13 +227,22 @@ public class Presenter implements Player{
 			mainGui.displayWinner(model.getWinningPlayers());
 		}else{
 			Colour c = model.getCurrentPlayer();
-			mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+			mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(), getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 		}
+	}
+
+	private String getRoundsUntilReveal() {
+		int r = model.getRound();
+		int i = r;
+		while(model.getRounds().get(i)==false){
+			i++;
+		}
+		i = i - r;
+		return Integer.toString(i);
 	}
 
 	public void sendFirstMove(int target, Ticket t, Colour currentPlayer) {
 		firstMove = new MoveTicket(currentPlayer, target, t);
-		moveDouble = true;
 		List<Move> moves = model.validMoves(model.getCurrentPlayer());
 		List<Move> newMoves = new ArrayList<Move>();
 		
@@ -247,7 +260,6 @@ public class Presenter implements Player{
 	
 	public void doubleMoveFalse() {
 		List<Move> validMoves = model.validMoves(model.getCurrentPlayer());
-		moveDouble = false;
 		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
 	}
 }
