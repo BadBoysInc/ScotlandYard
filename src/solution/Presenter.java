@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StreamTokenizer;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import scotlandyard.Colour;
 import scotlandyard.Move;
@@ -288,6 +291,8 @@ public class Presenter implements Player{
 			data = data + String.format("%s %d %d %d %d %d %d%n", c.toString(), p.getLocation(), p.getTickets(Ticket.Taxi), p.getTickets(Ticket.Bus), p.getTickets(Ticket.Underground), p.getTickets(Ticket.SecretMove), p.getTickets(Ticket.DoubleMove) );
 		}
 		data = data + String.format("%s%n", Integer.toString(model.getRound()));
+		data = data + String.format("%s%n", model.getCurrentPlayer().toString());
+		data = data + String.format("%s%n", Integer.toString(model.MrXsLastKnownLocation));
 		data = data + String.format("%s%n", Integer.toString(mrXUsedTickets.size()));
 		for(Ticket t: mrXUsedTickets){
 			data = data + String.format("%s%n", t.toString());
@@ -303,4 +308,34 @@ public class Presenter implements Player{
 		}
 		
 	}
+	
+	public void loadGameState(File file){
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			
+			int i = Integer.parseInt(reader.readLine());
+			List<PlayerInfo> players = new ArrayList<PlayerInfo>();
+			for(int x = 0; x<i; x++){
+				String p = reader.readLine();
+				StringTokenizer st = new StringTokenizer(p);
+				
+				Colour c = Colour.valueOf(st.nextToken());
+				int l = Integer.parseInt(st.nextToken());
+				
+				Map<Ticket, Integer> t = new HashMap<Ticket, Integer>();
+				t.put(Ticket.Taxi, Integer.parseInt(st.nextToken()));
+				//...
+				
+				players.add(new PlayerInfo(Colour.valueOf(st.nextToken()), l, t, presenter));
+			}
+			
+			/*while ((line = reader.readLine()) != null) {
+	      
+			}      */
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }

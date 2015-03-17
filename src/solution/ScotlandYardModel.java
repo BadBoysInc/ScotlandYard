@@ -29,13 +29,13 @@ public class ScotlandYardModel extends ScotlandYard {
 	final private List<Boolean> rounds;
 	
 	//Participants:
-	final private List<PlayerInfo> playerInfos;
+	private List<PlayerInfo> playerInfos;
 	final private List<Spectator> spectators;
 	
 	//Game Variables:
 	private int round;
 	private Colour currentPlayer;
-	private int MrXsLastKnownLocation;
+	int MrXsLastKnownLocation;
 	
 
     public ScotlandYardModel(int numberOfDetectives, List<Boolean> rounds, String graphFileName) throws IOException {
@@ -372,4 +372,14 @@ public class ScotlandYardModel extends ScotlandYard {
     public int getMrXLocation(){
     	return getPlayer(Colour.Black).getLocation();
     }
+
+    
+    void loadOldGameFromData(int round, List<PlayerInfo> players, Colour currentPlayer, int loc){
+    	this.round = round;
+    	playerInfos = players;
+    	this.currentPlayer = currentPlayer;
+    	MrXsLastKnownLocation = loc;
+    }
+
+
 }
