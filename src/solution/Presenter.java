@@ -269,7 +269,9 @@ public class Presenter implements Player{
 		
 		Hashtable<Colour, Integer> locations = getLocations();
 		locations.put(Colour.Black, ((MoveTicket)firstMove).target);
-		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(newMoves), getBusMoves(newMoves), getUndergroundMoves(newMoves), getSecretMoves(newMoves), locations, model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
+		Map<Ticket, Integer> tickets = model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets();
+		tickets.put(t, tickets.get(t)-1);
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(newMoves), getBusMoves(newMoves), getUndergroundMoves(newMoves), getSecretMoves(newMoves), locations, tickets);
 		
 	}
 	
