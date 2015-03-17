@@ -83,7 +83,7 @@ public class MainScreen extends JFrame {
 	BufferedImage ticketPanel;
 	BufferedImage taxiTicket;
 	BufferedImage busTicket;
-	BufferedImage undergrondTicket;
+	BufferedImage undergroundTicket;
 	BufferedImage secretTicket;
 
 	ImageIcon image;
@@ -171,6 +171,9 @@ public class MainScreen extends JFrame {
 
 			ticketPanel = ImageIO.read(new File("resources/TicketPanel.png"));
 			taxiTicket = ImageIO.read(new File("resources/taxiTicket.png"));
+			busTicket = ImageIO.read(new File("resources/busTicket.png"));
+			undergroundTicket = ImageIO.read(new File("resources/underTicket.png"));
+			secretTicket = ImageIO.read(new File("resources/secretTicket.png"));
 
 			map = new JLabel();
 			borderImages = new Hashtable<Colour, ImageIcon[]>();
@@ -782,8 +785,20 @@ public class MainScreen extends JFrame {
 
 	public void updateTicketPanel(Ticket ticket, int r) {
 		Graphics2D g = ticketPanel.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_DEFAULT);
-		g.drawImage(taxiTicket, 6 + (r * 45), 5, null);
+		switch (ticket){
+		case Taxi:
+			g.drawImage(taxiTicket, 6 + (r * 45), 5, null);
+			break;
+		case Bus:
+			g.drawImage(busTicket, 6 + (r * 45), 5, null);
+			break;
+		case Underground:
+			g.drawImage(undergroundTicket, 6 + (r * 45), 5, null);
+			break;
+		case SecretMove:
+			g.drawImage(secretTicket, 6 + (r * 45), 5, null);
+			break;
+		}
 		g.dispose();
 		ticketPanelLabel.setIcon(new ImageIcon(ticketPanel));
 		

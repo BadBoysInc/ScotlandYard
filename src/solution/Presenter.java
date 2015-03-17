@@ -1,11 +1,14 @@
 package solution;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -279,7 +282,7 @@ public class Presenter implements Player{
 		data = data + Integer.toString(model.getRound());		
 		
 		try {
-			Writer writer = Files.newBufferedWriter(file.toPath());
+			Writer writer = new BufferedWriter(new FileWriter(file));
 			writer.write(data);
 			writer.flush();
 		} catch (IOException e) {
