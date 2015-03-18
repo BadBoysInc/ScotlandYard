@@ -314,6 +314,14 @@ public class Presenter implements Player{
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			
 			int i = Integer.parseInt(reader.readLine());
+			
+			model = new ScotlandYardModel(i-1, Arrays.asList(false, false, false, true,  false, 
+				 	  false, false, false, true,  false, 
+					  false, false, false, true,  false, 
+					  false, false, false, true,  false, 
+					  false, false, false, false, true ), "resources/graph.txt");
+			
+			
 			List<PlayerInfo> players = new ArrayList<PlayerInfo>();
 			Set<Colour> colours = new HashSet<Colour>();
 			for(int x = 0; x<i; x++){
@@ -332,6 +340,8 @@ public class Presenter implements Player{
 				
 				colours.add(c);
 				players.add(new PlayerInfo(c, l, t, presenter));
+				model.join(this, c , l, t);
+
 			}
 			
 			int round = Integer.parseInt(reader.readLine());
@@ -339,6 +349,7 @@ public class Presenter implements Player{
 			int lastKnownLoc = Integer.parseInt(reader.readLine());
 			
 			//Make gui
+			introGui = null;
 			mainGui = new MainScreen(presenter, colours);
 			
 			i = Integer.parseInt(reader.readLine());
@@ -350,22 +361,16 @@ public class Presenter implements Player{
 				mainGui.updateTicketPanel(t, x);
 			}
 			
-			try {
-				model = new ScotlandYardModel(players.size(), Arrays.asList(false, false, false, true,  false, 
-																		 	  false, false, false, true,  false, 
-																			  false, false, false, true,  false, 
-																			  false, false, false, true,  false, 
-																			  false, false, false, false, true ), "resources/graph.txt");
-			} catch (IOException e) {
-				System.err.println("File not Found.");
-			}
+			
+				
+	
 
 			model.loadOldGameFromData(round, players, currentPlayer, lastKnownLoc);
 			mrXUsedTickets = usedTickets;
 			
 			Colour c = model.getCurrentPlayer();
 			List<Move> validMoves = model.validMoves(c);
-			mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+			mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(), getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 		
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

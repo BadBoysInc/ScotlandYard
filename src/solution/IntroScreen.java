@@ -94,6 +94,7 @@ public class IntroScreen extends JFrame{
 			    
 			    File file = chooser.getSelectedFile();
 			    p.loadGameState(file);
+			    closeWindow();
 			}			
 		});
 		JPanel loadPanel = new JPanel();
