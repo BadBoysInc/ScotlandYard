@@ -85,9 +85,12 @@ public class MainScreen extends JFrame {
 	BufferedImage busTicket;
 	BufferedImage undergroundTicket;
 	BufferedImage secretTicket;
-
+	
+	BufferedImage undergroundZones;
+	BufferedImage busZones;
+	BufferedImage allZones;
+	
 	ImageIcon image;
-
 	JPanel mapContainer;
 
 	Presenter presenter;
@@ -110,52 +113,68 @@ public class MainScreen extends JFrame {
 		firstMove = true;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		// MainContainer
-		JPanel mainContainer = new JPanel();
+		//JPanels
+		JPanel mainContainer 		= new JPanel();
+		mapContainer 				= new JPanel();
+		JPanel insideMapContainer 	= new JPanel();
+		JPanel mouseContainer 		= new JPanel();
+		JPanel infoContainer 		= new JPanel();
+		JPanel northInfo 			= new JPanel();
+		JPanel stats	 			= new JPanel();
+		JPanel ticketContainer 		= new JPanel();
+		JPanel southInfo 			= new JPanel();
+
+		//Borders and Backgrounds
 		mainContainer.setBackground(Color.DARK_GRAY);
-
-		// RightContainer
-		JPanel infoContainer = new JPanel();
-		infoContainer.setLayout(new BorderLayout());
-		infoContainer.setPreferredSize(new Dimension(270, 920));
 		infoContainer.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		stats.setBorder(BorderFactory.createTitledBorder("Statistics"));
+		ticketContainer.setBorder(BorderFactory.createTitledBorder("Tickets"));
+		southInfo.setBorder(BorderFactory.createBevelBorder(0));
 
-		// Left Container
-		mapContainer = new JPanel();
+		//Set Layouts
 		mapContainer.setLayout(new BorderLayout());
-		JPanel mouseContainer = new JPanel();
-		JPanel insideMapContainer = new JPanel();
 		insideMapContainer.setLayout(new BorderLayout());
 		mouseContainer.setLayout(new BorderLayout());
-
+		infoContainer.setLayout(new BorderLayout());
+		northInfo.setLayout(new BorderLayout());
+		stats.setLayout(new GridLayout(3, 2));
+		ticketContainer.setLayout(new GridLayout(5, 1));
+		southInfo.setLayout(new BorderLayout());
+		
+		//Buttons
+		JButton save  = new JButton("Save");
+		JButton rules = new JButton("Rules");
+		taxi 		= new JToggleButton("Taxi");
+		bus 		= new JToggleButton("Bus");
+		underground = new JToggleButton("Underground");
+		secret 		= new JToggleButton("Secret Move");
+		doublemove 	= new JToggleButton("Double Move");
+		
+		//Set Sizes
+		infoContainer.setPreferredSize(new Dimension(270, 920));
+		ticketContainer.setPreferredSize(new Dimension(300, 600));
+		save.setPreferredSize(new Dimension(100, 50));
+		stats.setPreferredSize(new Dimension(200, 180));
+		
 		insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
 
 		// Load All Images
 		image = new ImageIcon();
-
-		top = new JLabel();
-		bottom = new JLabel();
-		side1 = new JLabel();
-		side2 = new JLabel();
-
 		BufferedImage imageTop;
 		BufferedImage imageBottom;
 		BufferedImage imageSide;
 		try {
-
+			imagemain = ImageIO.read(new File("resources/map.png"));
+			
 			taxiOverlay = ImageIO.read(new File("resources/taxiMove.png"));
 			busOverlay = ImageIO.read(new File("resources/busMove.png"));
 			underOverlay = ImageIO.read(new File("resources/underMove.png"));
 			secretOverlay = ImageIO.read(new File("resources/secretMove.png"));
 
-			taxiSelected = ImageIO.read(new File(
-					"resources/taxiMoveSelected.png"));
-			busSelected = ImageIO
-					.read(new File("resources/busMoveSelected.png"));
-			underSelected = ImageIO.read(new File(
-					"resources/underMoveSelected.png"));
-			secretSelected = ImageIO.read(new File(
-					"resources/secretMoveSelected.png"));
+			taxiSelected = ImageIO.read(new File("resources/taxiMoveSelected.png"));
+			busSelected = ImageIO.read(new File("resources/busMoveSelected.png"));
+			underSelected = ImageIO.read(new File("resources/underMoveSelected.png"));
+			secretSelected = ImageIO.read(new File("resources/secretMoveSelected.png"));
 
 			blackToken = ImageIO.read(new File("resources/BlackToken.png"));
 			whiteToken = ImageIO.read(new File("resources/WhiteToken.png"));
@@ -164,58 +183,57 @@ public class MainScreen extends JFrame {
 			greenToken = ImageIO.read(new File("resources/GreenToken.png"));
 			redToken = ImageIO.read(new File("resources/RedToken.png"));
 
-			firstMoveText = ImageIO.read(new File(
-					"resources/make-first-Move.png"));
-			secondMoveText = ImageIO.read(new File(
-					"resources/make-second-Move.png"));
+			firstMoveText = ImageIO.read(new File("resources/make-first-Move.png"));
+			secondMoveText = ImageIO.read(new File("resources/make-second-Move.png"));
 
 			ticketPanel = ImageIO.read(new File("resources/TicketPanel.png"));
 			taxiTicket = ImageIO.read(new File("resources/taxiTicket.png"));
 			busTicket = ImageIO.read(new File("resources/busTicket.png"));
 			undergroundTicket = ImageIO.read(new File("resources/underTicket.png"));
 			secretTicket = ImageIO.read(new File("resources/secretTicket.png"));
+			
+			undergroundZones = ImageIO.read(new File("resources/undergroundZones.png"));
+			busZones = ImageIO.read(new File("resources/busZones.png"));
+			allZones = ImageIO.read(new File("resources/allZones.png"));
 
 			map = new JLabel();
 			borderImages = new Hashtable<Colour, ImageIcon[]>();
 			for (Colour c : players) {
-				imageTop = ImageIO.read(new File("resources/" + c.toString()
-						+ "BorderTop.png"));
-				imageBottom = ImageIO.read(new File("resources/" + c.toString()
-						+ "BorderBottom.png"));
-				imageSide = ImageIO.read(new File("resources/" + c.toString()
-						+ "BorderSide.png"));
-
+				imageTop = ImageIO.read(new File("resources/" + c.toString() + "BorderTop.png"));
+				imageBottom = ImageIO.read(new File("resources/" + c.toString() + "BorderBottom.png"));
+				imageSide = ImageIO.read(new File("resources/" + c.toString() + "BorderSide.png"));
 				ImageIcon[] labels = { new ImageIcon(imageTop),
 						new ImageIcon(imageBottom), new ImageIcon(imageSide),
 						new ImageIcon(imageSide) };
 				borderImages.put(c, labels);
 			}
-
-			// Initial Map
-			imagemain = ImageIO.read(new File("resources/map.png"));
-			ImageIcon mainimage = new ImageIcon(imagemain);
-			map.setIcon(mainimage);
-			mouseContainer.add(map);
-			top.setIcon(borderImages.get(Colour.Black)[0]);
-			bottom.setIcon(borderImages.get(Colour.Black)[1]);
-			side1.setIcon(borderImages.get(Colour.Black)[2]);
-			side2.setIcon(borderImages.get(Colour.Black)[3]);
-			insideMapContainer.add(top, BorderLayout.NORTH);
-			insideMapContainer.add(bottom, BorderLayout.SOUTH);
-			insideMapContainer.add(side1, BorderLayout.EAST);
-			insideMapContainer.add(side2, BorderLayout.WEST);
-			insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
-			ImageIcon ticketPanelIcon = new ImageIcon(ticketPanel);
-			ticketPanelLabel = new JLabel(ticketPanelIcon);
-			mapContainer.add(ticketPanelLabel, BorderLayout.SOUTH);
-
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 
+		//Create Initial Map
+		top = new JLabel();
+		bottom = new JLabel();
+		side1 = new JLabel();
+		side2 = new JLabel();
+		ImageIcon mainimage = new ImageIcon(imagemain);
+		map.setIcon(mainimage);
+		mouseContainer.add(map);
+		top.setIcon(borderImages.get(Colour.Black)[0]);
+		bottom.setIcon(borderImages.get(Colour.Black)[1]);
+		side1.setIcon(borderImages.get(Colour.Black)[2]);
+		side2.setIcon(borderImages.get(Colour.Black)[3]);
+		insideMapContainer.add(top, BorderLayout.NORTH);
+		insideMapContainer.add(bottom, BorderLayout.SOUTH);
+		insideMapContainer.add(side1, BorderLayout.EAST);
+		insideMapContainer.add(side2, BorderLayout.WEST);
+		insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
+		ImageIcon ticketPanelIcon = new ImageIcon(ticketPanel);
+		ticketPanelLabel = new JLabel(ticketPanelIcon);
+		mapContainer.add(ticketPanelLabel, BorderLayout.SOUTH);
+
 		// Add Mouse Events
 		mouseContainer.addMouseListener(new MouseListener() {
-
 			@Override
 			public void mouseReleased(MouseEvent a) {
 				System.out.println("release");
@@ -228,8 +246,7 @@ public class MainScreen extends JFrame {
 							&& position.getY(selected) - 15 < y
 							&& y < position.getY(selected) + 15) {
 						if (Debug.debug) {
-							System.out
-									.println("Move choosen, sending to presenter");
+							System.out.println("Move choosen, sending to presenter");
 						}
 
 						Ticket ticketUsed = null;
@@ -356,9 +373,9 @@ public class MainScreen extends JFrame {
 		mapContainer.add(insideMapContainer, BorderLayout.NORTH);
 
 		// Quit and Rules
-		JButton quit = new JButton("Save");
-		quit.setSize(new Dimension(400, 50));
-		quit.addActionListener(new ActionListener() {
+		
+		
+		save.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
@@ -370,7 +387,6 @@ public class MainScreen extends JFrame {
 			}
 		});
 
-		JButton rules = new JButton("Rules");
 		rules.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -380,22 +396,15 @@ public class MainScreen extends JFrame {
 				secret.setSelected(false);
 			}
 		});
-		quit.setPreferredSize(new Dimension(100, 50));
+
 
 		// Statistics
-		JPanel stats = new JPanel();
-		stats.setBorder(BorderFactory.createTitledBorder("Statistics"));
-		stats.setLayout(new GridLayout(3, 2));
-		stats.setPreferredSize(new Dimension(200, 180));
-
 		JLabel roundTitle = new JLabel("<html>Round Number</html>");
 		JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X's Location is Revealed</html>");
 		JLabel currentTitle = new JLabel("<html>Current Player</html>");
-
 		roundStat = new JLabel("####", SwingConstants.RIGHT);
 		mrXStat = new JLabel("####", SwingConstants.RIGHT);
 		currentStat = new JLabel("####", SwingConstants.RIGHT);
-
 		stats.add(roundTitle, 0);
 		stats.add(roundStat, 1);
 		stats.add(mrXTitle, 2);
@@ -403,17 +412,7 @@ public class MainScreen extends JFrame {
 		stats.add(currentTitle, 4);
 		stats.add(currentStat, 5);
 
-		// Tickets
-		JPanel ticketContainer = new JPanel();
-		ticketContainer.setLayout(new GridLayout(5, 1));
-		ticketContainer.setPreferredSize(new Dimension(300, 600));
-
-		taxi = new JToggleButton("Taxi");
-		bus = new JToggleButton("Bus");
-		underground = new JToggleButton("Underground");
-		secret = new JToggleButton("Secret Move");
-		doublemove = new JToggleButton("Double Move");
-
+		// Button Listeners
 		taxi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -466,7 +465,6 @@ public class MainScreen extends JFrame {
 				}
 			}
 		});
-
 		doublemove.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -487,37 +485,31 @@ public class MainScreen extends JFrame {
 			}
 		});
 
-		ticketContainer.setBorder(BorderFactory.createTitledBorder("Tickets"));
+		//InfoPanel Adding
 		ticketContainer.add(taxi);
 		ticketContainer.add(bus);
 		ticketContainer.add(underground);
 		ticketContainer.add(secret);
 		ticketContainer.add(doublemove);
 
-		// Adding
-		JPanel north = new JPanel();
-		north.setLayout(new BorderLayout());
-		north.add(rules, BorderLayout.NORTH);
-		north.add(stats, BorderLayout.SOUTH);
+		northInfo.add(rules, BorderLayout.NORTH);
+		northInfo.add(stats, BorderLayout.SOUTH);
 
-		JPanel south = new JPanel();
-		south.setLayout(new BorderLayout());
-		south.setBorder(BorderFactory.createBevelBorder(0));
-		south.add(quit, BorderLayout.CENTER);
+		southInfo.add(save, BorderLayout.CENTER);
 
-		infoContainer.add(south, BorderLayout.SOUTH);
-		infoContainer.add(north, BorderLayout.NORTH);
+		infoContainer.add(southInfo, BorderLayout.SOUTH);
+		infoContainer.add(northInfo, BorderLayout.NORTH);
 		infoContainer.add(ticketContainer, BorderLayout.CENTER);
-
+		
+		//MainPanel Adding
 		mainContainer.add(mapContainer);
 		mainContainer.add(infoContainer);
-
+		
+		//Finalize
 		add(mainContainer);
-
 		pack();
 		setLocationByPlatform(true);
 		setVisible(true);
-
 	}
 
 	protected void mainMap() {
@@ -554,10 +546,11 @@ public class MainScreen extends JFrame {
 		} catch (IOException e) {
 		}
 		Graphics2D g = imagesecret.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
 
 		g.drawImage(imagesecret, 0, 0, null);
 
+		addPlayerTokens(g);
+		
 		for (int i : secretMoves) {
 			g.drawImage(secretOverlay, position.getX(i) - 17,
 					position.getY(i) - 17, null);
@@ -566,10 +559,11 @@ public class MainScreen extends JFrame {
 			g.drawImage(secretSelected, position.getX(selected) - 17,
 					position.getY(selected) - 17, null);
 		}
-
-		addPlayerTokens(g);
-
+	
+		g.drawImage(allZones, 0, 0, null);
+		
 		addDoubleMoveText(g);
+		
 		g.dispose();
 
 		image.setImage(imagesecret);
@@ -593,6 +587,8 @@ public class MainScreen extends JFrame {
 
 		g.drawImage(imageunder, 0, 0, null);
 
+		addPlayerTokens(g);
+		
 		for (int i : undergroundMoves) {
 			g.drawImage(underOverlay, position.getX(i) - 17,
 					position.getY(i) - 17, null);
@@ -602,8 +598,10 @@ public class MainScreen extends JFrame {
 					position.getY(selected) - 17, null);
 		}
 
-		addPlayerTokens(g);
+		g.drawImage(undergroundZones, 0, 0, null);
 
+		addPlayerTokens(g);
+		
 		addDoubleMoveText(g);
 
 		g.dispose();
@@ -629,6 +627,8 @@ public class MainScreen extends JFrame {
 
 		g.drawImage(imagebus, 0, 0, null);
 
+		addPlayerTokens(g);
+
 		for (int i : busMoves) {
 			g.drawImage(busOverlay, position.getX(i) - 17,
 					position.getY(i) - 17, null);
@@ -638,8 +638,8 @@ public class MainScreen extends JFrame {
 					position.getY(selected) - 18, null);
 		}
 
-		addPlayerTokens(g);
-
+		g.drawImage(busZones, 0, 0, null);
+		
 		addDoubleMoveText(g);
 
 		g.dispose();
@@ -664,6 +664,8 @@ public class MainScreen extends JFrame {
 		Graphics2D g = imagetaxi.createGraphics();
 
 		g.drawImage(imagetaxi, 0, 0, null);
+		
+		addPlayerTokens(g);
 
 		for (int i : taxiMoves) {
 			g.drawImage(taxiOverlay, position.getX(i) - 17, position.getY(i) - 17, null);
@@ -672,8 +674,8 @@ public class MainScreen extends JFrame {
 			g.drawImage(taxiSelected, position.getX(selected) - 17, position.getY(selected) - 17, null);
 		}
 
-		addPlayerTokens(g);
-
+		g.drawImage(allZones, 0, 0, null);
+		
 		addDoubleMoveText(g);
 
 		g.dispose();
@@ -714,7 +716,8 @@ public class MainScreen extends JFrame {
 							position.getY(locations.get(c)) - 18, null);
 					break;
 				case ("Red"):
-					g.drawImage(redToken, position.getX(locations.get(c)) - 18,
+					g.drawImage(redToken, 
+							position.getX(locations.get(c)) - 18,
 							position.getY(locations.get(c)) - 18, null);
 					break;
 				case ("Blue"):
@@ -799,20 +802,22 @@ public class MainScreen extends JFrame {
 		Graphics2D g = ticketPanel.createGraphics();
 		switch (ticket){
 		case Taxi:
-			g.drawImage(taxiTicket, 6 + (r * 45), 5, null);
+			g.drawImage(taxiTicket, 8 + (r * 44), 5, null);
 			break;
 		case Bus:
-			g.drawImage(busTicket, 6 + (r * 45), 5, null);
+			g.drawImage(busTicket, 8 + (r * 44), 5, null);
 			break;
 		case Underground:
-			g.drawImage(undergroundTicket, 6 + (r * 45), 5, null);
+			g.drawImage(undergroundTicket, 8 + (r * 44), 5, null);
 			break;
 		case SecretMove:
-			g.drawImage(secretTicket, 6 + (r * 45), 5, null);
+			g.drawImage(secretTicket, 8 + (r * 44), 5, null);
+			break;
+		default:
 			break;
 		}
 		g.dispose();
 		ticketPanelLabel.setIcon(new ImageIcon(ticketPanel));
 	}
-
+	
 }
