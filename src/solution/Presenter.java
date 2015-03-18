@@ -315,6 +315,7 @@ public class Presenter implements Player{
 			
 			int i = Integer.parseInt(reader.readLine());
 			List<PlayerInfo> players = new ArrayList<PlayerInfo>();
+			Set<Colour> colours = new HashSet<Colour>();
 			for(int x = 0; x<i; x++){
 				String p = reader.readLine();
 				StringTokenizer st = new StringTokenizer(p);
@@ -324,18 +325,54 @@ public class Presenter implements Player{
 				
 				Map<Ticket, Integer> t = new HashMap<Ticket, Integer>();
 				t.put(Ticket.Taxi, Integer.parseInt(st.nextToken()));
-				//...
+				t.put(Ticket.Bus, Integer.parseInt(st.nextToken()));
+				t.put(Ticket.Underground, Integer.parseInt(st.nextToken()));
+				t.put(Ticket.SecretMove, Integer.parseInt(st.nextToken()));
+				t.put(Ticket.DoubleMove, Integer.parseInt(st.nextToken()));
 				
-				players.add(new PlayerInfo(Colour.valueOf(st.nextToken()), l, t, presenter));
+				colours.add(c);
+				players.add(new PlayerInfo(c, l, t, presenter));
 			}
 			
-			/*while ((line = reader.readLine()) != null) {
-	      
-			}      */
+			int round = Integer.parseInt(reader.readLine());
+			Colour currentPlayer = Colour.valueOf(reader.readLine());
+			int lastKnownLoc = Integer.parseInt(reader.readLine());
+			
+			//Make gui
+			mainGui = new MainScreen(presenter, colours);
+			
+			i = Integer.parseInt(reader.readLine());
+			List<Ticket> usedTickets = new ArrayList<Ticket>();
+			for(int x = 0; x<i; x++){
+				String s = reader.readLine();
+				Ticket t = Ticket.valueOf(s);
+				usedTickets.add(t);
+				mainGui.updateTicketPanel(t, x);
+			}
+			
+			try {
+				model = new ScotlandYardModel(players.size(), Arrays.asList(false, false, false, true,  false, 
+																		 	  false, false, false, true,  false, 
+																			  false, false, false, true,  false, 
+																			  false, false, false, true,  false, 
+																			  false, false, false, false, true ), "resources/graph.txt");
+			} catch (IOException e) {
+				System.err.println("File not Found.");
+			}
+
+			model.loadOldGameFromData(round, players, currentPlayer, lastKnownLoc);
+			mrXUsedTickets = usedTickets;
+			
+			Colour c = model.getCurrentPlayer();
+			List<Move> validMoves = model.validMoves(c);
+			mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+		
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+
+	
 	
 }
