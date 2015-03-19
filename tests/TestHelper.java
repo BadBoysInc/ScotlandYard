@@ -1,8 +1,17 @@
-import scotlandyard.*;
-import solution.*;
-
-import java.util.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import scotlandyard.Colour;
+import scotlandyard.Move;
+import scotlandyard.MoveDouble;
+import scotlandyard.MoveTicket;
+import scotlandyard.Player;
+import scotlandyard.ScotlandYard;
+import scotlandyard.Ticket;
+import solution.ScotlandYardModel;
 
 public class TestHelper
 {

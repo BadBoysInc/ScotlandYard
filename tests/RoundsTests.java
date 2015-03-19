@@ -1,8 +1,17 @@
-import org.junit.Test;
-import scotlandyard.*;
-import java.util.*;
+import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+
+import scotlandyard.Colour;
+import scotlandyard.Move;
+import scotlandyard.MoveDouble;
+import scotlandyard.Player;
+import scotlandyard.ScotlandYard;
+import scotlandyard.ScotlandYardView;
+import scotlandyard.Spectator;
 
 public class RoundsTests {
 

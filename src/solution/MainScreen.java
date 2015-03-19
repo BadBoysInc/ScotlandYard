@@ -21,7 +21,6 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -31,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.html.ImageView;
 
 import scotlandyard.Colour;
 import scotlandyard.Ticket;
@@ -808,13 +806,14 @@ public class MainScreen extends JFrame {
 		roundsLeftStat.setText(roundLeft);
 		
 		//Set the state to waiting for player to confirm he is ready.
-		nextTurnMap();
+		/*nextTurnMap();
 		if(firstMove == true){
 			waiting = true;
 		}else{
 			mainMap();
 			setButtonVisibility(tickets);
-		}
+		}*/
+		
 	}
 	
 	//Set Button Visibility for Players.

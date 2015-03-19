@@ -3,15 +3,11 @@ package solution;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StreamTokenizer;
 import java.io.Writer;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,6 +37,7 @@ public class Presenter implements Player{
 	final Presenter presenter = this;
 	private Move firstMove;
 	List<Ticket> mrXUsedTickets;
+	GameData gameData;
 	
 	Presenter(){
 		introGui = new IntroScreen();
@@ -68,9 +65,14 @@ public class Presenter implements Player{
 		}
 		
 		//Add Players to model;
+		gameData = new GameData();
 		for(Colour c: colours){
-			model.join(this, c , getStartingLocation(c), getStartingTickets(c));
+			int l = getStartingLocation(c);
+			Map<Ticket, Integer> t = getStartingTickets(c);
+			model.join(this, c , l, t);
+			gameData.addPlayer(c, l, t);
 		}
+		
 		
 		//Make gui
 		mainGui = new MainScreen(presenter, colours);
@@ -196,7 +198,6 @@ public class Presenter implements Player{
 		return i + 1;
 	}
 
-
 	Map<Ticket, Integer> getStartingTickets(Colour c){
 		if(c == Colour.Black){
 			Map<Ticket, Integer> tickets = new HashMap<Ticket, Integer>();
@@ -224,6 +225,7 @@ public class Presenter implements Player{
 
 	//Called by gui, tells model to play move
 	public void sendMove(int target, Ticket t, Colour currentPlayer, boolean moveDouble) {
+		gameData.addMove(new MoveTicket(currentPlayer, target, t));
 		Move m = null;
 		if(moveDouble){
 			Move secondMove = new MoveTicket(currentPlayer, target, t);
@@ -249,7 +251,7 @@ public class Presenter implements Player{
 		if(Debug.debug){System.out.println("Presenter notified, updating gui");}
 		if(model.isGameOver()){
 			mainGui.dispose();
-			WinnersScreen ws = new WinnersScreen(model.getWinningPlayers());
+			WinnersScreen ws = new WinnersScreen(model.getWinningPlayers(), this);
 		}else{
 			Colour c = model.getCurrentPlayer();
 			mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(),getRoundsLeft(), getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
@@ -372,4 +374,107 @@ public class Presenter implements Player{
 		
 		} catch (IOException e) {e.printStackTrace();}
 	}	
+
+	public void saveForReplay(File file){
+		
+		String data = String.format("%d%n", gameData.getPlayers().size());
+		for(PlayerInfo p : gameData.getPlayers()){
+			data = data + String.format("%s %d %d %d %d %d %d%n", p.getColour().toString(), p.getLocation(), p.getTickets(Ticket.Taxi), p.getTickets(Ticket.Bus), p.getTickets(Ticket.Underground), p.getTickets(Ticket.SecretMove), p.getTickets(Ticket.DoubleMove) );
+		}
+		data = data + String.format("%d%n", gameData.getNumOfMoves());
+		for(MoveTicket m: gameData.getMoves()){
+			data = data + String.format("%s %d %s%n", m.colour.toString(), m.target, m.ticket.toString());
+		}
+		
+		try {
+			Writer writer = new BufferedWriter(new FileWriter(file));
+			writer.write(data);
+			writer.flush();
+		} catch (IOException e) {e.printStackTrace();}	
+	}
+
+	public void startReplay(File file){
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			
+			int i = Integer.parseInt(reader.readLine());
+			
+			model = new ScotlandYardModel(i-1, Arrays.asList(false, false, false, true,  false, 
+				 	  false, false, false, true,  false, 
+					  false, false, false, true,  false, 
+					  false, false, false, true,  false, 
+					  false, false, false, false, true ), "resources/graph.txt");
+			
+			
+			List<PlayerInfo> players = new ArrayList<PlayerInfo>();
+			Set<Colour> colours = new HashSet<Colour>();
+			for(int x = 0; x<i; x++){
+				String p = reader.readLine();
+				System.out.println(p);
+				StringTokenizer st = new StringTokenizer(p);
+				
+				Colour c = Colour.valueOf(st.nextToken());
+				int l = Integer.parseInt(st.nextToken());
+				
+				Map<Ticket, Integer> t = new HashMap<Ticket, Integer>();
+				t.put(Ticket.Taxi, Integer.parseInt(st.nextToken()));
+				t.put(Ticket.Bus, Integer.parseInt(st.nextToken()));
+				t.put(Ticket.Underground, Integer.parseInt(st.nextToken()));
+				t.put(Ticket.SecretMove, Integer.parseInt(st.nextToken()));
+				t.put(Ticket.DoubleMove, Integer.parseInt(st.nextToken()));
+				
+				colours.add(c);
+				players.add(new PlayerInfo(c, l, t, presenter));
+				model.join(this, c , l, t);
+			}
+			
+			i = Integer.parseInt(reader.readLine());
+			final List<MoveTicket> moves = new ArrayList<MoveTicket>();
+			for(int x = 0; x<i; x++){
+				String p = reader.readLine();
+				StringTokenizer st = new StringTokenizer(p);
+				moves.add(new MoveTicket(Colour.valueOf(st.nextToken()), Integer.parseInt(st.nextToken()), Ticket.valueOf(st.nextToken())));
+			}
+			
+			//Make gui
+			introGui = null;
+			mainGui = new MainScreen(presenter, colours);
+			
+			model.loadOldGameFromData(0, players, Colour.Black, 0);
+			mrXUsedTickets = new ArrayList<Ticket>();
+			Presenter p = this;
+			Thread t = new Thread(){
+				public void run(){
+					for(MoveTicket m: moves){
+						try {
+							Colour c = model.getCurrentPlayer();
+							List<Move> validMoves = model.validMoves(c);
+							mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(),getRoundsLeft() , getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+							Thread.sleep(1000);
+							if(m.colour!=model.getCurrentPlayer()){
+								model.nextPlayer();
+							}
+							model.play(m);
+							
+							if(m.colour==Colour.Black)
+								mainGui.updateTicketPanel(m.ticket, model.getRound()-1);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					}
+				}			
+			};
+			t.start();
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
 }

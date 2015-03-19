@@ -8,20 +8,19 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import scotlandyard.Colour;
-import scotlandyard.Move;
 
 public class IntroScreen extends JFrame{
 	
@@ -95,8 +94,10 @@ public class IntroScreen extends JFrame{
 			    chooser.showOpenDialog(left);
 			    
 			    File file = chooser.getSelectedFile();
-			    p.loadGameState(file);
-			    closeWindow();
+			    if(file !=null){
+			    	p.loadGameState(file);
+			    	closeWindow();
+			    }
 			}			
 		});
 		JPanel loadPanel = new JPanel();
@@ -130,12 +131,19 @@ public class IntroScreen extends JFrame{
 		newPanel.add(newGame);
 		
 		//QuitButton
-		JButton quit = new JButton("Quit");
+		JButton quit = new JButton("Replay Played Game");
 		quit.setAlignmentX(Component.CENTER_ALIGNMENT);
 		quit.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				JFileChooser chooser = new JFileChooser();
+			    chooser.showOpenDialog(left);
+			    
+			    File file = chooser.getSelectedFile();
+			    if(file !=null){
+			    	p.startReplay(file);
+			    	closeWindow();
+			    }
 			}			
 		});
 		

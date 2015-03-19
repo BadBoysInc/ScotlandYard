@@ -1,9 +1,7 @@
-import org.junit.Test;
-import scotlandyard.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-
-import static org.junit.Assert.*;
+import scotlandyard.ScotlandYard;
 
 public class ValidMovesTests {
 

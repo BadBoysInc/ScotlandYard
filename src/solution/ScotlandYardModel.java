@@ -242,6 +242,10 @@ public class ScotlandYardModel extends ScotlandYard {
     	}
         return c;
     }
+    
+    public List<PlayerInfo> getPlayerInfos(){
+    	return playerInfos;
+    }
 
     @Override
     //Gets a set of the winning players.

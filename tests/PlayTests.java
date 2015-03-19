@@ -1,9 +1,21 @@
-import org.junit.Before;
-import org.junit.Test;
-import scotlandyard.*;
-import java.util.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+
+import scotlandyard.Colour;
+import scotlandyard.Move;
+import scotlandyard.MoveDouble;
+import scotlandyard.MovePass;
+import scotlandyard.MoveTicket;
+import scotlandyard.Player;
+import scotlandyard.ScotlandYard;
+import scotlandyard.Ticket;
 
 public class PlayTests {
 

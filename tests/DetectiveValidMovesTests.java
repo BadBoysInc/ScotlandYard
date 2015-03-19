@@ -1,10 +1,20 @@
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
-import scotlandyard.*;
-import java.util.*;
 
-
-import static org.junit.Assert.*;
+import scotlandyard.Colour;
+import scotlandyard.Move;
+import scotlandyard.MovePass;
+import scotlandyard.MoveTicket;
+import scotlandyard.ScotlandYard;
+import scotlandyard.Ticket;
 
 
 
