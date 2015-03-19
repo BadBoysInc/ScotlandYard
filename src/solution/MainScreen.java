@@ -38,11 +38,11 @@ import scotlandyard.Ticket;
 
 public class MainScreen extends JFrame {
 
-	JToggleButton taxi;
-	JToggleButton bus;
-	JToggleButton underground;
-	JToggleButton secret;
-	JToggleButton doublemove;
+	JToggleButton taxiButton;
+	JToggleButton busButton;
+	JToggleButton undergroundButton;
+	JToggleButton secretButton;
+	JToggleButton doublemoveButton;
 
 	JLabel roundStat;
 	JLabel mrXStat;
@@ -116,7 +116,8 @@ public class MainScreen extends JFrame {
 	boolean waiting;
 
 	public MainScreen(Presenter p, Set<Colour> players) {
-		// Initialise Variables
+		
+		//Initialise Variables
 		position = new GraphDisplay();
 		currentPlayer = Colour.Black;
 		presenter = p;
@@ -132,33 +133,36 @@ public class MainScreen extends JFrame {
 		JPanel insideMapContainer 	= new JPanel();
 		JPanel mouseContainer 		= new JPanel();
 		JPanel infoContainer 		= new JPanel();
-		JPanel northInfo 			= new JPanel();
-		JPanel stats	 			= new JPanel();
+		JPanel northInfoContainer 	= new JPanel();
+		JPanel statsContainer	 	= new JPanel();
 		JPanel ticketContainer 		= new JPanel();
-		JPanel southInfo 			= new JPanel();
+		JPanel southInfoContainer 	= new JPanel();
 		
 		//Borders and Backgrounds
 		mainContainer.setBackground(Color.DARK_GRAY);
 		infoContainer.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		stats.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Statistics"), new EmptyBorder(2, 10, 2, 10)));
+		statsContainer.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Statistics"), new EmptyBorder(2, 10, 2, 10)));
 		ticketContainer.setBorder(BorderFactory.createTitledBorder("Tickets"));
-		southInfo.setBorder(BorderFactory.createBevelBorder(0));
+		southInfoContainer.setBorder(BorderFactory.createBevelBorder(0));
 
 		//Set Layouts
 		mapContainer.setLayout(new BorderLayout());
 		insideMapContainer.setLayout(new BorderLayout());
 		mouseContainer.setLayout(new BorderLayout());
 		infoContainer.setLayout(new BorderLayout());
-		northInfo.setLayout(new BorderLayout());
-		stats.setLayout(new GridLayout(5, 2));
+		northInfoContainer.setLayout(new BorderLayout());
+		statsContainer.setLayout(new GridLayout(5, 2));
 		ticketContainer.setLayout(new GridLayout(5, 1));
-		southInfo.setLayout(new BorderLayout());
+		southInfoContainer.setLayout(new BorderLayout());
 		
+		//Set JLabels
+		map 	= new JLabel();
+		top 	= new JLabel();
+		bottom 	= new JLabel();
+		side1 	= new JLabel();
+		side2 	= new JLabel();
 		
-		
-		insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
-
-		// Load All Images
+		//Load All Images
 		image = new ImageIcon();
 		BufferedImage imageTop;
 		BufferedImage imageBottom;
@@ -195,8 +199,7 @@ public class MainScreen extends JFrame {
 			undergroundZones = ImageIO.read(new File("resources/undergroundZones.png"));
 			busZones = ImageIO.read(new File("resources/busZones.png"));
 			allZones = ImageIO.read(new File("resources/allZones.png"));
-
-			map = new JLabel();
+	
 			borderImages = new Hashtable<Colour, ImageIcon[]>();
 			for (Colour c : players) {
 				imageTop = ImageIO.read(new File("resources/" + c.toString() + "BorderTop.png"));
@@ -207,122 +210,100 @@ public class MainScreen extends JFrame {
 						new ImageIcon(imageSide) };
 				borderImages.put(c, labels);
 			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		} catch (IOException e1) {e1.printStackTrace();}
 
-		
 		//Buttons
-		JButton save  = new JButton("Save");
-		JButton rules = new JButton("Rules");
-		taxi = new JToggleButton("Taxi");
-		taxi.setIcon(new ImageIcon(taxiTicket));
-		taxi.setIconTextGap(50);
-		bus = new JToggleButton("Bus");
-		bus.setIcon(new ImageIcon(busTicket));
-		bus.setIconTextGap(50);
-		underground = new JToggleButton("Underground");
-		underground.setIcon(new ImageIcon(undergroundTicket));
-		underground.setIconTextGap(50);
-		secret = new JToggleButton("Secret Move");
-		secret.setIcon(new ImageIcon(secretTicket));
-		secret.setIconTextGap(50);
-		doublemove 	= new JToggleButton("Double Move");
-		doublemove.setIcon(new ImageIcon(taxiTicket));
-		doublemove.setIconTextGap(50);
-				
-				
+		JButton saveButton  = new JButton("Save");
+		JButton rulesButton = new JButton("Rules");
+		taxiButton 			= new JToggleButton("Taxi");		
+		busButton 			= new JToggleButton("Bus");		
+		undergroundButton 	= new JToggleButton("Underground");		
+		secretButton 		= new JToggleButton("Secret Move");
+		doublemoveButton 	= new JToggleButton("Double Move");
+		
+		//Set Button Icons
+		taxiButton.setIcon(new ImageIcon(taxiTicket));
+		taxiButton.setIconTextGap(50);		
+		busButton.setIcon(new ImageIcon(busTicket));
+		busButton.setIconTextGap(50);
+		undergroundButton.setIcon(new ImageIcon(undergroundTicket));
+		undergroundButton.setIconTextGap(50);
+		secretButton.setIcon(new ImageIcon(secretTicket));
+		secretButton.setIconTextGap(50);
+		doublemoveButton.setIcon(new ImageIcon(taxiTicket));
+		doublemoveButton.setIconTextGap(50);
+		
 		//Set Sizes
 		infoContainer.setPreferredSize(new Dimension(270, 920));
 		ticketContainer.setPreferredSize(new Dimension(300, 600));
-		save.setPreferredSize(new Dimension(100, 50));
-		stats.setPreferredSize(new Dimension(200, 180));
-		
-		//Create Initial Map
-		top = new JLabel();
-		bottom = new JLabel();
-		side1 = new JLabel();
-		side2 = new JLabel();
-		ImageIcon mainimage = new ImageIcon(imagemain);
-		map.setIcon(mainimage);
-		mouseContainer.add(map);
-		top.setIcon(borderImages.get(Colour.Black)[0]);
-		bottom.setIcon(borderImages.get(Colour.Black)[1]);
-		side1.setIcon(borderImages.get(Colour.Black)[2]);
-		side2.setIcon(borderImages.get(Colour.Black)[3]);
-		insideMapContainer.add(top, BorderLayout.NORTH);
-		insideMapContainer.add(bottom, BorderLayout.SOUTH);
-		insideMapContainer.add(side1, BorderLayout.EAST);
-		insideMapContainer.add(side2, BorderLayout.WEST);
-		insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
-		ImageIcon ticketPanelIcon = new ImageIcon(ticketPanel);
-		ticketPanelLabel = new JLabel(ticketPanelIcon);
-		mapContainer.add(ticketPanelLabel, BorderLayout.SOUTH);
+		saveButton.setPreferredSize(new Dimension(100, 50));
+		statsContainer.setPreferredSize(new Dimension(200, 180));
 
-		// Add Mouse Events
+		//Add Mouse Events
 		mouseContainer.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(MouseEvent a) {
-				System.out.println("release");
 				int x = a.getX();
 				int y = a.getY();
-				System.out.println("has coords");
+				
 				if (selected > 0) {
-					if (position.getX(selected) - 15 < x
-							&& x < position.getX(selected) + 15
-							&& position.getY(selected) - 15 < y
-							&& y < position.getY(selected) + 15) {
+					if (position.getX(selected) - 15 < x && 
+						x < position.getX(selected) + 15 && 
+						position.getY(selected) - 15 < y && 
+						y < position.getY(selected) + 15) {
+						
 						if (Debug.debug) {
 							System.out.println("Move choosen, sending to presenter");
 						}
 
 						Ticket ticketUsed = null;
-						if (taxi.isSelected()) {
+						if (taxiButton.isSelected()) {
 							ticketUsed = Ticket.Taxi;
-						} else if (bus.isSelected()) {
+						} else if (busButton.isSelected()) {
 							ticketUsed = Ticket.Bus;
-						} else if (underground.isSelected()) {
+						} else if (undergroundButton.isSelected()) {
 							ticketUsed = Ticket.Underground;
-						} else if (secret.isSelected()) {
+						} else if (secretButton.isSelected()) {
 							ticketUsed = Ticket.SecretMove;
 						}
 
-						taxi.setSelected(false);
-						bus.setSelected(false);
-						underground.setSelected(false);
-						secret.setSelected(false);
+						taxiButton.setSelected(false);
+						busButton.setSelected(false);
+						undergroundButton.setSelected(false);
+						secretButton.setSelected(false);
 
 						selected = 0;
-						if (doublemove.isSelected() && firstMove == true) {
+						
+						if (doublemoveButton.isSelected() && firstMove == true) {
 							System.out.println("DoubleMOVE1");
 							firstMove = false;
-							presenter.sendFirstMove(target, ticketUsed,
-									currentPlayer);
+							presenter.sendFirstMove(target, ticketUsed, currentPlayer);
 						} else {
 							firstMove = true;
-							boolean doubleMove = doublemove.isSelected();
-							doublemove.setSelected(false);
-							presenter.sendMove(target, ticketUsed,
-									currentPlayer, doubleMove);
+							boolean doubleMove = doublemoveButton.isSelected();
+							doublemoveButton.setSelected(false);
+							presenter.sendMove(target, ticketUsed, currentPlayer, doubleMove);
 						}
 
-					} else {
+					}else{
 						selected = 0;
-						if (taxi.isSelected()) {
+						if (taxiButton.isSelected()) {
 							taxiMap();
-						} else if (bus.isSelected()) {
+						} else if (busButton.isSelected()) {
 							busMap();
-						} else if (underground.isSelected()) {
+						} else if (undergroundButton.isSelected()) {
 							undergroundMap();
-						} else if (secret.isSelected()) {
+						} else if (secretButton.isSelected()) {
 							secretMap();
-						}
+						}	
 					}
 				}else if(selected == -2){
 					if(x < 699 && x > 319 && y < 550 && y > 450){
 						waiting = false;
 						setButtonVisibility(tickets);
 						mainMap();
+						selected = 0;
+					}else{
 						selected = 0;
 					}
 				} else {
@@ -337,7 +318,7 @@ public class MainScreen extends JFrame {
 				if(waiting == true){
 					if(x < 699 && x > 319 && y < 550 && y > 450)
 						selected = -2;
-				} else if (taxi.isSelected()) {
+				} else if (taxiButton.isSelected()) {
 					for (int i : taxiMoves) {
 						if (position.getX(i) - 15 < x
 								&& x < position.getX(i) + 15
@@ -349,8 +330,8 @@ public class MainScreen extends JFrame {
 							return;
 						}
 					}
-					selected = -1;
-				} else if (bus.isSelected()) {
+					selected = 0;
+				} else if (busButton.isSelected()) {
 					for (int i : busMoves) {
 						if (position.getX(i) - 15 < x
 								&& x < position.getX(i) + 15
@@ -362,8 +343,8 @@ public class MainScreen extends JFrame {
 							return;
 						}
 					}
-					selected = -1;
-				} else if (underground.isSelected()) {
+					selected = 0;
+				} else if (undergroundButton.isSelected()) {
 					for (int i : undergroundMoves) {
 						if (position.getX(i) - 15 < x
 								&& x < position.getX(i) + 15
@@ -375,8 +356,8 @@ public class MainScreen extends JFrame {
 							return;
 						}
 					}
-					selected = -1;
-				} else if (secret.isSelected()) {
+					selected = 0;
+				} else if (secretButton.isSelected()) {
 					for (int i : secretMoves) {
 						if (position.getX(i) - 15 < x
 								&& x < position.getX(i) + 15
@@ -388,52 +369,21 @@ public class MainScreen extends JFrame {
 							return;
 						}
 					}
-					selected = -1;
+					selected = 0;
 				} else {
-					selected = -1;
+					selected = 0;
 				}
 			}
 
 			@Override
-			public void mouseClicked(MouseEvent e) {
-			}
-
+			public void mouseClicked(MouseEvent e) {}
 			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
+			public void mouseEntered(MouseEvent e) {}
 			@Override
-			public void mouseExited(MouseEvent e) {
-			}
-
-		});
-		mapContainer.add(insideMapContainer, BorderLayout.NORTH);
-
-		// Save and Rules
-		save.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-			    chooser.showSaveDialog(map);
-			    
-			    File file = chooser.getSelectedFile();
-			    presenter.saveCurrentState(file);
-			    
-			}
+			public void mouseExited(MouseEvent e) {}
 		});
 
-		rules.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(!rulesOpen){
-					rulesOpen = true;
-					RulesScreen rulesScreen = new RulesScreen(m);
-				}
-			}
-		});
-
-
-		// Statistics
+		//Statistics
 		JLabel roundTitle = new JLabel("<html>Round Number</html>");
 		JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X Reveals</html>");
 		JLabel currentTitle = new JLabel("<html>Current Player</html>");
@@ -444,20 +394,20 @@ public class MainScreen extends JFrame {
 		currentStat = new JLabel("####", SwingConstants.RIGHT);
 		roundsLeftStat = new JLabel("####", SwingConstants.RIGHT);
 		timerStat = new JLabel("####", SwingConstants.RIGHT);
-		stats.add(roundTitle, 0);
-		stats.add(roundStat, 1);
-		stats.add(mrXTitle, 2);
-		stats.add(mrXStat, 3);
-		stats.add(currentTitle, 4);
-		stats.add(currentStat, 5);
-		stats.add(roundsLeftTitle, 6);
-		stats.add(roundsLeftStat, 7);
-		stats.add(timerTitle, 8);
-		stats.add(timerStat, 9);
+		statsContainer.add(roundTitle, 0);
+		statsContainer.add(roundStat, 1);
+		statsContainer.add(mrXTitle, 2);
+		statsContainer.add(mrXStat, 3);
+		statsContainer.add(currentTitle, 4);
+		statsContainer.add(currentStat, 5);
+		statsContainer.add(roundsLeftTitle, 6);
+		statsContainer.add(roundsLeftStat, 7);
+		statsContainer.add(timerTitle, 8);
+		statsContainer.add(timerStat, 9);
 		
+		//Implement Timer
 		Timer t = new Timer();
-		
-		TimerTask tt = new TimerTask(){
+		t.scheduleAtFixedRate(new TimerTask(){
 
 			@Override
 			public void run() {
@@ -469,135 +419,160 @@ public class MainScreen extends JFrame {
 				currentTime++;
 			}
 			
-		};
-		
-		t.scheduleAtFixedRate(tt, 0, 1000);
+		}, 0, 1000);
 
-		// Button Listeners
-		taxi.addActionListener(new ActionListener() {
+		//Button Listeners
+		taxiButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				bus.setSelected(false);
-				underground.setSelected(false);
-				secret.setSelected(false);
-				if (taxi.isSelected()) {
+				busButton.setSelected(false);
+				undergroundButton.setSelected(false);
+				secretButton.setSelected(false);
+				if (taxiButton.isSelected()) {
 					taxiMap();
 				} else {
 					mainMap();
 				}
 			}
 		});
-		bus.addActionListener(new ActionListener() {
+		
+		busButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				taxi.setSelected(false);
-				underground.setSelected(false);
-				secret.setSelected(false);
-				if (bus.isSelected()) {
+				taxiButton.setSelected(false);
+				undergroundButton.setSelected(false);
+				secretButton.setSelected(false);
+				if (busButton.isSelected()) {
 					busMap();
 				} else {
 					mainMap();
 				}
 			}
 		});
-		underground.addActionListener(new ActionListener() {
+		
+		undergroundButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				taxi.setSelected(false);
-				bus.setSelected(false);
-				secret.setSelected(false);
-				if (underground.isSelected()) {
+				taxiButton.setSelected(false);
+				busButton.setSelected(false);
+				secretButton.setSelected(false);
+				if (undergroundButton.isSelected()) {
 					undergroundMap();
 				} else {
 					mainMap();
 				}
 			}
 		});
-		secret.addActionListener(new ActionListener() {
+		
+		secretButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				taxi.setSelected(false);
-				bus.setSelected(false);
-				underground.setSelected(false);
-				if (secret.isSelected()) {
+				taxiButton.setSelected(false);
+				busButton.setSelected(false);
+				undergroundButton.setSelected(false);
+				if (secretButton.isSelected()) {
 					secretMap();
 				} else {
 					mainMap();
 				}
 			}
 		});
-		doublemove.addActionListener(new ActionListener() {
+		
+		doublemoveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (doublemove.isSelected()) {
-					taxi.setSelected(false);
-					bus.setSelected(false);
-					underground.setSelected(false);
-					secret.setSelected(false);
+				if (doublemoveButton.isSelected()) {
+					taxiButton.setSelected(false);
+					busButton.setSelected(false);
+					undergroundButton.setSelected(false);
+					secretButton.setSelected(false);
 					firstMove = true;
 					mainMap();
 				} else {
-					taxi.setSelected(false);
-					bus.setSelected(false);
-					underground.setSelected(false);
-					secret.setSelected(false);
+					taxiButton.setSelected(false);
+					busButton.setSelected(false);
+					undergroundButton.setSelected(false);
+					secretButton.setSelected(false);
 					presenter.doubleMoveFalse();
 				}
 			}
 		});
-
+		
+		saveButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+			    chooser.showSaveDialog(map);
+			    
+			    File file = chooser.getSelectedFile();
+			    presenter.saveCurrentState(file);
+			    
+			}
+		});
+		
+		rulesButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!rulesOpen){
+					rulesOpen = true;
+					RulesScreen rulesScreen = new RulesScreen(m);
+				}
+			}
+		});
+		
+		//MapPanel Adding
+		insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
+		mouseContainer.add(map);
+		insideMapContainer.add(top, BorderLayout.NORTH);
+		insideMapContainer.add(bottom, BorderLayout.SOUTH);
+		insideMapContainer.add(side1, BorderLayout.EAST);
+		insideMapContainer.add(side2, BorderLayout.WEST);
+		insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
+		ImageIcon ticketPanelIcon = new ImageIcon(ticketPanel);
+		ticketPanelLabel = new JLabel(ticketPanelIcon);
+		mapContainer.add(ticketPanelLabel, BorderLayout.SOUTH);
+		mapContainer.add(insideMapContainer, BorderLayout.NORTH);
+		
 		//InfoPanel Adding
-		ticketContainer.add(taxi);
-		ticketContainer.add(bus);
-		ticketContainer.add(underground);
-		ticketContainer.add(secret);
-		ticketContainer.add(doublemove);
-
-		northInfo.add(rules, BorderLayout.NORTH);
-		northInfo.add(stats, BorderLayout.SOUTH);
-
-		southInfo.add(save, BorderLayout.CENTER);
-
-		infoContainer.add(southInfo, BorderLayout.SOUTH);
-		infoContainer.add(northInfo, BorderLayout.NORTH);
+		ticketContainer.add(taxiButton);
+		ticketContainer.add(busButton);
+		ticketContainer.add(undergroundButton);
+		ticketContainer.add(secretButton);
+		ticketContainer.add(doublemoveButton);
+		northInfoContainer.add(rulesButton, BorderLayout.NORTH);
+		northInfoContainer.add(statsContainer, BorderLayout.SOUTH);
+		southInfoContainer.add(saveButton, BorderLayout.CENTER);
+		infoContainer.add(southInfoContainer, BorderLayout.SOUTH);
+		infoContainer.add(northInfoContainer, BorderLayout.NORTH);
 		infoContainer.add(ticketContainer, BorderLayout.CENTER);
 		
 		//MainPanel Adding
 		mainContainer.add(mapContainer);
 		mainContainer.add(infoContainer);
 		
-		//Finalize
+		//Finalisation
 		add(mainContainer);
 		pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 		setVisible(true);
 	}
-
-	void updateTimer(){
-		currentTime++;
-		timerStat.setText(Integer.toString(currentTime));
-	}
 	
+	//Draws the standard map.
 	protected void mainMap() {
 		mapContainer.setVisible(false);
 
 		try {
 			imagemain = ImageIO.read(new File("resources/map.png"));
-		} catch (IOException e) {
-		}
+		} catch (IOException e) {}
 		Graphics2D g = imagemain.createGraphics();
-
 		g.drawImage(imagemain, 0, 0, null);
 		addPlayerTokens(g);
-
 		addDoubleMoveText(g);
-
 		g.dispose();
+		
 		image.setImage(imagemain);
-
 		map.setIcon(image);
-
 		top.setIcon(borderImages.get(currentPlayer)[0]);
 		bottom.setIcon(borderImages.get(currentPlayer)[1]);
 		side1.setIcon(borderImages.get(currentPlayer)[2]);
@@ -605,19 +580,18 @@ public class MainScreen extends JFrame {
 
 		mapContainer.setVisible(true);
 	}
-
+	
+	
+	//Draws the map for secret routes.
 	protected void secretMap() {
 		mapContainer.setVisible(false);
+		
 		try {
 			imagesecret = ImageIO.read(new File("resources/secretmap.png"));
-		} catch (IOException e) {
-		}
+		} catch (IOException e) {}
 		Graphics2D g = imagesecret.createGraphics();
-
 		g.drawImage(imagesecret, 0, 0, null);
-
-		addPlayerTokens(g);
-		
+		addPlayerTokens(g);		
 		for (int i : secretMoves) {
 			g.drawImage(secretOverlay, position.getX(i) - 17,
 					position.getY(i) - 17, null);
@@ -625,17 +599,13 @@ public class MainScreen extends JFrame {
 		if (selected != 0) {
 			g.drawImage(secretSelected, position.getX(selected) - 17,
 					position.getY(selected) - 17, null);
-		}
-	
-		g.drawImage(allZones, 0, 0, null);
-		
-		addDoubleMoveText(g);
-		
+		}	
+		g.drawImage(allZones, 0, 0, null);		
+		addDoubleMoveText(g);		
 		g.dispose();
-
+		
 		image.setImage(imagesecret);
 		map.setIcon(image);
-
 		top.setIcon(borderImages.get(currentPlayer)[0]);
 		bottom.setIcon(borderImages.get(currentPlayer)[1]);
 		side1.setIcon(borderImages.get(currentPlayer)[2]);
@@ -644,18 +614,16 @@ public class MainScreen extends JFrame {
 		mapContainer.setVisible(true);
 	}
 
+	//Draws the map for underground routes.
 	protected void undergroundMap() {
 		mapContainer.setVisible(false);
+		
 		try {
 			imageunder = ImageIO.read(new File("resources/undergroundmap.png"));
-		} catch (IOException e) {
-		}
+		} catch (IOException e) {}
 		Graphics2D g = imageunder.createGraphics();
-
 		g.drawImage(imageunder, 0, 0, null);
-
-		addPlayerTokens(g);
-		
+		addPlayerTokens(g);	
 		for (int i : undergroundMoves) {
 			g.drawImage(underOverlay, position.getX(i) - 17,
 					position.getY(i) - 17, null);
@@ -664,92 +632,13 @@ public class MainScreen extends JFrame {
 			g.drawImage(underSelected, position.getX(selected) - 17,
 					position.getY(selected) - 17, null);
 		}
-
 		g.drawImage(undergroundZones, 0, 0, null);
-
-		addPlayerTokens(g);
-		
+		addPlayerTokens(g);	
 		addDoubleMoveText(g);
-
 		g.dispose();
-
+		
 		image.setImage(imageunder);
 		map.setIcon(image);
-
-		top.setIcon(borderImages.get(currentPlayer)[0]);
-		bottom.setIcon(borderImages.get(currentPlayer)[1]);
-		side1.setIcon(borderImages.get(currentPlayer)[2]);
-		side2.setIcon(borderImages.get(currentPlayer)[3]);
-
-		mapContainer.setVisible(true);
-	}
-
-	protected void busMap() {
-		mapContainer.setVisible(false);
-		try {
-			imagebus = ImageIO.read(new File("resources/busmap.png"));
-		} catch (IOException e) {
-		}
-		Graphics2D g = imagebus.createGraphics();
-
-		g.drawImage(imagebus, 0, 0, null);
-
-		addPlayerTokens(g);
-
-		for (int i : busMoves) {
-			g.drawImage(busOverlay, position.getX(i) - 17,
-					position.getY(i) - 17, null);
-		}
-		if (selected != 0) {
-			g.drawImage(busSelected, position.getX(selected) - 17,
-					position.getY(selected) - 18, null);
-		}
-
-		g.drawImage(busZones, 0, 0, null);
-		
-		addDoubleMoveText(g);
-
-		g.dispose();
-
-		image.setImage(imagebus);
-		map.setIcon(image);
-
-		top.setIcon(borderImages.get(currentPlayer)[0]);
-		bottom.setIcon(borderImages.get(currentPlayer)[1]);
-		side1.setIcon(borderImages.get(currentPlayer)[2]);
-		side2.setIcon(borderImages.get(currentPlayer)[3]);
-
-		mapContainer.setVisible(true);
-	}
-
-	protected void taxiMap() {
-		mapContainer.setVisible(false);
-		try {
-			imagetaxi = ImageIO.read(new File("resources/taximap.png"));
-		} catch (IOException e) {
-		}
-		Graphics2D g = imagetaxi.createGraphics();
-
-		g.drawImage(imagetaxi, 0, 0, null);
-		
-		addPlayerTokens(g);
-
-		for (int i : taxiMoves) {
-			g.drawImage(taxiOverlay, position.getX(i) - 17, position.getY(i) - 17, null);
-		}
-		if (selected != 0) {
-			g.drawImage(taxiSelected, position.getX(selected) - 17, position.getY(selected) - 17, null);
-		}
-
-		g.drawImage(allZones, 0, 0, null);
-		
-		addDoubleMoveText(g);
-
-		g.dispose();
-
-		image.setImage(imagetaxi);
-		map.setIcon(image);
-
 		top.setIcon(borderImages.get(currentPlayer)[0]);
 		bottom.setIcon(borderImages.get(currentPlayer)[1]);
 		side1.setIcon(borderImages.get(currentPlayer)[2]);
@@ -758,6 +647,71 @@ public class MainScreen extends JFrame {
 		mapContainer.setVisible(true);
 	}
 	
+	
+	//Draws the map for bus routes.
+	protected void busMap() {
+		mapContainer.setVisible(false);
+		
+		try {
+			imagebus = ImageIO.read(new File("resources/busmap.png"));
+		} catch (IOException e) {}
+		Graphics2D g = imagebus.createGraphics();
+		g.drawImage(imagebus, 0, 0, null);
+		addPlayerTokens(g);
+		for (int i : busMoves) {
+			g.drawImage(busOverlay, position.getX(i) - 17,
+					position.getY(i) - 17, null);
+		}
+		if (selected != 0) {
+			g.drawImage(busSelected, position.getX(selected) - 17,
+					position.getY(selected) - 18, null);
+		}
+		g.drawImage(busZones, 0, 0, null);		
+		addDoubleMoveText(g);
+		g.dispose();
+		
+		image.setImage(imagebus);
+		map.setIcon(image);
+		top.setIcon(borderImages.get(currentPlayer)[0]);
+		bottom.setIcon(borderImages.get(currentPlayer)[1]);
+		side1.setIcon(borderImages.get(currentPlayer)[2]);
+		side2.setIcon(borderImages.get(currentPlayer)[3]);
+
+		mapContainer.setVisible(true);
+	}
+	
+	
+	//Draws the map for taxi routes.
+	protected void taxiMap() {
+		mapContainer.setVisible(false);
+		
+		try {
+			imagetaxi = ImageIO.read(new File("resources/taximap.png"));
+		} catch (IOException e) {}
+		Graphics2D g = imagetaxi.createGraphics();
+		g.drawImage(imagetaxi, 0, 0, null);		
+		addPlayerTokens(g);
+		for (int i : taxiMoves) {
+			g.drawImage(taxiOverlay, position.getX(i) - 17, position.getY(i) - 17, null);
+		}
+		if (selected != 0) {
+			g.drawImage(taxiSelected, position.getX(selected) - 17, position.getY(selected) - 17, null);
+		}
+		g.drawImage(allZones, 0, 0, null);	
+		addDoubleMoveText(g);
+		g.dispose();
+		
+		image.setImage(imagetaxi);
+		map.setIcon(image);
+		top.setIcon(borderImages.get(currentPlayer)[0]);
+		bottom.setIcon(borderImages.get(currentPlayer)[1]);
+		side1.setIcon(borderImages.get(currentPlayer)[2]);
+		side2.setIcon(borderImages.get(currentPlayer)[3]);
+
+		mapContainer.setVisible(true);
+	}
+	
+	//Draws the player confirmation image.
 	protected void nextTurnMap() {
 		mapContainer.setVisible(false);
 		
@@ -765,7 +719,6 @@ public class MainScreen extends JFrame {
 		try {
 			nextTurn = ImageIO.read(new File("resources/nextTurnScreen.png"));
 		} catch (IOException e) {}
-
 		image.setImage(nextTurn);
 		map.setIcon(image);
 		top.setIcon(borderImages.get(currentPlayer)[0]);
@@ -775,7 +728,8 @@ public class MainScreen extends JFrame {
 
 		mapContainer.setVisible(true);
 	}
-
+	
+	//Draws the player tokens on their location.
 	private void addPlayerTokens(Graphics2D g) {
 		for (Colour c : Colour.values()) {
 			if (locations.containsKey(c)) {
@@ -813,18 +767,18 @@ public class MainScreen extends JFrame {
 				}
 			}
 		}
-
 	}
-
+	
+	//Adds text telling player to make first/second move in a double move.
 	private void addDoubleMoveText(Graphics2D g) {
-		if (doublemove.isSelected() && firstMove) {
+		if (doublemoveButton.isSelected() && firstMove) {
 			g.drawImage(firstMoveText, 0, 761, null);
-		} else if (doublemove.isSelected() && !firstMove) {
+		} else if (doublemoveButton.isSelected() && !firstMove) {
 			g.drawImage(secondMoveText, 0, 761, null);
 		}
 	}
 
-	// Called by Presenter to Update the GUI.
+	//Called by Presenter to Update the GUI.
 	public void updateDisplay(Colour c, String round, String roundsUntilReveal, String roundLeft,
 			Set<Integer> tm, Set<Integer> bm,
 			Set<Integer> um, Set<Integer> sm,
@@ -847,51 +801,61 @@ public class MainScreen extends JFrame {
 		displayTicketNumbers(tickets);
 		hideButtons();
 		
-		//Update Stats Text.
+		//Update Statistics Text.
 		roundStat.setText(round);
 		mrXStat.setText(roundsUntilReveal);
 		currentStat.setText(currentPlayer.toString());
 		roundsLeftStat.setText(roundLeft);
+		
+		//Set the state to waiting for player to confirm he is ready.
 		nextTurnMap();
-		
-		waiting = true;
-	}
-
-	private void setButtonVisibility(Map<Ticket, Integer> tickets) {
-		taxi.setEnabled(tickets.get(Ticket.Taxi) != 0);
-		bus.setEnabled(tickets.get(Ticket.Bus) != 0);
-		underground.setEnabled(tickets.get(Ticket.Underground) != 0);
-		secret.setEnabled(tickets.get(Ticket.SecretMove) != 0);
-		doublemove.setEnabled(tickets.get(Ticket.DoubleMove) != 0);
-		
-		if (currentPlayer != Colour.Black) {
-			secret.setVisible(false);
-			doublemove.setVisible(false);
-		} else {
-			secret.setVisible(true);
-			doublemove.setVisible(true);
+		if(firstMove == true){
+			waiting = true;
+		}else{
+			mainMap();
+			setButtonVisibility(tickets);
 		}
 	}
 	
-	private void hideButtons() {
-		taxi.setEnabled(false);
-		bus.setEnabled(false);
-		underground.setEnabled(false);
-		secret.setEnabled(false);
-		doublemove.setEnabled(false);
+	//Set Button Visibility for Players.
+	private void setButtonVisibility(Map<Ticket, Integer> tickets) {
+		taxiButton.setEnabled(tickets.get(Ticket.Taxi) != 0);
+		busButton.setEnabled(tickets.get(Ticket.Bus) != 0);
+		undergroundButton.setEnabled(tickets.get(Ticket.Underground) != 0);
+		secretButton.setEnabled(tickets.get(Ticket.SecretMove) != 0);
+		doublemoveButton.setEnabled(tickets.get(Ticket.DoubleMove) != 0);
+		if (currentPlayer != Colour.Black) {
+			secretButton.setVisible(false);
+			doublemoveButton.setVisible(false);
+		} else {
+			secretButton.setVisible(true);
+			doublemoveButton.setVisible(true);
+		}
 	}
-
+	
+	//Hide all Buttons.
+	private void hideButtons() {
+		taxiButton.setEnabled(false);
+		busButton.setEnabled(false);
+		undergroundButton.setEnabled(false);
+		secretButton.setEnabled(false);
+		doublemoveButton.setEnabled(false);
+	}
+	
+	//Display the Ticket Number for the Player.
 	private void displayTicketNumbers(Map<Ticket, Integer> tickets) {
-		taxi.setText(String.format("Taxi (%d)", tickets.get(Ticket.Taxi)));
-		bus.setText(String.format("Bus (%d)", tickets.get(Ticket.Bus)));
-		underground.setText(String.format("Underground (%d)",
+		taxiButton.setText(String.format("Taxi (%d)", tickets.get(Ticket.Taxi)));
+		busButton.setText(String.format("Bus (%d)", tickets.get(Ticket.Bus)));
+		undergroundButton.setText(String.format("Underground (%d)",
 				tickets.get(Ticket.Underground)));
-		secret.setText(String.format("Secret Move (%d)",
+		secretButton.setText(String.format("Secret Move (%d)",
 				tickets.get(Ticket.SecretMove)));
-		doublemove.setText(String.format("Double Move (%d)",
+		doublemoveButton.setText(String.format("Double Move (%d)",
 				tickets.get(Ticket.DoubleMove)));
 	}
-
+	
+	
+	//Draw Mr.X's last used ticket.
 	public void updateTicketPanel(Ticket ticket, int r) {
 		Graphics2D g = ticketPanel.createGraphics();
 		switch (ticket){
@@ -913,7 +877,8 @@ public class MainScreen extends JFrame {
 		g.dispose();
 		ticketPanelLabel.setIcon(new ImageIcon(ticketPanel));
 	}
-
+	
+	//Rules Screen notifies the Main Screen it's been closed.
 	public void rulesClosed() {
 		rulesOpen = false;	
 	}
