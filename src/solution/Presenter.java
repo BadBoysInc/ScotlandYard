@@ -242,6 +242,7 @@ public class Presenter implements Player{
 	public void notifyModelChange(List<Move> validMoves) {
 		if(Debug.debug){System.out.println("Presenter notified, updating gui");}
 		if(model.isGameOver()){
+			
 			WinnersScreen ws = new WinnersScreen(model.getWinningPlayers());
 		}else{
 			Colour c = model.getCurrentPlayer();

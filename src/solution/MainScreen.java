@@ -151,6 +151,7 @@ public class MainScreen extends JFrame {
 		secret 		= new JToggleButton("Secret Move");
 		doublemove 	= new JToggleButton("Double Move");
 		
+		
 		//Set Sizes
 		infoContainer.setPreferredSize(new Dimension(270, 920));
 		ticketContainer.setPreferredSize(new Dimension(300, 600));
