@@ -5,13 +5,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
@@ -28,7 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.border.EmptyBorder;
 
 import scotlandyard.Colour;
 import scotlandyard.Ticket;
@@ -127,7 +125,7 @@ public class MainScreen extends JFrame {
 		//Borders and Backgrounds
 		mainContainer.setBackground(Color.DARK_GRAY);
 		infoContainer.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		stats.setBorder(BorderFactory.createTitledBorder("Statistics"));
+		stats.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Statistics"), new EmptyBorder(10, 10, 10, 10)));
 		ticketContainer.setBorder(BorderFactory.createTitledBorder("Tickets"));
 		southInfo.setBorder(BorderFactory.createBevelBorder(0));
 
