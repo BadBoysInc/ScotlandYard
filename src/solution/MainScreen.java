@@ -102,6 +102,7 @@ public class MainScreen extends JFrame {
 	int selected;
 	int target;
 	boolean firstMove;
+	boolean rulesOpen;
 
 	public MainScreen(Presenter p, Set<Colour> players) {
 		// Initialise Variables
@@ -109,6 +110,8 @@ public class MainScreen extends JFrame {
 		currentPlayer = Colour.Black;
 		presenter = p;
 		firstMove = true;
+		rulesOpen = false;
+		final MainScreen m = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		//JPanels
@@ -370,9 +373,7 @@ public class MainScreen extends JFrame {
 		});
 		mapContainer.add(insideMapContainer, BorderLayout.NORTH);
 
-		// Quit and Rules
-		
-		
+		// Save and Rules
 		save.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -388,10 +389,10 @@ public class MainScreen extends JFrame {
 		rules.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				taxi.setSelected(false);
-				bus.setSelected(false);
-				underground.setSelected(false);
-				secret.setSelected(false);
+				if(!rulesOpen){
+					rulesOpen = true;
+					RulesScreen rulesScreen = new RulesScreen(m);
+				}
 			}
 		});
 
@@ -816,6 +817,10 @@ public class MainScreen extends JFrame {
 		}
 		g.dispose();
 		ticketPanelLabel.setIcon(new ImageIcon(ticketPanel));
+	}
+
+	public void rulesClosed() {
+		rulesOpen = false;	
 	}
 	
 }
