@@ -139,7 +139,7 @@ public class IntroScreen extends JFrame{
 		
 		JPanel quitPanel = new JPanel();
 		quitPanel.setLayout(new BorderLayout());
-		quitPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 10, 30));
+		quitPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		quitPanel.add(quit);
 		
 		//Add Buttons
@@ -151,7 +151,7 @@ public class IntroScreen extends JFrame{
 		this.setLayout(new BorderLayout());
 		this.add(right, BorderLayout.EAST);
 		this.add(left, BorderLayout.CENTER);
-		setPreferredSize(new Dimension(600, 500));
+		setPreferredSize(new Dimension(600, 400));
 	    pack();
 	    setLocationByPlatform(true);
 	    setVisible(true);
