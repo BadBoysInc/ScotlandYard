@@ -60,12 +60,13 @@ public class MainScreen extends JFrame {
 	JLabel side1;
 	JLabel side2;
 	JLabel ticketPanelLabel;
-
+	
 	BufferedImage imagemain;
 	BufferedImage imagetaxi;
 	BufferedImage imagebus;
 	BufferedImage imageunder;
 	BufferedImage imagesecret;
+	BufferedImage imagenextturn;
 
 	BufferedImage taxiOverlay;
 	BufferedImage busOverlay;
@@ -186,7 +187,7 @@ public class MainScreen extends JFrame {
 			blueToken = ImageIO.read(new File("resources/BlueToken.png"));
 			greenToken = ImageIO.read(new File("resources/GreenToken.png"));
 			redToken = ImageIO.read(new File("resources/RedToken.png"));
-
+			
 			firstMoveText = ImageIO.read(new File("resources/make-first-Move.png"));
 			secondMoveText = ImageIO.read(new File("resources/make-second-Move.png"));
 
@@ -223,15 +224,18 @@ public class MainScreen extends JFrame {
 		
 		//Set Button Icons
 		taxiButton.setIcon(new ImageIcon(taxiTicket));
-		taxiButton.setIconTextGap(50);		
+		taxiButton.setIconTextGap(64);		
 		busButton.setIcon(new ImageIcon(busTicket));
-		busButton.setIconTextGap(50);
+		busButton.setIconTextGap(66);
 		undergroundButton.setIcon(new ImageIcon(undergroundTicket));
-		undergroundButton.setIconTextGap(50);
+		undergroundButton.setIconTextGap(38);
 		secretButton.setIcon(new ImageIcon(secretTicket));
-		secretButton.setIconTextGap(50);
-		doublemoveButton.setIcon(new ImageIcon(taxiTicket));
-		doublemoveButton.setIconTextGap(50);
+		secretButton.setIconTextGap(40);
+		try {
+			doublemoveButton.setIcon(new ImageIcon(ImageIO.read(new File("resources/doubleTicket.png"))));
+			doublemoveButton.setIconTextGap(37);
+		} catch (IOException e1) {}
+		
 		
 		//Set Sizes
 		infoContainer.setPreferredSize(new Dimension(270, 920));
@@ -298,13 +302,14 @@ public class MainScreen extends JFrame {
 						}	
 					}
 				}else if(selected == -2){
-					if(x < 699 && x > 319 && y < 550 && y > 450){
+					if(x < 700 && x > 320 && y < 450 && y > 340){
 						waiting = false;
 						setButtonVisibility(tickets);
 						mainMap();
 						selected = 0;
 					}else{
 						selected = 0;
+						nextTurnMap(false);
 					}
 				} else {
 					selected = 0;
@@ -316,8 +321,10 @@ public class MainScreen extends JFrame {
 				int x = e.getX();
 				int y = e.getY();
 				if(waiting == true){
-					if(x < 699 && x > 319 && y < 550 && y > 450)
+					if(x < 700 && x > 320 && y < 450 && y > 340){
 						selected = -2;
+						nextTurnMap(true);
+					}
 				} else if (taxiButton.isSelected()) {
 					for (int i : taxiMoves) {
 						if (position.getX(i) - 15 < x
@@ -712,14 +719,17 @@ public class MainScreen extends JFrame {
 	}
 	
 	//Draws the player confirmation image.
-	protected void nextTurnMap() {
+	protected void nextTurnMap(boolean selected) {
 		mapContainer.setVisible(false);
 		
-		BufferedImage nextTurn = null;
 		try {
-			nextTurn = ImageIO.read(new File("resources/nextTurnScreen.png"));
+			if(!selected){
+				imagenextturn = ImageIO.read(new File("resources/nextTurnScreen.png"));
+			}else{
+				imagenextturn = ImageIO.read(new File("resources/nextTurnScreenSelected.png"));
+			}
 		} catch (IOException e) {}
-		image.setImage(nextTurn);
+		image.setImage(imagenextturn);
 		map.setIcon(image);
 		top.setIcon(borderImages.get(currentPlayer)[0]);
 		bottom.setIcon(borderImages.get(currentPlayer)[1]);
@@ -808,7 +818,7 @@ public class MainScreen extends JFrame {
 		roundsLeftStat.setText(roundLeft);
 		
 		//Set the state to waiting for player to confirm he is ready.
-		nextTurnMap();
+		nextTurnMap(false);
 		if(firstMove == true){
 			waiting = true;
 		}else{
@@ -844,8 +854,8 @@ public class MainScreen extends JFrame {
 	
 	//Display the Ticket Number for the Player.
 	private void displayTicketNumbers(Map<Ticket, Integer> tickets) {
-		taxiButton.setText(String.format("Taxi (%d)", tickets.get(Ticket.Taxi)));
-		busButton.setText(String.format("Bus (%d)", tickets.get(Ticket.Bus)));
+		taxiButton.setText(String.format("Taxi (%d)        ", tickets.get(Ticket.Taxi)));
+		busButton.setText(String.format("Bus (%d)        ", tickets.get(Ticket.Bus)));
 		undergroundButton.setText(String.format("Underground (%d)",
 				tickets.get(Ticket.Underground)));
 		secretButton.setText(String.format("Secret Move (%d)",
