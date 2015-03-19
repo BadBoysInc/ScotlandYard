@@ -225,6 +225,10 @@ public class Presenter implements Player{
 
 	//Called by gui, tells model to play move
 	public void sendMove(int target, Ticket t, Colour currentPlayer, boolean moveDouble) {
+		System.out.println(target);
+		System.out.println(currentPlayer);
+		System.out.println(moveDouble);
+		System.out.println(t);
 		gameData.addMove(new MoveTicket(currentPlayer, target, t));
 		Move m = null;
 		if(moveDouble){
@@ -394,6 +398,10 @@ public class Presenter implements Player{
 	}
 
 	public void startReplay(File file){
+		//replay mode activated
+		
+		
+		
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			
@@ -405,7 +413,7 @@ public class Presenter implements Player{
 					  false, false, false, true,  false, 
 					  false, false, false, false, true ), "resources/graph.txt");
 			
-			
+			gameData = new GameData();
 			List<PlayerInfo> players = new ArrayList<PlayerInfo>();
 			Set<Colour> colours = new HashSet<Colour>();
 			for(int x = 0; x<i; x++){
@@ -426,6 +434,7 @@ public class Presenter implements Player{
 				colours.add(c);
 				players.add(new PlayerInfo(c, l, t, presenter));
 				model.join(this, c , l, t);
+				gameData.addPlayer(c, l, t);
 			}
 			
 			i = Integer.parseInt(reader.readLine());
@@ -433,12 +442,15 @@ public class Presenter implements Player{
 			for(int x = 0; x<i; x++){
 				String p = reader.readLine();
 				StringTokenizer st = new StringTokenizer(p);
-				moves.add(new MoveTicket(Colour.valueOf(st.nextToken()), Integer.parseInt(st.nextToken()), Ticket.valueOf(st.nextToken())));
+				MoveTicket m = new MoveTicket(Colour.valueOf(st.nextToken()), Integer.parseInt(st.nextToken()), Ticket.valueOf(st.nextToken()));
+				moves.add(m);
+				gameData.addMove(m);
 			}
 			
 			//Make gui
 			introGui = null;
 			mainGui = new MainScreen(presenter, colours);
+			mainGui.activateReplayMode();
 			
 			model.loadOldGameFromData(0, players, Colour.Black, 0);
 			mrXUsedTickets = new ArrayList<Ticket>();
@@ -464,6 +476,10 @@ public class Presenter implements Player{
 						}
 						
 					}
+					mainGui.deactivateReplayMode();
+					Colour c = model.getCurrentPlayer();
+					List<Move> validMoves = model.validMoves(c);
+					mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(),getRoundsLeft() , getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 				}			
 			};
 			t.start();

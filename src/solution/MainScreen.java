@@ -113,6 +113,7 @@ public class MainScreen extends JFrame {
 	boolean firstMove;
 	boolean rulesOpen;
 	boolean waiting;
+	private boolean replayMode;
 
 	public MainScreen(Presenter p, Set<Colour> players) {
 		
@@ -123,6 +124,7 @@ public class MainScreen extends JFrame {
 		firstMove = true;
 		rulesOpen = false;
 		waiting = true;
+		replayMode = false;
 		final MainScreen m = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -284,6 +286,10 @@ public class MainScreen extends JFrame {
 							firstMove = true;
 							boolean doubleMove = doublemoveButton.isSelected();
 							doublemoveButton.setSelected(false);
+							/*System.out.println(target);
+							System.out.println(currentPlayer);
+							System.out.println(doubleMove);
+							System.out.println(ticketUsed);*/
 							presenter.sendMove(target, ticketUsed, currentPlayer, doubleMove);
 						}
 
@@ -805,6 +811,8 @@ public class MainScreen extends JFrame {
 		locations 	 	 = l;
 		tickets 		 = t;
 		
+		this.setVisible(false);
+		
 		//Update Ticket Numbers and Hide Buttons.
 		displayTicketNumbers(tickets);
 		hideButtons();
@@ -818,16 +826,22 @@ public class MainScreen extends JFrame {
 		//Set the state to waiting for player to confirm he is ready.
 
 
+		if(replayMode == false){
+			nextTurnMap(false);
 
-		nextTurnMap(false);
-
-		if(firstMove == true){
-			waiting = true;
+			if(firstMove == true){
+				waiting = true;
+			}else{
+				mainMap();
+				setButtonVisibility(tickets);
+			}
 		}else{
 			mainMap();
 			setButtonVisibility(tickets);
+			waiting = false;
 		}
 		
+		this.setVisible(true);
 	}
 	
 	//Set Button Visibility for Players.
@@ -894,6 +908,16 @@ public class MainScreen extends JFrame {
 	//Rules Screen notifies the Main Screen it's been closed.
 	public void rulesClosed() {
 		rulesOpen = false;	
+	}
+
+	public void activateReplayMode() {
+		replayMode = true;
+		
+	}
+
+	public void deactivateReplayMode() {
+		replayMode = false;
+		
 	}
 
 }
