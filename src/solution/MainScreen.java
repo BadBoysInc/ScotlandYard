@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -45,6 +47,10 @@ public class MainScreen extends JFrame {
 	JLabel roundStat;
 	JLabel mrXStat;
 	JLabel currentStat;
+	JLabel roundsLeftStat;
+	JLabel timerStat;
+	
+	int currentTime = 0;
 
 	Hashtable<Colour, ImageIcon[]> borderImages;
 
@@ -131,12 +137,10 @@ public class MainScreen extends JFrame {
 		JPanel ticketContainer 		= new JPanel();
 		JPanel southInfo 			= new JPanel();
 		
-		
-
 		//Borders and Backgrounds
 		mainContainer.setBackground(Color.DARK_GRAY);
 		infoContainer.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		stats.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Statistics"), new EmptyBorder(10, 10, 10, 10)));
+		stats.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Statistics"), new EmptyBorder(2, 10, 2, 10)));
 		ticketContainer.setBorder(BorderFactory.createTitledBorder("Tickets"));
 		southInfo.setBorder(BorderFactory.createBevelBorder(0));
 
@@ -146,7 +150,7 @@ public class MainScreen extends JFrame {
 		mouseContainer.setLayout(new BorderLayout());
 		infoContainer.setLayout(new BorderLayout());
 		northInfo.setLayout(new BorderLayout());
-		stats.setLayout(new GridLayout(3, 2));
+		stats.setLayout(new GridLayout(5, 2));
 		ticketContainer.setLayout(new GridLayout(5, 1));
 		southInfo.setLayout(new BorderLayout());
 		
@@ -209,28 +213,30 @@ public class MainScreen extends JFrame {
 
 		
 		//Buttons
-				JButton save  = new JButton("Save");
-				JButton rules = new JButton("Rules");
-				taxi 		= new JToggleButton("Taxi");
-				taxi.setIcon(new ImageIcon(taxiTicket));
-				taxi.setIconTextGap(50);
-				taxi.setBackground(new Color(254, 203, 21));
+		JButton save  = new JButton("Save");
+		JButton rules = new JButton("Rules");
+		taxi = new JToggleButton("Taxi");
+		taxi.setIcon(new ImageIcon(taxiTicket));
+		taxi.setIconTextGap(50);
+		bus = new JToggleButton("Bus");
+		bus.setIcon(new ImageIcon(busTicket));
+		bus.setIconTextGap(50);
+		underground = new JToggleButton("Underground");
+		underground.setIcon(new ImageIcon(undergroundTicket));
+		underground.setIconTextGap(50);
+		secret = new JToggleButton("Secret Move");
+		secret.setIcon(new ImageIcon(secretTicket));
+		secret.setIconTextGap(50);
+		doublemove 	= new JToggleButton("Double Move");
+		doublemove.setIcon(new ImageIcon(taxiTicket));
+		doublemove.setIconTextGap(50);
 				
-				bus 		= new JToggleButton("Bus");
-				bus.setIcon(new ImageIcon(busTicket));
-				underground = new JToggleButton("Underground");
-				underground.setIcon(new ImageIcon(undergroundTicket));
-				secret 		= new JToggleButton("Secret Move");
-				secret.setIcon(new ImageIcon(secretTicket));
-				doublemove 	= new JToggleButton("Double Move");
-				doublemove.setIcon(new ImageIcon(taxiTicket));
 				
-				
-				//Set Sizes
-				infoContainer.setPreferredSize(new Dimension(270, 920));
-				ticketContainer.setPreferredSize(new Dimension(300, 600));
-				save.setPreferredSize(new Dimension(100, 50));
-				stats.setPreferredSize(new Dimension(200, 180));
+		//Set Sizes
+		infoContainer.setPreferredSize(new Dimension(270, 920));
+		ticketContainer.setPreferredSize(new Dimension(300, 600));
+		save.setPreferredSize(new Dimension(100, 50));
+		stats.setPreferredSize(new Dimension(200, 180));
 		
 		//Create Initial Map
 		top = new JLabel();
@@ -429,17 +435,43 @@ public class MainScreen extends JFrame {
 
 		// Statistics
 		JLabel roundTitle = new JLabel("<html>Round Number</html>");
-		JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X's Location is Revealed</html>");
+		JLabel mrXTitle = new JLabel("<html>Rounds Until Mr.X Reveals</html>");
 		JLabel currentTitle = new JLabel("<html>Current Player</html>");
+		JLabel roundsLeftTitle = new JLabel("<html>Rounds Left</html>");
+		JLabel timerTitle = new JLabel("<html>Time</html>");
 		roundStat = new JLabel("####", SwingConstants.RIGHT);
 		mrXStat = new JLabel("####", SwingConstants.RIGHT);
 		currentStat = new JLabel("####", SwingConstants.RIGHT);
+		roundsLeftStat = new JLabel("####", SwingConstants.RIGHT);
+		timerStat = new JLabel("####", SwingConstants.RIGHT);
 		stats.add(roundTitle, 0);
 		stats.add(roundStat, 1);
 		stats.add(mrXTitle, 2);
 		stats.add(mrXStat, 3);
 		stats.add(currentTitle, 4);
 		stats.add(currentStat, 5);
+		stats.add(roundsLeftTitle, 6);
+		stats.add(roundsLeftStat, 7);
+		stats.add(timerTitle, 8);
+		stats.add(timerStat, 9);
+		
+		Timer t = new Timer();
+		
+		TimerTask tt = new TimerTask(){
+
+			@Override
+			public void run() {
+				
+				int seconds = currentTime%60;
+				int minutes = currentTime/60;
+								
+				timerStat.setText(String.format("%02d:%02ds",minutes, seconds));
+				currentTime++;
+			}
+			
+		};
+		
+		t.scheduleAtFixedRate(tt, 0, 1000);
 
 		// Button Listeners
 		taxi.addActionListener(new ActionListener() {
@@ -542,6 +574,11 @@ public class MainScreen extends JFrame {
 		setVisible(true);
 	}
 
+	void updateTimer(){
+		currentTime++;
+		timerStat.setText(Integer.toString(currentTime));
+	}
+	
 	protected void mainMap() {
 		mapContainer.setVisible(false);
 
@@ -788,7 +825,7 @@ public class MainScreen extends JFrame {
 	}
 
 	// Called by presenter to render updates
-	public void updateDisplay(Colour c, String round, String roundsUntilReveal,
+	public void updateDisplay(Colour c, String round, String roundsUntilReveal, String roundLeft,
 			Set<Integer> taximoves, Set<Integer> busmoves,
 			Set<Integer> undergroundmoves, Set<Integer> secretmoves,
 			Hashtable<Colour, Integer> l, Map<Ticket, Integer> t) {
@@ -811,6 +848,7 @@ public class MainScreen extends JFrame {
 		roundStat.setText(round);
 		mrXStat.setText(roundsUntilReveal);
 		currentStat.setText(currentPlayer.toString());
+		roundsLeftStat.setText(roundLeft);
 		nextTurnMap();
 		
 		waiting = true;

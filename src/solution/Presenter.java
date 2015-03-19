@@ -80,9 +80,15 @@ public class Presenter implements Player{
 		
 		Colour c = model.getCurrentPlayer();
 		List<Move> validMoves = model.validMoves(c);
-		mainGui.updateDisplay(c, Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+		mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(), getRoundsLeft(), getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 	}
 	
+	private String getRoundsLeft() {
+		int total = model.getRounds().size();
+		int current = model.getRound();
+		return Integer.toString((total - current) - 1);
+	}
+
 	Set<Integer> getTaxiMoves(List<Move> moves){
 		if(moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
@@ -246,7 +252,7 @@ public class Presenter implements Player{
 			WinnersScreen ws = new WinnersScreen(model.getWinningPlayers());
 		}else{
 			Colour c = model.getCurrentPlayer();
-			mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(), getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+			mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(),getRoundsLeft(), getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 		}
 	}
 
@@ -275,13 +281,13 @@ public class Presenter implements Player{
 		locations.put(Colour.Black, ((MoveTicket)firstMove).target);
 		Map<Ticket, Integer> tickets = model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets();
 		tickets.put(t, tickets.get(t)-1);
-		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(newMoves), getBusMoves(newMoves), getUndergroundMoves(newMoves), getSecretMoves(newMoves), locations, tickets);
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), getRoundsUntilReveal(), getRoundsLeft(), getTaxiMoves(newMoves), getBusMoves(newMoves), getUndergroundMoves(newMoves), getSecretMoves(newMoves), locations, tickets);
 		
 	}
 	
 	public void doubleMoveFalse() {
 		List<Move> validMoves = model.validMoves(model.getCurrentPlayer());
-		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), "1", getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
+		mainGui.updateDisplay(model.getCurrentPlayer(), Integer.toString(model.getRound()), getRoundsUntilReveal(), getRoundsLeft(), getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
 	}
 
 	public void saveCurrentState(File file) {
@@ -371,7 +377,7 @@ public class Presenter implements Player{
 			
 			Colour c = model.getCurrentPlayer();
 			List<Move> validMoves = model.validMoves(c);
-			mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(), getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+			mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(),getRoundsLeft() , getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 		
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
