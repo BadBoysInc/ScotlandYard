@@ -102,10 +102,12 @@ public class MainScreen extends JFrame {
 	Set<Integer> undergroundMoves;
 	Set<Integer> secretMoves;
 	Map<Colour, Integer> locations;
+	Map<Ticket, Integer> tickets;
 	int selected;
 	int target;
 	boolean firstMove;
 	boolean rulesOpen;
+	boolean waiting;
 
 	public MainScreen(Presenter p, Set<Colour> players) {
 		// Initialise Variables
@@ -114,6 +116,7 @@ public class MainScreen extends JFrame {
 		presenter = p;
 		firstMove = true;
 		rulesOpen = false;
+		waiting = true;
 		final MainScreen m = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -258,7 +261,7 @@ public class MainScreen extends JFrame {
 				int x = a.getX();
 				int y = a.getY();
 				System.out.println("has coords");
-				if (selected != -1) {
+				if (selected > 0) {
 					if (position.getX(selected) - 15 < x
 							&& x < position.getX(selected) + 15
 							&& position.getY(selected) - 15 < y
@@ -309,6 +312,13 @@ public class MainScreen extends JFrame {
 							secretMap();
 						}
 					}
+				}else if(selected == -2){
+					if(x < 699 && x > 319 && y < 550 && y > 450){
+						waiting = false;
+						setButtonVisibility(tickets);
+						mainMap();
+						selected = 0;
+					}
 				} else {
 					selected = 0;
 				}
@@ -318,7 +328,10 @@ public class MainScreen extends JFrame {
 			public void mousePressed(MouseEvent e) {
 				int x = e.getX();
 				int y = e.getY();
-				if (taxi.isSelected()) {
+				if(waiting == true){
+					if(x < 699 && x > 319 && y < 550 && y > 450)
+						selected = -2;
+				} else if (taxi.isSelected()) {
 					for (int i : taxiMoves) {
 						if (position.getX(i) - 15 < x
 								&& x < position.getX(i) + 15
@@ -707,6 +720,24 @@ public class MainScreen extends JFrame {
 
 		mapContainer.setVisible(true);
 	}
+	
+	protected void nextTurnMap() {
+		mapContainer.setVisible(false);
+		
+		BufferedImage nextTurn = null;
+		try {
+			nextTurn = ImageIO.read(new File("resources/nextTurnScreen.png"));
+		} catch (IOException e) {}
+
+		image.setImage(nextTurn);
+		map.setIcon(image);
+		top.setIcon(borderImages.get(currentPlayer)[0]);
+		bottom.setIcon(borderImages.get(currentPlayer)[1]);
+		side1.setIcon(borderImages.get(currentPlayer)[2]);
+		side2.setIcon(borderImages.get(currentPlayer)[3]);
+
+		mapContainer.setVisible(true);
+	}
 
 	private void addPlayerTokens(Graphics2D g) {
 		for (Colour c : Colour.values()) {
@@ -760,11 +791,11 @@ public class MainScreen extends JFrame {
 	public void updateDisplay(Colour c, String round, String roundsUntilReveal,
 			Set<Integer> taximoves, Set<Integer> busmoves,
 			Set<Integer> undergroundmoves, Set<Integer> secretmoves,
-			Hashtable<Colour, Integer> l, Map<Ticket, Integer> tickets) {
+			Hashtable<Colour, Integer> l, Map<Ticket, Integer> t) {
 		if (Debug.debug) {
 			System.out.println("update recieved, rendering data");
 		}
-		displayTicketNumbers(tickets);
+		
 
 		currentPlayer = c;
 		taxiMoves = taximoves;
@@ -772,14 +803,17 @@ public class MainScreen extends JFrame {
 		undergroundMoves = undergroundmoves;
 		secretMoves = secretmoves;
 		locations = l;
+		tickets = t;
 		
-		setButtonVisibility(tickets);
+		displayTicketNumbers(tickets);
+		hideButtons();
 		
-		System.out.println(doublemove.isSelected());
 		roundStat.setText(round);
 		mrXStat.setText(roundsUntilReveal);
 		currentStat.setText(currentPlayer.toString());
-		mainMap();
+		nextTurnMap();
+		
+		waiting = true;
 	}
 
 	private void setButtonVisibility(Map<Ticket, Integer> tickets) {
@@ -796,6 +830,14 @@ public class MainScreen extends JFrame {
 			secret.setVisible(true);
 			doublemove.setVisible(true);
 		}
+	}
+	
+	private void hideButtons() {
+		taxi.setEnabled(false);
+		bus.setEnabled(false);
+		underground.setEnabled(false);
+		secret.setEnabled(false);
+		doublemove.setEnabled(false);
 	}
 
 	private void displayTicketNumbers(Map<Ticket, Integer> tickets) {
