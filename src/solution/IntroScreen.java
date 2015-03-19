@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -26,6 +27,7 @@ public class IntroScreen extends JFrame{
 	
 	public IntroScreen(){
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
 	}
 
 	void setupScreen(final Presenter p){
@@ -153,7 +155,8 @@ public class IntroScreen extends JFrame{
 		this.add(left, BorderLayout.CENTER);
 		setPreferredSize(new Dimension(600, 400));
 	    pack();
-	    setLocationByPlatform(true);
+	    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 	    setVisible(true);
 	    
 	}

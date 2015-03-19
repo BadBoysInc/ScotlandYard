@@ -1,5 +1,7 @@
 package solution;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
@@ -40,7 +42,8 @@ public class RulesScreen extends JFrame{
 		}
 		this.add(background);
 	    pack();
-	    setLocationByPlatform(true);
+	    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 	    setVisible(true);
 	}
 }

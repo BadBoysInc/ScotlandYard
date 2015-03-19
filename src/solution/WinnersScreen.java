@@ -1,5 +1,7 @@
 package solution;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -27,6 +29,9 @@ public class WinnersScreen extends JFrame {
 		
 		JPanel container = new JPanel();
 		JLabel text = new JLabel(statement);
+		
+		
+		text.setPreferredSize(new Dimension(300, 200));
 		container.add(text);
 		JButton quit = new JButton("Quit");
 		quit.addActionListener(new ActionListener() {
@@ -38,7 +43,8 @@ public class WinnersScreen extends JFrame {
 		container.add(quit);
 		add(container);
 		pack();
-		setLocationByPlatform(true);
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 		setVisible(true);
 	}
 	
