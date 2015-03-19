@@ -824,27 +824,30 @@ public class MainScreen extends JFrame {
 		}
 	}
 
-	// Called by presenter to render updates
+	// Called by Presenter to Update the GUI.
 	public void updateDisplay(Colour c, String round, String roundsUntilReveal, String roundLeft,
-			Set<Integer> taximoves, Set<Integer> busmoves,
-			Set<Integer> undergroundmoves, Set<Integer> secretmoves,
+			Set<Integer> tm, Set<Integer> bm,
+			Set<Integer> um, Set<Integer> sm,
 			Hashtable<Colour, Integer> l, Map<Ticket, Integer> t) {
+		
 		if (Debug.debug) {
 			System.out.println("update recieved, rendering data");
 		}
 		
-
-		currentPlayer = c;
-		taxiMoves = taximoves;
-		busMoves = busmoves;
-		undergroundMoves = undergroundmoves;
-		secretMoves = secretmoves;
-		locations = l;
-		tickets = t;
+		//Update GUI Variables.
+		currentPlayer  	 = c;
+		taxiMoves 		 = tm;
+		busMoves 		 = bm;
+		undergroundMoves = um;
+		secretMoves 	 = sm;
+		locations 	 	 = l;
+		tickets 		 = t;
 		
+		//Update Ticket Numbers and Hide Buttons.
 		displayTicketNumbers(tickets);
 		hideButtons();
 		
+		//Update Stats Text.
 		roundStat.setText(round);
 		mrXStat.setText(roundsUntilReveal);
 		currentStat.setText(currentPlayer.toString());
@@ -889,12 +892,6 @@ public class MainScreen extends JFrame {
 				tickets.get(Ticket.DoubleMove)));
 	}
 
-	// NEED TO DO
-	public void displayWinner(Set<Colour> winningPlayers) {
-		System.out.println(winningPlayers + "  won");
-		System.exit(0);
-	}
-
 	public void updateTicketPanel(Ticket ticket, int r) {
 		Graphics2D g = ticketPanel.createGraphics();
 		switch (ticket){
@@ -921,6 +918,4 @@ public class MainScreen extends JFrame {
 		rulesOpen = false;	
 	}
 
-	
-	
 }

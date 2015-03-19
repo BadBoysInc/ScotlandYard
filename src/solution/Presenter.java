@@ -309,11 +309,7 @@ public class Presenter implements Player{
 			Writer writer = new BufferedWriter(new FileWriter(file));
 			writer.write(data);
 			writer.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		} catch (IOException e) {e.printStackTrace();}	
 	}
 	
 	public void loadGameState(File file){
@@ -348,7 +344,6 @@ public class Presenter implements Player{
 				colours.add(c);
 				players.add(new PlayerInfo(c, l, t, presenter));
 				model.join(this, c , l, t);
-
 			}
 			
 			int round = Integer.parseInt(reader.readLine());
@@ -367,10 +362,6 @@ public class Presenter implements Player{
 				usedTickets.add(t);
 				mainGui.updateTicketPanel(t, x);
 			}
-			
-			
-				
-	
 
 			model.loadOldGameFromData(round, players, currentPlayer, lastKnownLoc);
 			mrXUsedTickets = usedTickets;
@@ -379,12 +370,6 @@ public class Presenter implements Player{
 			List<Move> validMoves = model.validMoves(c);
 			mainGui.updateDisplay(c, Integer.toString(model.getRound()), getRoundsUntilReveal(),getRoundsLeft() , getTaxiMoves(validMoves), getBusMoves(validMoves), getUndergroundMoves(validMoves), getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets());
 		
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	
-	
+		} catch (IOException e) {e.printStackTrace();}
+	}	
 }
