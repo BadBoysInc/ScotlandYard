@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -28,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.html.ImageView;
 
 import scotlandyard.Colour;
 import scotlandyard.Ticket;
@@ -125,6 +127,8 @@ public class MainScreen extends JFrame {
 		JPanel stats	 			= new JPanel();
 		JPanel ticketContainer 		= new JPanel();
 		JPanel southInfo 			= new JPanel();
+		
+		
 
 		//Borders and Backgrounds
 		mainContainer.setBackground(Color.DARK_GRAY);
@@ -143,21 +147,7 @@ public class MainScreen extends JFrame {
 		ticketContainer.setLayout(new GridLayout(5, 1));
 		southInfo.setLayout(new BorderLayout());
 		
-		//Buttons
-		JButton save  = new JButton("Save");
-		JButton rules = new JButton("Rules");
-		taxi 		= new JToggleButton("Taxi");
-		bus 		= new JToggleButton("Bus");
-		underground = new JToggleButton("Underground");
-		secret 		= new JToggleButton("Secret Move");
-		doublemove 	= new JToggleButton("Double Move");
 		
-		
-		//Set Sizes
-		infoContainer.setPreferredSize(new Dimension(270, 920));
-		ticketContainer.setPreferredSize(new Dimension(300, 600));
-		save.setPreferredSize(new Dimension(100, 50));
-		stats.setPreferredSize(new Dimension(200, 180));
 		
 		insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
 
@@ -214,6 +204,31 @@ public class MainScreen extends JFrame {
 			e1.printStackTrace();
 		}
 
+		
+		//Buttons
+				JButton save  = new JButton("Save");
+				JButton rules = new JButton("Rules");
+				taxi 		= new JToggleButton("Taxi");
+				taxi.setIcon(new ImageIcon(taxiTicket));
+				taxi.setIconTextGap(50);
+				taxi.setBackground(new Color(254, 203, 21));
+				
+				bus 		= new JToggleButton("Bus");
+				bus.setIcon(new ImageIcon(busTicket));
+				underground = new JToggleButton("Underground");
+				underground.setIcon(new ImageIcon(undergroundTicket));
+				secret 		= new JToggleButton("Secret Move");
+				secret.setIcon(new ImageIcon(secretTicket));
+				doublemove 	= new JToggleButton("Double Move");
+				doublemove.setIcon(new ImageIcon(taxiTicket));
+				
+				
+				//Set Sizes
+				infoContainer.setPreferredSize(new Dimension(270, 920));
+				ticketContainer.setPreferredSize(new Dimension(300, 600));
+				save.setPreferredSize(new Dimension(100, 50));
+				stats.setPreferredSize(new Dimension(200, 180));
+		
 		//Create Initial Map
 		top = new JLabel();
 		bottom = new JLabel();
