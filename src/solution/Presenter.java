@@ -433,12 +433,8 @@ public class Presenter implements Player {
 		String data = String.format("%d%n", gameData.getPlayers().size());
 		for (PlayerInfo p : gameData.getPlayers()) {
 			data = data
-					+ String.format("%s %d %d %d %d %d %d%n", p.getColour()
-							.toString(), p.getLocation(), p
-							.getTickets(Ticket.Taxi), p.getTickets(Ticket.Bus),
-							p.getTickets(Ticket.Underground), p
-									.getTickets(Ticket.SecretMove), p
-									.getTickets(Ticket.DoubleMove));
+					+ String.format("%s %d%n", p.getColour()
+							.toString(), p.getLocation());
 		}
 		data = data + String.format("%d%n", gameData.getNumOfMoves());
 		for (MoveTicket m : gameData.getMoves()) {
@@ -459,20 +455,13 @@ public class Presenter implements Player {
 	public void startReplay(File file) {
 		// replay mode activated
 
-		try {
+		try{
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 
 			int i = Integer.parseInt(reader.readLine());
 
-			model = new ScotlandYardModel(i - 1, Arrays.asList(false, false,
-					false, true, false, false, false, false, true, false,
-					false, false, false, true, false, false, false, false,
-					true, false, false, false, false, false, true),
-					"resources/graph.txt");
 
-			gameData = new GameData();
-			List<PlayerInfo> players = new ArrayList<PlayerInfo>();
-			Set<Colour> colours = new HashSet<Colour>();
+			Map<Colour, Integer> locations = new HashMap<Colour, Integer>();
 			for (int x = 0; x < i; x++) {
 				String p = reader.readLine();
 				System.out.println(p);
@@ -480,20 +469,9 @@ public class Presenter implements Player {
 
 				Colour c = Colour.valueOf(st.nextToken());
 				int l = Integer.parseInt(st.nextToken());
-
-				Map<Ticket, Integer> t = new HashMap<Ticket, Integer>();
-				t.put(Ticket.Taxi, Integer.parseInt(st.nextToken()));
-				t.put(Ticket.Bus, Integer.parseInt(st.nextToken()));
-				t.put(Ticket.Underground, Integer.parseInt(st.nextToken()));
-				t.put(Ticket.SecretMove, Integer.parseInt(st.nextToken()));
-				t.put(Ticket.DoubleMove, Integer.parseInt(st.nextToken()));
-
-				colours.add(c);
-				players.add(new PlayerInfo(c, l, t, presenter));
-				model.join(this, c, l, t);
-				gameData.addPlayer(c, l, t);
+				locations.put(c, l);
 			}
-
+			
 			i = Integer.parseInt(reader.readLine());
 			final List<MoveTicket> moves = new ArrayList<MoveTicket>();
 			for (int x = 0; x < i; x++) {
@@ -503,72 +481,29 @@ public class Presenter implements Player {
 						Integer.parseInt(st.nextToken()), Ticket.valueOf(st
 								.nextToken()));
 				moves.add(m);
-				gameData.addMove(m);
 			}
+			List<Map<Colour, Integer>> positions = new ArrayList<Map<Colour, Integer>>();
+			positions.add(locations);
+			
+			Map<Colour, Integer> oldLocations = locations;
+			for(MoveTicket m: moves){
+				Map<Colour, Integer> newLocations = new HashMap<Colour, Integer>(oldLocations);
+				newLocations.put(m.colour, m.target);
+				positions.add(newLocations);
+				oldLocations = newLocations;
+			}
+			
 
 			// Make gui
 			introGui = null;
-			mainGui = new MainScreen(presenter, colours);
-			mainGui.activateReplayMode();
-
-			model.loadOldGameFromData(0, players, Colour.Black, 0);
-			mrXUsedTickets = new ArrayList<Ticket>();
+			
+			
+			
 			Presenter p = this;
-			Thread t = new Thread() {
-				public void run() {
-					for (MoveTicket m : moves) {
-						try {
-							if (model.isGameOver()) {
-								mainGui.dispose();
-								WinnersScreen ws = new WinnersScreen(model.getWinningPlayers(), presenter);
-							} else {
-								Colour c = model.getCurrentPlayer();
-								List<Move> validMoves = model.validMoves(c);
-								mainGui.updateDisplay(c, Integer.toString(model.getRound()),
-										getRoundsUntilReveal(), getRoundsLeft(),
-										getTaxiMoves(validMoves), getBusMoves(validMoves),
-										getUndergroundMoves(validMoves),
-										getSecretMoves(validMoves), getLocations(), model
-												.getPlayer(c).getCopyOfAllTickets());
-							}
-							Thread.sleep(1000);
-							if (m.colour != model.getCurrentPlayer()) {
-								model.nextPlayer();
-							}
-							model.play(m);
 
-							if (m.colour == Colour.Black)
-								mainGui.updateTicketPanel(m.ticket,
-										model.getRound() - 1);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-					}
-					mainGui.deactivateReplayMode();
-					if (model.isGameOver()) {
-						mainGui.dispose();
-						WinnersScreen ws = new WinnersScreen(model.getWinningPlayers(), presenter);
-					} else {
-						Colour c = model.getCurrentPlayer();
-						List<Move> validMoves = model.validMoves(c);
-						mainGui.updateDisplay(c, Integer.toString(model.getRound()),
-								getRoundsUntilReveal(), getRoundsLeft(),
-								getTaxiMoves(validMoves), getBusMoves(validMoves),
-								getUndergroundMoves(validMoves),
-								getSecretMoves(validMoves), getLocations(), model
-										.getPlayer(c).getCopyOfAllTickets());
-					}
-				}
-			};
-			t.start();
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(IOException e){
+			System.out.println("Cannot parse SaveFile.");
 		}
-
 	}
 
 }
