@@ -100,6 +100,30 @@ public class IntroScreen extends JFrame{
 			    }
 			}			
 		});
+		
+		
+		//QuitButton
+		JButton replay = new JButton("Replay Played Game");
+		replay.setAlignmentX(Component.CENTER_ALIGNMENT);
+		replay.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+			    chooser.showOpenDialog(left);
+			    
+			    File file = chooser.getSelectedFile();
+			    if(file !=null){
+			    	p.startReplay(file);
+			    	closeWindow();
+			    }
+			}			
+		});
+		
+		JPanel replayPanel = new JPanel();
+		replayPanel.setLayout(new BorderLayout());
+		replayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		replayPanel.add(replay);
+		
 		JPanel loadPanel = new JPanel();
 		loadPanel.setLayout(new BorderLayout());
 		loadPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -116,12 +140,15 @@ public class IntroScreen extends JFrame{
 					}
 					start.setEnabled(true);
 					loadGame.setEnabled(false);
+					replay.setEnabled(false);
+					
 				}else{
 					for(String b: buttons.keySet()){
 						buttons.get(b).setEnabled(false);
 					}
 					start.setEnabled(false);
 					loadGame.setEnabled(true);
+					replay.setEnabled(true);
 				}
 			}			
 		});
@@ -130,32 +157,11 @@ public class IntroScreen extends JFrame{
 		newPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		newPanel.add(newGame);
 		
-		//QuitButton
-		JButton quit = new JButton("Replay Played Game");
-		quit.setAlignmentX(Component.CENTER_ALIGNMENT);
-		quit.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-			    chooser.showOpenDialog(left);
-			    
-			    File file = chooser.getSelectedFile();
-			    if(file !=null){
-			    	p.startReplay(file);
-			    	closeWindow();
-			    }
-			}			
-		});
-		
-		JPanel quitPanel = new JPanel();
-		quitPanel.setLayout(new BorderLayout());
-		quitPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		quitPanel.add(quit);
 		
 		//Add Buttons
 		left.add(newPanel);
 		left.add(loadPanel);
-		left.add(quitPanel);
+		left.add(replayPanel);
 		
 		//Add Panels
 		this.setLayout(new BorderLayout());

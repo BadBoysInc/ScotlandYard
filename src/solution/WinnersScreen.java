@@ -29,6 +29,7 @@ public class WinnersScreen extends JFrame {
 
 Presenter presenter;
 	WinnersScreen(final Set<Colour> winners, Presenter p){
+		this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
 		presenter =  p;
 		String statement = "";
 		

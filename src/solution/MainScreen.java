@@ -811,7 +811,7 @@ public class MainScreen extends JFrame {
 		locations 	 	 = l;
 		tickets 		 = t;
 		
-		this.setVisible(false);
+		
 		
 		//Update Ticket Numbers and Hide Buttons.
 		displayTicketNumbers(tickets);
@@ -841,7 +841,7 @@ public class MainScreen extends JFrame {
 			waiting = false;
 		}
 		
-		this.setVisible(true);
+		
 	}
 	
 	//Set Button Visibility for Players.
