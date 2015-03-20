@@ -464,7 +464,6 @@ public class Presenter implements Player {
 			Map<Colour, Integer> locations = new HashMap<Colour, Integer>();
 			for (int x = 0; x < i; x++) {
 				String p = reader.readLine();
-				System.out.println(p);
 				StringTokenizer st = new StringTokenizer(p);
 
 				Colour c = Colour.valueOf(st.nextToken());
@@ -497,6 +496,7 @@ public class Presenter implements Player {
 			// Make gui
 			introGui = null;
 			
+			//ReplayScreen replayScreen = new ReplayScreen(positions);
 			
 			
 			Presenter p = this;
