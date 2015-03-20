@@ -286,10 +286,7 @@ public class MainScreen extends JFrame {
 							firstMove = true;
 							boolean doubleMove = doublemoveButton.isSelected();
 							doublemoveButton.setSelected(false);
-							/*System.out.println(target);
-							System.out.println(currentPlayer);
-							System.out.println(doubleMove);
-							System.out.println(ticketUsed);*/
+							
 							presenter.sendMove(target, ticketUsed, currentPlayer, doubleMove);
 						}
 

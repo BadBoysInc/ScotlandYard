@@ -77,6 +77,7 @@ public class Presenter implements Player {
 		// game must be playable
 		assert (!model.isReady() || model.isGameOver());
 
+		//update gui with initial data.
 		Colour c = model.getCurrentPlayer();
 		List<Move> validMoves = model.validMoves(c);
 		mainGui.updateDisplay(c, Integer.toString(model.getRound()),
