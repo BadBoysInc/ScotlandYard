@@ -481,7 +481,7 @@ public class Presenter implements Player {
 								.nextToken()));
 				moves.add(m);
 			}
-			List<Map<Colour, Integer>> positions = new ArrayList<Map<Colour, Integer>>();
+			ArrayList<Map<Colour, Integer>> positions = new ArrayList<Map<Colour, Integer>>();
 			positions.add(locations);
 			
 			Map<Colour, Integer> oldLocations = locations;
@@ -496,7 +496,7 @@ public class Presenter implements Player {
 			// Make gui
 			introGui = null;
 			
-			//ReplayScreen replayScreen = new ReplayScreen(positions);
+			ReplayScreen replayScreen = new ReplayScreen(positions);
 			
 			
 			Presenter p = this;

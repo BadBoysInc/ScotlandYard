@@ -113,7 +113,6 @@ public class MainScreen extends JFrame {
 	boolean firstMove;
 	boolean rulesOpen;
 	boolean waiting;
-	private boolean replayMode;
 
 	public MainScreen(Presenter p, Set<Colour> players) {
 		
@@ -124,7 +123,6 @@ public class MainScreen extends JFrame {
 		firstMove = true;
 		rulesOpen = false;
 		waiting = true;
-		replayMode = false;
 		final MainScreen m = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -279,7 +277,6 @@ public class MainScreen extends JFrame {
 						selected = 0;
 						
 						if (doublemoveButton.isSelected() && firstMove == true) {
-							System.out.println("DoubleMOVE1");
 							firstMove = false;
 							presenter.sendFirstMove(target, ticketUsed, currentPlayer);
 						} else {
@@ -823,20 +820,16 @@ public class MainScreen extends JFrame {
 		//Set the state to waiting for player to confirm he is ready.
 
 
-		if(replayMode == false){
-			nextTurnMap(false);
+		
+		nextTurnMap(false);
 
-			if(firstMove == true){
-				waiting = true;
-			}else{
-				mainMap();
-				setButtonVisibility(tickets);
-			}
+		if(firstMove == true){
+			waiting = true;
 		}else{
 			mainMap();
 			setButtonVisibility(tickets);
-			waiting = false;
 		}
+		
 		
 		
 	}
@@ -907,14 +900,6 @@ public class MainScreen extends JFrame {
 		rulesOpen = false;	
 	}
 
-	public void activateReplayMode() {
-		replayMode = true;
-		
-	}
-
-	public void deactivateReplayMode() {
-		replayMode = false;
-		
-	}
+	
 
 }

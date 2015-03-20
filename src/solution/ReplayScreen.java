@@ -22,11 +22,14 @@ import scotlandyard.Colour;
 
 public class ReplayScreen extends JFrame {
 	
-	ImageIcon image;
-	JLabel label;
+	ImageIcon mapImage;
+	ImageIcon timeImage;
+	JLabel maplabel;
+	JLabel timelabel;
 	
 	BufferedImage map;
 	BufferedImage timeline;
+	BufferedImage timePointer;
 	
 	BufferedImage blackToken;
 	BufferedImage whiteToken;
@@ -36,6 +39,7 @@ public class ReplayScreen extends JFrame {
 	BufferedImage redToken;
 	
 	JPanel mapPanel;
+	JPanel timePanel;
 	GraphDisplay position;
 	
 	ArrayList<Map<Colour, Integer>> locations;
@@ -53,6 +57,7 @@ public class ReplayScreen extends JFrame {
 		try {
 			map = ImageIO.read(new File("resources/map.png"));
 			timeline = ImageIO.read(new File("resources/timeBar.png"));
+			timePointer = ImageIO.read(new File("resources/timePointer.png"));
 			blackToken = ImageIO.read(new File("resources/BlackToken.png"));
 			whiteToken = ImageIO.read(new File("resources/WhiteToken.png"));
 			yellowToken = ImageIO.read(new File("resources/YellowToken.png"));
@@ -60,18 +65,22 @@ public class ReplayScreen extends JFrame {
 			greenToken = ImageIO.read(new File("resources/GreenToken.png"));
 			redToken = ImageIO.read(new File("resources/RedToken.png"));
 		} catch (IOException e) {e.printStackTrace();}
-		image = new ImageIcon();
-		label = new JLabel();
-		JPanel timePanel = new JPanel();
+		mapImage = new ImageIcon();
+		timeImage = new ImageIcon();
+		
+		maplabel = new JLabel();
+		timelabel = new JLabel();
+		
+		timePanel = new JPanel();
 		timePanel.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
 				int x = e.getX();
 				int y = e.getY();
-				if(x < 814 && x > 755 && y < 65 && y > 6){
+				if(x < (954+60) && x > 954 && y < (57+7) && y > 7){
 					selected = 1;
-				}else if(x < 67 && x > 5 && y < 65 && y > 6){
+				}else if(x < 60 && x > 10 && y < (57+7) && y > 7){
 					selected = 2;
 				}
 			}
@@ -80,12 +89,14 @@ public class ReplayScreen extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				int x = e.getX();
 				int y = e.getY();
-				if(selected == 1 && x < 814 && x > 755 && y < 65 && y > 6){
-					currentTurn = currentTurn + 1;
+				if(selected == 1 && x < (954+60) && x > 954 && y < (57+7) && y > 7){
+					if(currentTurn != locations.size()-1)
+						currentTurn = currentTurn + 1;
 					drawMap();
 					selected = 0;
-				}else if(selected == 2 && x < 67 && x > 5 && y < 65 && y > 6){
-					currentTurn = currentTurn - 1;
+				}else if(selected == 2 && x < 60 && x > 10 && y < (57+7) && y > 7){
+					if(currentTurn != 0)
+						currentTurn = currentTurn - 1;
 					drawMap();
 					selected = 0;
 				}else{
@@ -103,8 +114,8 @@ public class ReplayScreen extends JFrame {
 			
 		});
 		mapPanel = new JPanel();
-		mapPanel.add(label);
-		timePanel.add(new JLabel(new ImageIcon(timeline)));
+		mapPanel.add(maplabel);
+		timePanel.add(timelabel);
 		this.add(mapPanel, BorderLayout.CENTER);
 		this.add(timePanel, BorderLayout.SOUTH);
 		drawMap();
@@ -128,10 +139,11 @@ public class ReplayScreen extends JFrame {
 
 		g.dispose();
 		
-		image.setImage(map);
-		label.setIcon(image);
+		mapImage.setImage(map);
+		maplabel.setIcon(mapImage);
 
 		mapPanel.setVisible(true);
+		drawPointer();
 	}
 	
 	private void addPlayerTokens(Graphics2D g) {
@@ -171,6 +183,22 @@ public class ReplayScreen extends JFrame {
 				}
 			}
 		}
+	}
+	
+	private void drawPointer(){
+		timePanel.setVisible(false);
+
+		try {
+			timeline = ImageIO.read(new File("resources/timeBar.png"));
+		} catch (IOException e) {}
+		Graphics2D g = timeline.createGraphics();
+		g.drawImage(timeline, 0, 0, null);	
+		g.drawImage(timePointer, (int)(75+((currentTurn/(float)(locations.size()-1))*850)), 10, null);
+		g.dispose();
+		timeImage.setImage(timeline);
+		timelabel.setIcon(timeImage);
+		timePanel.setVisible(true);
+		
 	}
 	
 }

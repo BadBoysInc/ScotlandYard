@@ -103,7 +103,7 @@ public class IntroScreen extends JFrame{
 		
 		
 		//QuitButton
-		JButton replay = new JButton("Replay Played Game");
+		final JButton replay = new JButton("Load Replay");
 		replay.setAlignmentX(Component.CENTER_ALIGNMENT);
 		replay.addActionListener(new ActionListener(){
 			@Override
