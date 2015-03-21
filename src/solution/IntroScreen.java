@@ -26,7 +26,7 @@ public class IntroScreen extends JFrame{
 	
 	public IntroScreen(){
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
+		SoundHelper.init();
 	}
 
 	void setupScreen(final Presenter p){
@@ -49,6 +49,7 @@ public class IntroScreen extends JFrame{
 			b.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					SoundHelper.soundClick();
 					String id = e.getActionCommand();
 					JToggleButton b = buttons.get(id);
 				}
@@ -69,8 +70,11 @@ public class IntroScreen extends JFrame{
 						colours.add(Colour.valueOf(id));
 				}
 				if(colours.contains(Colour.Black) && colours.size()>1){
+					SoundHelper.soundBell();
 					closeWindow();
 					p.beginGame(colours);
+				}else{
+					SoundHelper.soundWrong();
 				}
 			}			
 		});
@@ -90,6 +94,7 @@ public class IntroScreen extends JFrame{
 		loadGame.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				SoundHelper.soundSsh();
 				JFileChooser chooser = new JFileChooser();
 			    chooser.showOpenDialog(left);
 			    
@@ -108,6 +113,7 @@ public class IntroScreen extends JFrame{
 		replay.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				SoundHelper.soundSsh();
 				JFileChooser chooser = new JFileChooser();
 			    chooser.showOpenDialog(left);
 			    
@@ -134,6 +140,7 @@ public class IntroScreen extends JFrame{
 		newGame.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				SoundHelper.soundSsh();
 				if(newGame.isSelected()){
 					for(String b: buttons.keySet()){
 						buttons.get(b).setEnabled(true);

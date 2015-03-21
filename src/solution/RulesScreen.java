@@ -17,14 +17,12 @@ public class RulesScreen extends JFrame{
 		this.addWindowListener(new WindowListener() {
 
 			@Override
-			public void windowClosed(WindowEvent e) {	
-				m.rulesClosed();
-			}
+			public void windowClosed(WindowEvent e) {m.rulesClosed();}
 			
 			@Override
 			public void windowOpened(WindowEvent e) {}
 			@Override
-			public void windowClosing(WindowEvent e) {}
+			public void windowClosing(WindowEvent e) {m.rulesClosed();}
 			@Override
 			public void windowIconified(WindowEvent e) {}
 			@Override

@@ -253,6 +253,7 @@ public class MainScreen extends JFrame {
 						x < position.getX(selected) + 15 && 
 						position.getY(selected) - 15 < y && 
 						y < position.getY(selected) + 15) {
+						SoundHelper.soundClick();
 						
 						if (Debug.debug) {
 							System.out.println("Move choosen, sending to presenter");
@@ -301,6 +302,7 @@ public class MainScreen extends JFrame {
 					}
 				}else if(selected == -2){
 					if(x < 700 && x > 320 && y < 450 && y > 340){
+						SoundHelper.soundBell();
 						waiting = false;
 						setButtonVisibility(tickets);
 						mainMap();

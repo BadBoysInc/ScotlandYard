@@ -54,8 +54,10 @@ Presenter presenter;
 		try {
 			if(winners.contains(Colour.Black)){
 				image = ImageIO.read(new File("resources/xWin.png"));
+				SoundHelper.soundLost();
 			}else{
 				image = ImageIO.read(new File("resources/detectivesWin.png"));
+				SoundHelper.soundSuccess();
 			}
 		} catch (IOException e1) {}
 		JLabel background = new JLabel(new ImageIcon(image));
