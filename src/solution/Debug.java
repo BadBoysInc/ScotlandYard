@@ -2,6 +2,6 @@ package solution;
 
 public class Debug {
 
-	public static final boolean debug = false;
+	public static final boolean debug = true;
 	
 }

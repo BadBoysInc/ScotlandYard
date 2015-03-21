@@ -10,7 +10,6 @@ import java.util.Set;
 import scotlandyard.Colour;
 import scotlandyard.Edge;
 import scotlandyard.Graph;
-import scotlandyard.Move;
 import scotlandyard.MoveDouble;
 import scotlandyard.MovePass;
 import scotlandyard.MoveTicket;
@@ -34,7 +33,7 @@ public class ScotlandYardModel extends ScotlandYard {
 	
 	//Game Variables:
 	private int round;
-	private Colour currentPlayer;
+	Colour currentPlayer;
 	int MrXsLastKnownLocation;
 	
 
@@ -63,7 +62,7 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     //Returns the move the player wishes to make.
-    protected Move getPlayerMove(Colour colour) {
+    protected scotlandyard.Move getPlayerMove(Colour colour) {
     	PlayerInfo p = getPlayer(colour);
     	return p.getPlayer().notify(p.getLocation(), validMoves(colour));
     }
@@ -86,13 +85,13 @@ public class ScotlandYardModel extends ScotlandYard {
     	}
     }
     
-    public void playMove(Move move, Presenter p){
+    public void playMove(scotlandyard.Move move, Presenter p){
     	if(Debug.debug){System.out.println("Move recieved, playing move");}
     	play(move);
     	nextPlayer();
     	if(Debug.debug){System.out.println("Notifiying presenter of state change");}
     	
-    	List<Move> moves = validMoves(currentPlayer);
+    	List<scotlandyard.Move> moves = validMoves(currentPlayer);
     	while(moves.contains(new MovePass(currentPlayer))){
         	nextPlayer();
         	moves = validMoves(currentPlayer);
@@ -103,12 +102,12 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     //Changes the game-state to after a double-move has been played and notifies the spectators.
     protected void play(MoveDouble move) {
-    	Move dummy1 = move.moves.get(0);
-    	Move dummy2 = move.moves.get(1);
+    	scotlandyard.Move dummy1 = move.moves.get(0);
+    	scotlandyard.Move dummy2 = move.moves.get(1);
     	if(getRounds().get(getRound()+1) != true)
-    		dummy1 = getDummyTicket((MoveTicket)move.moves.get(0));
+    		dummy1 = getDummyTicket((scotlandyard.MoveTicket)move.moves.get(0));
     	if(getRounds().get(getRound()+2) != true)
-    		dummy2 = getDummyTicket((MoveTicket)move.moves.get(1));
+    		dummy2 = getDummyTicket((scotlandyard.MoveTicket)move.moves.get(1));
     	notifySpectators(new MoveDouble(move.colour, dummy1, dummy2));
     	
     	makeMove((MoveTicket)move.moves.get(0));
@@ -120,7 +119,7 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     //Changes the game-state to after a move has been played.
-    private void makeMove(MoveTicket move) {
+    void makeMove(MoveTicket move) {
     	PlayerInfo player = getPlayer(move.colour);
     	player.setLocation(move.target);
     	player.removeTickets(move.ticket);
@@ -137,8 +136,8 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     //Creates a dummy ticket with Mr. X's last known location. 
-    private Move getDummyTicket(MoveTicket move) {
-    	return new MoveTicket(Colour.Black, MrXsLastKnownLocation, move.ticket);
+    private scotlandyard.Move getDummyTicket(scotlandyard.MoveTicket move) {
+    	return new scotlandyard.MoveTicket(Colour.Black, MrXsLastKnownLocation, move.ticket);
     }
 
     @Override
@@ -149,19 +148,19 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     //Returns the possible moves a player can make.
-    protected List<Move> validMoves(Colour player) {
+    protected List<scotlandyard.Move> validMoves(Colour player) {
     	//Adds all the moves around a players current location.
-        List<Move> movesSingle = singleMoves(getPlayer(player).getLocation(), player);
-        List<Move> moves = new ArrayList<Move>(movesSingle);
+        List<scotlandyard.Move> movesSingle = singleMoves(getPlayer(player).getLocation(), player);
+        List<scotlandyard.Move> moves = new ArrayList<scotlandyard.Move>(movesSingle);
         //Adds double-moves to Mr.X's valid moves.
         if(hasTickets(Ticket.DoubleMove, player, 1)){
-        	for(Move m: movesSingle){
-        		List<Move> doubleMoves = singleMoves(((MoveTicket)  m).target, player);
-        		for(Move dm: doubleMoves){
-        			if((((MoveTicket) dm).ticket == ((MoveTicket) m).ticket)){
-        				if(hasTickets(((MoveTicket) m).ticket, player, 2))
+        	for(scotlandyard.Move m: movesSingle){
+        		List<scotlandyard.Move> doubleMoves = singleMoves(((scotlandyard.MoveTicket)  m).target, player);
+        		for(scotlandyard.Move dm: doubleMoves){
+        			if((((scotlandyard.MoveTicket) dm).ticket == ((scotlandyard.MoveTicket) m).ticket)){
+        				if(hasTickets(((scotlandyard.MoveTicket) m).ticket, player, 2))
         					moves.add(new MoveDouble(player, m, dm));
-        			}else if(hasTickets(((MoveTicket) dm).ticket, player, 1)){
+        			}else if(hasTickets(((scotlandyard.MoveTicket) dm).ticket, player, 1)){
         				moves.add(new MoveDouble(player, m, dm));
         			}
         		}
@@ -175,17 +174,17 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     //Returns the list of moves around the players current location.
-    private List<Move> singleMoves(int location, Colour player) {
-    	List<Move> moves = new ArrayList<Move>();
+    private List<scotlandyard.Move> singleMoves(int location, Colour player) {
+    	List<scotlandyard.Move> moves = new ArrayList<scotlandyard.Move>();
     	for(Edge<Integer, Route> e: graph.getEdges()){	       	
     		if(e.source()==location||e.target()==location){   			
-        		Move m = new MoveTicket(player, e.other(location), Ticket.fromRoute(e.data()));
-        		if(!playerPresent(e.other(location), player) && hasTickets(((MoveTicket) m).ticket, player, 1)){ 
+    			scotlandyard.Move m = new scotlandyard.MoveTicket(player, e.other(location), Ticket.fromRoute(e.data()));
+        		if(!playerPresent(e.other(location), player) && hasTickets(((scotlandyard.MoveTicket) m).ticket, player, 1)){ 
         			moves.add(m);
         		}
         		//Add a secret ticket alternative for Mr. X.
         		if(hasTickets(Ticket.SecretMove, player, 1) && ((MoveTicket) m).ticket != Ticket.SecretMove && !playerPresent(e.other(location), player)){
-        			Move secretm = new MoveTicket(player, e.other(location), Ticket.SecretMove);
+        			scotlandyard.Move secretm = new scotlandyard.MoveTicket(player, e.other(location), Ticket.SecretMove);
         			moves.add(secretm);
         		}
         	}
@@ -214,7 +213,7 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     //Notifies all spectators that a move has been made.
-    private void notifySpectators(Move move) {
+    private void notifySpectators(scotlandyard.Move move) {
     	for(Spectator s: spectators){
     		s.notify(move);
     	}
@@ -378,12 +377,6 @@ public class ScotlandYardModel extends ScotlandYard {
     }
 
     
-    void loadOldGameFromData(int round, List<PlayerInfo> players, Colour currentPlayer, int loc){
-    	this.round = round;
-    	playerInfos = players;
-    	this.currentPlayer = currentPlayer;
-    	MrXsLastKnownLocation = loc;
-    }
-
+  
 
 }
