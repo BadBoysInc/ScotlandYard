@@ -80,8 +80,10 @@ public class ReplayScreen extends JFrame {
 				int y = e.getY();
 				if(x < (954+60) && x > 954 && y < (57+7) && y > 7){
 					selected = 1;
+					drawMap();
 				}else if(x < 60 && x > 10 && y < (57+7) && y > 7){
 					selected = 2;
+					drawMap();
 				}
 			}
 
@@ -92,15 +94,16 @@ public class ReplayScreen extends JFrame {
 				if(selected == 1 && x < (954+60) && x > 954 && y < (57+7) && y > 7){
 					if(currentTurn != locations.size()-1)
 						currentTurn = currentTurn + 1;
-					drawMap();
 					selected = 0;
+					drawMap();
 				}else if(selected == 2 && x < 60 && x > 10 && y < (57+7) && y > 7){
 					if(currentTurn != 0)
 						currentTurn = currentTurn - 1;
-					drawMap();
 					selected = 0;
+					drawMap();
 				}else{
 					selected = 0;
+					drawMap();
 				}
 				
 			}
@@ -189,11 +192,17 @@ public class ReplayScreen extends JFrame {
 		timePanel.setVisible(false);
 
 		try {
-			timeline = ImageIO.read(new File("resources/timeBar.png"));
+			if(selected == 0){
+				timeline = ImageIO.read(new File("resources/timeBar.png"));
+			}else if(selected == 1){
+				timeline = ImageIO.read(new File("resources/timeBarForward.png"));
+			}else if(selected == 2){
+				timeline = ImageIO.read(new File("resources/timeBarRewind.png"));
+			}
 		} catch (IOException e) {}
 		Graphics2D g = timeline.createGraphics();
 		g.drawImage(timeline, 0, 0, null);	
-		g.drawImage(timePointer, (int)(75+((currentTurn/(float)(locations.size()-1))*850)), 10, null);
+		g.drawImage(timePointer, (int)(75+((currentTurn/(float)(locations.size()-1))*860)), 10, null);
 		g.dispose();
 		timeImage.setImage(timeline);
 		timelabel.setIcon(timeImage);

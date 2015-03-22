@@ -100,6 +100,11 @@ public class MainScreen extends JFrame {
 	BufferedImage busZones;
 	BufferedImage allZones;
 	
+	BufferedImage XOn;
+	BufferedImage XOff;
+	BufferedImage XSelected;
+	BufferedImage blackLocation;
+	
 	ImageIcon image;
 	JPanel mapContainer;
 
@@ -117,6 +122,7 @@ public class MainScreen extends JFrame {
 	boolean firstMove;
 	boolean rulesOpen;
 	boolean waiting;
+	boolean showPossibleLocations;
 
 	public MainScreen(Presenter p, Set<Colour> players) {
 		
@@ -127,6 +133,7 @@ public class MainScreen extends JFrame {
 		firstMove = true;
 		rulesOpen = false;
 		waiting = true;
+		showPossibleLocations = false;
 		final MainScreen m = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -202,6 +209,11 @@ public class MainScreen extends JFrame {
 			undergroundZones = ImageIO.read(new File("resources/undergroundZones.png"));
 			busZones = ImageIO.read(new File("resources/busZones.png"));
 			allZones = ImageIO.read(new File("resources/allZones.png"));
+			
+			XOn = ImageIO.read(new File("resources/XOn.png"));
+			XOff = ImageIO.read(new File("resources/XOff.png"));
+			XSelected = ImageIO.read(new File("resources/XSelected.png"));
+			blackLocation = ImageIO.read(new File("resources/BlackLocation.png"));
 	
 			borderImages = new Hashtable<Colour, ImageIcon[]>();
 			for (Colour c : players) {
@@ -218,7 +230,6 @@ public class MainScreen extends JFrame {
 		//Buttons
 		JButton saveButton  = new JButton("Save");
 		JButton rulesButton = new JButton("Rules");
-		JToggleButton possibleLoc = new JToggleButton("Show MrX's possible locations");
 		taxiButton 			= new JToggleButton("Taxi");		
 		busButton 			= new JToggleButton("Bus");		
 		undergroundButton 	= new JToggleButton("Underground");		
@@ -244,8 +255,7 @@ public class MainScreen extends JFrame {
 		infoContainer.setPreferredSize(new Dimension(270, 920));
 		ticketContainer.setPreferredSize(new Dimension(300, 600));
 		saveButton.setPreferredSize(new Dimension(100, 50));
-		rulesButton.setPreferredSize(new Dimension(100, 50));
-		possibleLoc.setPreferredSize(new Dimension(100, 50));
+		rulesButton.setPreferredSize(new Dimension(100, 30));
 		statsContainer.setPreferredSize(new Dimension(200, 180));
 
 		//Add Mouse Events
@@ -291,7 +301,6 @@ public class MainScreen extends JFrame {
 							firstMove = true;
 							boolean doubleMove = doublemoveButton.isSelected();
 							doublemoveButton.setSelected(false);
-							
 							presenter.sendMove(target, ticketUsed, currentPlayer, doubleMove);
 						}
 
@@ -318,6 +327,20 @@ public class MainScreen extends JFrame {
 						selected = 0;
 						nextTurnMap(false);
 					}
+				}else if(selected == -3){
+					showPossibleLocations = !showPossibleLocations;
+					selected = 0;
+					if (taxiButton.isSelected()) {
+						taxiMap();
+					} else if (busButton.isSelected()) {
+						busMap();
+					} else if (undergroundButton.isSelected()) {
+						undergroundMap();
+					} else if (secretButton.isSelected()) {
+						secretMap();
+					} else {
+						mainMap();
+					}
 				} else {
 					selected = 0;
 				}
@@ -331,6 +354,19 @@ public class MainScreen extends JFrame {
 					if(x < 700 && x > 320 && y < 450 && y > 340){
 						selected = -2;
 						nextTurnMap(true);
+					}
+				} else if (x > 939 && x < 1004 && y > 734 && y < 800) {
+					selected = -3;
+					if (taxiButton.isSelected()) {
+						taxiMap();
+					} else if (busButton.isSelected()) {
+						busMap();
+					} else if (undergroundButton.isSelected()) {
+						undergroundMap();
+					} else if (secretButton.isSelected()) {
+						secretMap();
+					} else {
+						mainMap();
 					}
 				} else if (taxiButton.isSelected()) {
 					for (int i : taxiMoves) {
@@ -384,6 +420,7 @@ public class MainScreen extends JFrame {
 						}
 					}
 					selected = 0;
+
 				} else {
 					selected = 0;
 				}
@@ -422,17 +459,14 @@ public class MainScreen extends JFrame {
 		//Implement Timer
 		Timer t = new Timer();
 		t.scheduleAtFixedRate(new TimerTask(){
-
 			@Override
 			public void run() {
-				
 				int seconds = currentTime%60;
 				int minutes = currentTime/60;
 								
 				timerStat.setText(String.format("%02d:%02ds",minutes, seconds));
 				currentTime++;
 			}
-			
 		}, 0, 1000);
 
 		//Button Listeners
@@ -442,7 +476,6 @@ public class MainScreen extends JFrame {
 				busButton.setSelected(false);
 				undergroundButton.setSelected(false);
 				secretButton.setSelected(false);
-				possibleLoc.setSelected(false);
 				if (taxiButton.isSelected()) {
 					taxiMap();
 				} else {
@@ -457,7 +490,6 @@ public class MainScreen extends JFrame {
 				taxiButton.setSelected(false);
 				undergroundButton.setSelected(false);
 				secretButton.setSelected(false);
-				possibleLoc.setSelected(false);
 				if (busButton.isSelected()) {
 					busMap();
 				} else {
@@ -472,7 +504,6 @@ public class MainScreen extends JFrame {
 				taxiButton.setSelected(false);
 				busButton.setSelected(false);
 				secretButton.setSelected(false);
-				possibleLoc.setSelected(false);
 				if (undergroundButton.isSelected()) {
 					undergroundMap();
 				} else {
@@ -487,7 +518,6 @@ public class MainScreen extends JFrame {
 				taxiButton.setSelected(false);
 				busButton.setSelected(false);
 				undergroundButton.setSelected(false);
-				possibleLoc.setSelected(false);
 				if (secretButton.isSelected()) {
 					secretMap();
 				} else {
@@ -504,7 +534,6 @@ public class MainScreen extends JFrame {
 					busButton.setSelected(false);
 					undergroundButton.setSelected(false);
 					secretButton.setSelected(false);
-					possibleLoc.setSelected(false);
 					firstMove = true;
 					mainMap();
 				} else {
@@ -539,22 +568,6 @@ public class MainScreen extends JFrame {
 				}
 			}
 		});
-
-		possibleLoc.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				taxiButton.setSelected(false);
-				busButton.setSelected(false);
-				undergroundButton.setSelected(false);
-				secretButton.setSelected(false);
-				if (possibleLoc.isSelected()) {
-					XposLocationsMap();
-				} else {
-					mainMap();
-				}
-			}
-
-		});
 		
 		//MapPanel Adding
 		insideMapContainer.add(mouseContainer, BorderLayout.CENTER);
@@ -569,18 +582,15 @@ public class MainScreen extends JFrame {
 		mapContainer.add(ticketPanelLabel, BorderLayout.SOUTH);
 		mapContainer.add(insideMapContainer, BorderLayout.NORTH);
 		
-		
-		
 		//InfoPanel Adding
 		ticketContainer.add(taxiButton);
 		ticketContainer.add(busButton);
 		ticketContainer.add(undergroundButton);
 		ticketContainer.add(secretButton);
 		ticketContainer.add(doublemoveButton);
+		northInfoContainer.add(rulesButton, BorderLayout.CENTER);
 		northInfoContainer.add(statsContainer, BorderLayout.SOUTH);
-		southInfoContainer.add(possibleLoc, BorderLayout.NORTH);
 		southInfoContainer.add(saveButton, BorderLayout.CENTER);
-		southInfoContainer.add(rulesButton, BorderLayout.SOUTH);
 		infoContainer.add(southInfoContainer, BorderLayout.SOUTH);
 		infoContainer.add(northInfoContainer, BorderLayout.NORTH);
 		infoContainer.add(ticketContainer, BorderLayout.CENTER);
@@ -597,6 +607,28 @@ public class MainScreen extends JFrame {
 		setVisible(true);
 	}
 	
+	private void drawXLocationsButton(Graphics2D g) {
+		if(currentPlayer != Colour.Black){
+			if(selected == -3){
+				g.drawImage(XSelected, 731, 688, null);
+			}else if(showPossibleLocations){
+				g.drawImage(XOn, 731, 688, null);
+			}else{
+				g.drawImage(XOff, 731, 688, null);
+			}
+		}
+	}
+	
+	private void drawXLocations(Graphics2D g) {
+		if(currentPlayer != Colour.Black){
+			if(showPossibleLocations){
+				for(Integer i: MrXPossibleLocations){
+					g.drawImage(blackLocation, position.getX(i) - 18, position.getY(i) - 18, null);
+				}
+			}
+		}
+	}
+	
 	//Draws the standard map.
 	protected void mainMap() {
 		mapContainer.setVisible(false);
@@ -607,7 +639,10 @@ public class MainScreen extends JFrame {
 		Graphics2D g = imagemain.createGraphics();
 		g.drawImage(imagemain, 0, 0, null);
 		addPlayerTokens(g);
+		drawXLocations(g);
+		g.drawImage(allZones, 0, 0, null);	
 		addDoubleMoveText(g);
+		drawXLocationsButton(g);
 		g.dispose();
 		
 		image.setImage(imagemain);
@@ -620,32 +655,6 @@ public class MainScreen extends JFrame {
 		mapContainer.setVisible(true);
 	}
 	
-	private void XposLocationsMap() {
-		if(currentPlayer != Colour.Black){
-			mapContainer.setVisible(false);
-	
-			try {
-				imagemain = ImageIO.read(new File("resources/map.png"));
-			} catch (IOException e) {}
-			Graphics2D g = imagemain.createGraphics();
-			g.drawImage(imagemain, 0, 0, null);
-			addPlayerTokens(g);
-			addXlocations(g);
-			g.dispose();
-			
-			image.setImage(imagemain);
-			map.setIcon(image);
-			top.setIcon(borderImages.get(currentPlayer)[0]);
-			bottom.setIcon(borderImages.get(currentPlayer)[1]);
-			side1.setIcon(borderImages.get(currentPlayer)[2]);
-			side2.setIcon(borderImages.get(currentPlayer)[3]);
-	
-			mapContainer.setVisible(true);
-		}
-	}
-	
-	
-
 	//Draws the map for secret routes.
 	protected void secretMap() {
 		mapContainer.setVisible(false);
@@ -660,12 +669,13 @@ public class MainScreen extends JFrame {
 			g.drawImage(secretOverlay, position.getX(i) - 17,
 					position.getY(i) - 17, null);
 		}
-		if (selected != 0) {
-			g.drawImage(secretSelected, position.getX(selected) - 17,
-					position.getY(selected) - 17, null);
-		}	
+		if (selected > 0) {
+			g.drawImage(secretSelected, position.getX(selected) - 17, position.getY(selected) - 17, null);
+		}
+		drawXLocations(g);
 		g.drawImage(allZones, 0, 0, null);		
-		addDoubleMoveText(g);		
+		addDoubleMoveText(g);
+		drawXLocationsButton(g);
 		g.dispose();
 		
 		image.setImage(imagesecret);
@@ -689,16 +699,16 @@ public class MainScreen extends JFrame {
 		g.drawImage(imageunder, 0, 0, null);
 		addPlayerTokens(g);	
 		for (int i : undergroundMoves) {
-			g.drawImage(underOverlay, position.getX(i) - 17,
-					position.getY(i) - 17, null);
+			g.drawImage(underOverlay, position.getX(i) - 17, position.getY(i) - 17, null);
 		}
-		if (selected != 0) {
-			g.drawImage(underSelected, position.getX(selected) - 17,
-					position.getY(selected) - 17, null);
+		if (selected > 0) {
+			g.drawImage(underSelected, position.getX(selected) - 17, position.getY(selected) - 17, null);
 		}
+		drawXLocations(g);
 		g.drawImage(undergroundZones, 0, 0, null);
 		addPlayerTokens(g);	
 		addDoubleMoveText(g);
+		drawXLocationsButton(g);
 		g.dispose();
 		
 		image.setImage(imageunder);
@@ -723,15 +733,15 @@ public class MainScreen extends JFrame {
 		g.drawImage(imagebus, 0, 0, null);
 		addPlayerTokens(g);
 		for (int i : busMoves) {
-			g.drawImage(busOverlay, position.getX(i) - 17,
-					position.getY(i) - 17, null);
+			g.drawImage(busOverlay, position.getX(i) - 17, position.getY(i) - 17, null);
 		}
-		if (selected != 0) {
-			g.drawImage(busSelected, position.getX(selected) - 17,
-					position.getY(selected) - 18, null);
+		if (selected > 0) {
+			g.drawImage(busSelected, position.getX(selected) - 17, position.getY(selected) - 18, null);
 		}
+		drawXLocations(g);
 		g.drawImage(busZones, 0, 0, null);		
 		addDoubleMoveText(g);
+		drawXLocationsButton(g);
 		g.dispose();
 		
 		image.setImage(imagebus);
@@ -758,11 +768,13 @@ public class MainScreen extends JFrame {
 		for (int i : taxiMoves) {
 			g.drawImage(taxiOverlay, position.getX(i) - 17, position.getY(i) - 17, null);
 		}
-		if (selected != 0) {
+		if (selected > 0) {
 			g.drawImage(taxiSelected, position.getX(selected) - 17, position.getY(selected) - 17, null);
 		}
+		drawXLocations(g);
 		g.drawImage(allZones, 0, 0, null);	
 		addDoubleMoveText(g);
+		drawXLocationsButton(g);
 		g.dispose();
 		
 		image.setImage(imagetaxi);
@@ -836,14 +848,13 @@ public class MainScreen extends JFrame {
 		}
 	}
 	
-private void addXlocations(Graphics2D g) {
-	if(locations.containsKey(Colour.Black)){
-		for(Integer i: MrXPossibleLocations){
-			
-			g.drawImage(blackToken, position.getX(i) - 18, position.getY(i) - 18, null);
+	private void addXlocations(Graphics2D g) {
+		if(locations.containsKey(Colour.Black)){
+			for(Integer i: MrXPossibleLocations){
+				g.drawImage(blackToken, position.getX(i) - 18, position.getY(i) - 18, null);
+			}
 		}
 	}
-}
 	
 	//Adds text telling player to make first/second move in a double move.
 	private void addDoubleMoveText(Graphics2D g) {
@@ -873,7 +884,7 @@ private void addXlocations(Graphics2D g) {
 		locations 	 	 = l;
 		tickets 		 = t;
 		MrXPossibleLocations = MrXPosLoc;
-		
+		showPossibleLocations = false;
 		
 		//Update Ticket Numbers and Hide Buttons.
 		displayTicketNumbers(tickets);
@@ -886,9 +897,6 @@ private void addXlocations(Graphics2D g) {
 		roundsLeftStat.setText(roundLeft);
 		
 		//Set the state to waiting for player to confirm he is ready.
-
-
-		
 		nextTurnMap(false);
 
 		if(firstMove == true){

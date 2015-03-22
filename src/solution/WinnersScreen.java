@@ -27,7 +27,8 @@ import scotlandyard.Colour;
 
 public class WinnersScreen extends JFrame {
 
-Presenter presenter;
+	Presenter presenter;
+	
 	WinnersScreen(final Set<Colour> winners, Presenter p){
 		this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
 		presenter =  p;
@@ -63,7 +64,7 @@ Presenter presenter;
 		JLabel background = new JLabel(new ImageIcon(image));
 
 		
-		JButton replay = new JButton("Save for Replay");
+		JButton replay = new JButton("Save Replay");
 		replay.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
