@@ -126,7 +126,6 @@ public class ScotlandYardModel extends ScotlandYard {
     
     //Changes the game-state to after a move has been played.
     void makeMove(MoveTicket move) {
-    	System.out.println("make move called");
     	PlayerInfo player = getPlayer(move.colour);
     	player.setLocation(move.target);
     	player.removeTickets(move.ticket);
@@ -134,18 +133,14 @@ public class ScotlandYardModel extends ScotlandYard {
     	if(player.getColour() != Colour.Black){
     		getPlayer(Colour.Black).addTickets(move.ticket);
     	}else{
-    		System.out.println("it's black players go");
     		if(Debug.debug)
     			System.out.println("Round Increment.");
     		round = round + 1;
     		if(getRounds().get(getRound()) == true){
-    			
-        		MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();
-        		System.out.println("visible round so possible locations set back to "+ MrXsLastKnownLocation);
+    			MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();
         		mrXPossibleLocations = new HashSet<Integer>();
         		mrXPossibleLocations.add(MrXsLastKnownLocation);
     		}else{
-    			System.out.println("computing possible locations");
     			mrXPossibleLocations = computePossibleLocations(mrXPossibleLocations, move.ticket);
     		}
     		

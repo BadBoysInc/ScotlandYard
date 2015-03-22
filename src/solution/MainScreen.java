@@ -548,7 +548,6 @@ public class MainScreen extends JFrame {
 				undergroundButton.setSelected(false);
 				secretButton.setSelected(false);
 				if (possibleLoc.isSelected()) {
-					System.out.println("possible Locations is selected");
 					XposLocationsMap();
 				} else {
 					mainMap();
@@ -623,7 +622,6 @@ public class MainScreen extends JFrame {
 	
 	private void XposLocationsMap() {
 		if(currentPlayer != Colour.Black){
-			System.out.println("Current player is not black");
 			mapContainer.setVisible(false);
 	
 			try {
@@ -643,8 +641,6 @@ public class MainScreen extends JFrame {
 			side2.setIcon(borderImages.get(currentPlayer)[3]);
 	
 			mapContainer.setVisible(true);
-		}else{
-			System.out.println("Current player is black");
 		}
 	}
 	
@@ -841,16 +837,11 @@ public class MainScreen extends JFrame {
 	}
 	
 private void addXlocations(Graphics2D g) {
-	System.out.println("Adding X possible locations");
 	if(locations.containsKey(Colour.Black)){
-		System.out.println("locations contains black");
-		System.out.println(MrXPossibleLocations);
 		for(Integer i: MrXPossibleLocations){
 			
 			g.drawImage(blackToken, position.getX(i) - 18, position.getY(i) - 18, null);
 		}
-	}else{
-		System.out.println("there is no recorded location yet");
 	}
 }
 	
