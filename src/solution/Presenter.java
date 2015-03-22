@@ -3,10 +3,14 @@ package solution;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,12 +83,12 @@ public class Presenter implements Player {
 
 		//update gui with initial data.
 		Colour c = model.getCurrentPlayer();
-		List<Move> validMoves = model.validMoves(c);
+		List<scotlandyard.Move> validMoves = model.validMoves(c);
 		mainGui.updateDisplay(c, Integer.toString(model.getRound()),
 				getRoundsUntilReveal(), getRoundsLeft(),
 				getTaxiMoves(validMoves), getBusMoves(validMoves),
 				getUndergroundMoves(validMoves), getSecretMoves(validMoves),
-				getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+				getLocations(), model.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 	}
 
 	private String getRoundsLeft() {
@@ -228,7 +232,7 @@ public class Presenter implements Player {
 	// Called by gui, tells model to play move
 	public void sendMove(int target, Ticket t, Colour currentPlayer,
 			boolean moveDouble) {
-		gameData.addMove(new MoveTicket(currentPlayer, target, t));
+		gameData.addMove(new solution.MoveTicket(currentPlayer, target, t));
 		Move m = null;
 		if (moveDouble) {
 			Move secondMove = new MoveTicket(currentPlayer, target, t);
@@ -271,7 +275,7 @@ public class Presenter implements Player {
 					getTaxiMoves(validMoves), getBusMoves(validMoves),
 					getUndergroundMoves(validMoves),
 					getSecretMoves(validMoves), getLocations(), model
-							.getPlayer(c).getCopyOfAllTickets());
+							.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 		}
 	}
 
@@ -283,6 +287,20 @@ public class Presenter implements Player {
 		}
 		i = i - r;
 		return Integer.toString(i);
+	}
+	
+	public int getLastRevealRound() {
+		int r = model.getRound();
+		int i = r;
+		while (model.getRounds().get(i) == false) {
+			if(i<0){
+				i=-1;
+				break;
+			}
+			i--;
+		}
+		
+		return i;
 	}
 
 	public void sendFirstMove(int target, Ticket t, Colour currentPlayer) {
@@ -306,7 +324,7 @@ public class Presenter implements Player {
 				Integer.toString(model.getRound()), getRoundsUntilReveal(),
 				getRoundsLeft(), getTaxiMoves(newMoves), getBusMoves(newMoves),
 				getUndergroundMoves(newMoves), getSecretMoves(newMoves),
-				locations, tickets);
+				locations, tickets, model.getMrXPossibleLocations() );
 
 	}
 
@@ -317,175 +335,125 @@ public class Presenter implements Player {
 				getRoundsLeft(), getTaxiMoves(validMoves),
 				getBusMoves(validMoves), getUndergroundMoves(validMoves),
 				getSecretMoves(validMoves), getLocations(),
-				model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
+				model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 	}
 
 	public void saveCurrentState(File file) {
 
-		String data = String.format("%s%n",
-				Integer.toString(model.getPlayers().size()));
-		for (Colour c : model.getPlayers()) {
-			PlayerInfo p = model.getPlayer(c);
-			data = data
-					+ String.format("%s %d %d %d %d %d %d%n", c.toString(),
-							p.getLocation(), p.getTickets(Ticket.Taxi),
-							p.getTickets(Ticket.Bus),
-							p.getTickets(Ticket.Underground),
-							p.getTickets(Ticket.SecretMove),
-							p.getTickets(Ticket.DoubleMove));
-		}
-		data = data + String.format("%s%n", Integer.toString(model.getRound()));
-		data = data
-				+ String.format("%s%n", model.getCurrentPlayer().toString());
-		data = data
-				+ String.format("%s%n",
-						Integer.toString(model.MrXsLastKnownLocation));
-		data = data
-				+ String.format("%s%n", Integer.toString(mrXUsedTickets.size()));
-		for (Ticket t : mrXUsedTickets) {
-			data = data + String.format("%s%n", t.toString());
-		}
-
-		data = data + String.format("%d%n", mainGui.currentTime);
+		
+		
+		gameData.setTime(mainGui.currentTime);
+		
 		
 		try {
-			Writer writer = new BufferedWriter(new FileWriter(file));
-			writer.write(data);
-			writer.flush();
+			FileOutputStream fileOut = new FileOutputStream(file);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(gameData);
+			out.close();
+			fileOut.close();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if(Debug.debug)System.out.println("Saved");
+		
 	}
 
 	public void loadGameState(File file) {
+		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			
-			int i = Integer.parseInt(reader.readLine());
-			gameData = new GameData();
-			model = new ScotlandYardModel(i - 1, Arrays.asList(false, false,
+			FileInputStream fileIn = new FileInputStream(file);
+	        ObjectInputStream in = new ObjectInputStream(fileIn);
+	        gameData = (GameData) in.readObject();
+	        in.close();
+	        fileIn.close();
+	        
+	        // Make gui
+			introGui = null;
+			mainGui = new MainScreen(presenter, gameData.getColours());
+	        
+	        model = new ScotlandYardModel(gameData.getPlayers().size()-1, Arrays.asList(false, false,
 					false, true, false, false, false, false, true, false,
 					false, false, false, true, false, false, false, false,
 					true, false, false, false, false, false, true),
 					"resources/graph.txt");
-
-			List<PlayerInfo> players = new ArrayList<PlayerInfo>();
-			Set<Colour> colours = new HashSet<Colour>();
-			for (int x = 0; x < i; x++) {
-				String p = reader.readLine();
-				StringTokenizer st = new StringTokenizer(p);
-
-				Colour c = Colour.valueOf(st.nextToken());
-				int l = Integer.parseInt(st.nextToken());
-
-				Map<Ticket, Integer> t = new HashMap<Ticket, Integer>();
-				t.put(Ticket.Taxi, Integer.parseInt(st.nextToken()));
-				t.put(Ticket.Bus, Integer.parseInt(st.nextToken()));
-				t.put(Ticket.Underground, Integer.parseInt(st.nextToken()));
-				t.put(Ticket.SecretMove, Integer.parseInt(st.nextToken()));
-				t.put(Ticket.DoubleMove, Integer.parseInt(st.nextToken()));
-
-				colours.add(c);
-				players.add(new PlayerInfo(c, l, t, presenter));
-				model.join(this, c, l, t);
-				gameData.addPlayer(c, l, t);
-			}
-
-			int round = Integer.parseInt(reader.readLine());
-			Colour currentPlayer = Colour.valueOf(reader.readLine());
-			int lastKnownLoc = Integer.parseInt(reader.readLine());
-
-			// Make gui
-			introGui = null;
-			mainGui = new MainScreen(presenter, colours);
-
-			i = Integer.parseInt(reader.readLine());
-			List<Ticket> usedTickets = new ArrayList<Ticket>();
-			for (int x = 0; x < i; x++) {
-				String s = reader.readLine();
-				Ticket t = Ticket.valueOf(s);
-				usedTickets.add(t);
-				mainGui.updateTicketPanel(t, x);
-			}
-
-			model.loadOldGameFromData(round, players, currentPlayer,
-					lastKnownLoc);
-			mrXUsedTickets = usedTickets;
-			
-			mainGui.currentTime = Integer.parseInt(reader.readLine());
-			
-			Colour c = model.getCurrentPlayer();
+	        
+	        for(PlayerInfo p:gameData.getPlayers()){
+	        	model.join(this, p.getColour(), p.getLocation(), p.getCopyOfAllTickets());
+	        }
+	        Colour lastPlayer = null;
+	        for(solution.MoveTicket m: gameData.getMoves()){
+	        	if(m.colour == Colour.Black){
+	        		mainGui.updateTicketPanel(m.ticket, model.getRound());
+	        	}
+	        	model.makeMove(new MoveTicket(m.colour, m.target, m.ticket));
+	        	lastPlayer = m.colour;
+	        }
+	        model.currentPlayer = lastPlayer;
+	        model.nextPlayer();
+	        
+	        mainGui.currentTime = gameData.getTime();
+	        
+	        Colour c = model.getCurrentPlayer();
 			List<Move> validMoves = model.validMoves(c);
 			mainGui.updateDisplay(c, Integer.toString(model.getRound()),
 					getRoundsUntilReveal(), getRoundsLeft(),
 					getTaxiMoves(validMoves), getBusMoves(validMoves),
 					getUndergroundMoves(validMoves),
 					getSecretMoves(validMoves), getLocations(), model
-							.getPlayer(c).getCopyOfAllTickets());
-
-		} catch (IOException e) {
+							.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
+	     
+	       
+		}catch(IOException e){
+			System.out.println(e.getMessage());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+	
 	}
 
 	public void saveForReplay(File file) {
-
-		String data = String.format("%d%n", gameData.getPlayers().size());
-		for (PlayerInfo p : gameData.getPlayers()) {
-			data = data
-					+ String.format("%s %d%n", p.getColour()
-							.toString(), p.getLocation());
-		}
-		data = data + String.format("%d%n", gameData.getNumOfMoves());
-		for (MoveTicket m : gameData.getMoves()) {
-			data = data
-					+ String.format("%s %d %s%n", m.colour.toString(),
-							m.target, m.ticket.toString());
-		}
-
-		try {
-			Writer writer = new BufferedWriter(new FileWriter(file));
-			writer.write(data);
-			writer.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
+	
+	try {
+		FileOutputStream fileOut = new FileOutputStream(file);
+		ObjectOutputStream out = new ObjectOutputStream(fileOut);
+		out.writeObject(gameData);
+		out.close();
+		fileOut.close();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	if(Debug.debug)System.out.println("Saved");
+		
+		
 	}
 
 	public void startReplay(File file) {
-		// replay mode activated
-
-		try{
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-
-			int i = Integer.parseInt(reader.readLine());
-
-
+		try {
+			FileInputStream fileIn = new FileInputStream(file);
+	        ObjectInputStream in = new ObjectInputStream(fileIn);
+	        gameData = (GameData) in.readObject();
+	        in.close();
+	        fileIn.close();
+		
+			
 			Map<Colour, Integer> locations = new HashMap<Colour, Integer>();
-			for (int x = 0; x < i; x++) {
-				String p = reader.readLine();
-				StringTokenizer st = new StringTokenizer(p);
-
-				Colour c = Colour.valueOf(st.nextToken());
-				int l = Integer.parseInt(st.nextToken());
+			for(PlayerInfo p: gameData.getPlayers()){
+				Colour c = p.getColour();
+				int l = p.getLocation();
 				locations.put(c, l);
 			}
-			
-			i = Integer.parseInt(reader.readLine());
-			final List<MoveTicket> moves = new ArrayList<MoveTicket>();
-			for (int x = 0; x < i; x++) {
-				String p = reader.readLine();
-				StringTokenizer st = new StringTokenizer(p);
-				MoveTicket m = new MoveTicket(Colour.valueOf(st.nextToken()),
-						Integer.parseInt(st.nextToken()), Ticket.valueOf(st
-								.nextToken()));
-				moves.add(m);
-			}
+		
 			ArrayList<Map<Colour, Integer>> positions = new ArrayList<Map<Colour, Integer>>();
 			positions.add(locations);
 			
 			Map<Colour, Integer> oldLocations = locations;
-			for(MoveTicket m: moves){
+			for(solution.MoveTicket m: gameData.getMoves()){
 				Map<Colour, Integer> newLocations = new HashMap<Colour, Integer>(oldLocations);
 				newLocations.put(m.colour, m.target);
 				positions.add(newLocations);
@@ -502,8 +470,13 @@ public class Presenter implements Player {
 			Presenter p = this;
 
 		}catch(IOException e){
-			System.out.println("Cannot parse SaveFile.");
+			System.out.println(e.getMessage());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
+
+	
 
 }

@@ -13,7 +13,10 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -49,6 +52,7 @@ public class MainScreen extends JFrame {
 	JLabel timerStat;
 	
 	int currentTime = 0;
+	Set<Integer> MrXPossibleLocations;
 
 	Hashtable<Colour, ImageIcon[]> borderImages;
 
@@ -214,6 +218,7 @@ public class MainScreen extends JFrame {
 		//Buttons
 		JButton saveButton  = new JButton("Save");
 		JButton rulesButton = new JButton("Rules");
+		JToggleButton possibleLoc = new JToggleButton("Show MrX's possible locations");
 		taxiButton 			= new JToggleButton("Taxi");		
 		busButton 			= new JToggleButton("Bus");		
 		undergroundButton 	= new JToggleButton("Underground");		
@@ -239,6 +244,8 @@ public class MainScreen extends JFrame {
 		infoContainer.setPreferredSize(new Dimension(270, 920));
 		ticketContainer.setPreferredSize(new Dimension(300, 600));
 		saveButton.setPreferredSize(new Dimension(100, 50));
+		rulesButton.setPreferredSize(new Dimension(100, 50));
+		possibleLoc.setPreferredSize(new Dimension(100, 50));
 		statsContainer.setPreferredSize(new Dimension(200, 180));
 
 		//Add Mouse Events
@@ -435,6 +442,7 @@ public class MainScreen extends JFrame {
 				busButton.setSelected(false);
 				undergroundButton.setSelected(false);
 				secretButton.setSelected(false);
+				possibleLoc.setSelected(false);
 				if (taxiButton.isSelected()) {
 					taxiMap();
 				} else {
@@ -449,6 +457,7 @@ public class MainScreen extends JFrame {
 				taxiButton.setSelected(false);
 				undergroundButton.setSelected(false);
 				secretButton.setSelected(false);
+				possibleLoc.setSelected(false);
 				if (busButton.isSelected()) {
 					busMap();
 				} else {
@@ -463,6 +472,7 @@ public class MainScreen extends JFrame {
 				taxiButton.setSelected(false);
 				busButton.setSelected(false);
 				secretButton.setSelected(false);
+				possibleLoc.setSelected(false);
 				if (undergroundButton.isSelected()) {
 					undergroundMap();
 				} else {
@@ -477,6 +487,7 @@ public class MainScreen extends JFrame {
 				taxiButton.setSelected(false);
 				busButton.setSelected(false);
 				undergroundButton.setSelected(false);
+				possibleLoc.setSelected(false);
 				if (secretButton.isSelected()) {
 					secretMap();
 				} else {
@@ -493,6 +504,7 @@ public class MainScreen extends JFrame {
 					busButton.setSelected(false);
 					undergroundButton.setSelected(false);
 					secretButton.setSelected(false);
+					possibleLoc.setSelected(false);
 					firstMove = true;
 					mainMap();
 				} else {
@@ -512,7 +524,8 @@ public class MainScreen extends JFrame {
 			    chooser.showSaveDialog(map);
 			    
 			    File file = chooser.getSelectedFile();
-			    presenter.saveCurrentState(file);
+			    if(file != null)
+			    	presenter.saveCurrentState(file);
 			    
 			}
 		});
@@ -525,6 +538,22 @@ public class MainScreen extends JFrame {
 					RulesScreen rulesScreen = new RulesScreen(m);
 				}
 			}
+		});
+
+		possibleLoc.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				taxiButton.setSelected(false);
+				busButton.setSelected(false);
+				undergroundButton.setSelected(false);
+				secretButton.setSelected(false);
+				if (possibleLoc.isSelected()) {
+					XposLocationsMap();
+				} else {
+					mainMap();
+				}
+			}
+
 		});
 		
 		//MapPanel Adding
@@ -540,15 +569,18 @@ public class MainScreen extends JFrame {
 		mapContainer.add(ticketPanelLabel, BorderLayout.SOUTH);
 		mapContainer.add(insideMapContainer, BorderLayout.NORTH);
 		
+		
+		
 		//InfoPanel Adding
 		ticketContainer.add(taxiButton);
 		ticketContainer.add(busButton);
 		ticketContainer.add(undergroundButton);
 		ticketContainer.add(secretButton);
 		ticketContainer.add(doublemoveButton);
-		northInfoContainer.add(rulesButton, BorderLayout.NORTH);
 		northInfoContainer.add(statsContainer, BorderLayout.SOUTH);
+		southInfoContainer.add(possibleLoc, BorderLayout.NORTH);
 		southInfoContainer.add(saveButton, BorderLayout.CENTER);
+		southInfoContainer.add(rulesButton, BorderLayout.SOUTH);
 		infoContainer.add(southInfoContainer, BorderLayout.SOUTH);
 		infoContainer.add(northInfoContainer, BorderLayout.NORTH);
 		infoContainer.add(ticketContainer, BorderLayout.CENTER);
@@ -588,7 +620,32 @@ public class MainScreen extends JFrame {
 		mapContainer.setVisible(true);
 	}
 	
+	private void XposLocationsMap() {
+		if(currentPlayer != Colour.Black){
+			mapContainer.setVisible(false);
 	
+			try {
+				imagemain = ImageIO.read(new File("resources/map.png"));
+			} catch (IOException e) {}
+			Graphics2D g = imagemain.createGraphics();
+			g.drawImage(imagemain, 0, 0, null);
+			addPlayerTokens(g);
+			addXlocations(g);
+			g.dispose();
+			
+			image.setImage(imagemain);
+			map.setIcon(image);
+			top.setIcon(borderImages.get(currentPlayer)[0]);
+			bottom.setIcon(borderImages.get(currentPlayer)[1]);
+			side1.setIcon(borderImages.get(currentPlayer)[2]);
+			side2.setIcon(borderImages.get(currentPlayer)[3]);
+	
+			mapContainer.setVisible(true);
+		}
+	}
+	
+	
+
 	//Draws the map for secret routes.
 	protected void secretMap() {
 		mapContainer.setVisible(false);
@@ -779,6 +836,15 @@ public class MainScreen extends JFrame {
 		}
 	}
 	
+private void addXlocations(Graphics2D g) {
+	if(locations.containsKey(Colour.Black)){
+		for(Integer i: MrXPossibleLocations){
+			
+			g.drawImage(blackToken, position.getX(i) - 18, position.getY(i) - 18, null);
+		}
+	}
+}
+	
 	//Adds text telling player to make first/second move in a double move.
 	private void addDoubleMoveText(Graphics2D g) {
 		if (doublemoveButton.isSelected() && firstMove) {
@@ -792,7 +858,7 @@ public class MainScreen extends JFrame {
 	public void updateDisplay(Colour c, String round, String roundsUntilReveal, String roundLeft,
 			Set<Integer> tm, Set<Integer> bm,
 			Set<Integer> um, Set<Integer> sm,
-			Hashtable<Colour, Integer> l, Map<Ticket, Integer> t) {
+			Hashtable<Colour, Integer> l, Map<Ticket, Integer> t, Set<Integer> MrXPosLoc) {
 		
 		if (Debug.debug) {
 			System.out.println("update recieved, rendering data");
@@ -806,7 +872,7 @@ public class MainScreen extends JFrame {
 		secretMoves 	 = sm;
 		locations 	 	 = l;
 		tickets 		 = t;
-		
+		MrXPossibleLocations = MrXPosLoc;
 		
 		
 		//Update Ticket Numbers and Hide Buttons.

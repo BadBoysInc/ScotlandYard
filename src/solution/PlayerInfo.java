@@ -1,5 +1,6 @@
 package solution;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,7 +8,7 @@ import scotlandyard.Colour;
 import scotlandyard.Player;
 import scotlandyard.Ticket;
 
-public class PlayerInfo {
+public class PlayerInfo  implements Serializable{
 	
 	final private Colour colour;
 	private int location; 
