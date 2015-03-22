@@ -88,7 +88,7 @@ public class Presenter implements Player {
 				getRoundsUntilReveal(), getRoundsLeft(),
 				getTaxiMoves(validMoves), getBusMoves(validMoves),
 				getUndergroundMoves(validMoves), getSecretMoves(validMoves),
-				getLocations(), model.getPlayer(c).getCopyOfAllTickets());
+				getLocations(), model.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 	}
 
 	private String getRoundsLeft() {
@@ -275,7 +275,7 @@ public class Presenter implements Player {
 					getTaxiMoves(validMoves), getBusMoves(validMoves),
 					getUndergroundMoves(validMoves),
 					getSecretMoves(validMoves), getLocations(), model
-							.getPlayer(c).getCopyOfAllTickets());
+							.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 		}
 	}
 
@@ -287,6 +287,20 @@ public class Presenter implements Player {
 		}
 		i = i - r;
 		return Integer.toString(i);
+	}
+	
+	public int getLastRevealRound() {
+		int r = model.getRound();
+		int i = r;
+		while (model.getRounds().get(i) == false) {
+			if(i<0){
+				i=-1;
+				break;
+			}
+			i--;
+		}
+		
+		return i;
 	}
 
 	public void sendFirstMove(int target, Ticket t, Colour currentPlayer) {
@@ -310,7 +324,7 @@ public class Presenter implements Player {
 				Integer.toString(model.getRound()), getRoundsUntilReveal(),
 				getRoundsLeft(), getTaxiMoves(newMoves), getBusMoves(newMoves),
 				getUndergroundMoves(newMoves), getSecretMoves(newMoves),
-				locations, tickets);
+				locations, tickets, model.getMrXPossibleLocations() );
 
 	}
 
@@ -321,7 +335,7 @@ public class Presenter implements Player {
 				getRoundsLeft(), getTaxiMoves(validMoves),
 				getBusMoves(validMoves), getUndergroundMoves(validMoves),
 				getSecretMoves(validMoves), getLocations(),
-				model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets());
+				model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 	}
 
 	public void saveCurrentState(File file) {
@@ -387,7 +401,7 @@ public class Presenter implements Player {
 					getTaxiMoves(validMoves), getBusMoves(validMoves),
 					getUndergroundMoves(validMoves),
 					getSecretMoves(validMoves), getLocations(), model
-							.getPlayer(c).getCopyOfAllTickets());
+							.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 	     
 	       
 		}catch(IOException e){
@@ -462,5 +476,7 @@ public class Presenter implements Player {
 			e.printStackTrace();
 		}
 	}
+
+	
 
 }

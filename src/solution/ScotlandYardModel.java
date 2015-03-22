@@ -2,6 +2,7 @@ package solution;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,9 @@ public class ScotlandYardModel extends ScotlandYard {
 	Colour currentPlayer;
 	int MrXsLastKnownLocation;
 	
+	//gameHelperStuff
+	private Set<Integer> mrXPossibleLocations;
+	
 
     public ScotlandYardModel(int numberOfDetectives, List<Boolean> rounds, String graphFileName) throws IOException {
     	
@@ -57,6 +61,8 @@ public class ScotlandYardModel extends ScotlandYard {
 		MrXsLastKnownLocation = 0;
 		round = 0;
 		currentPlayer = Colour.Black;
+		
+		mrXPossibleLocations = new HashSet<Integer>();
 		
     }
 
@@ -120,6 +126,7 @@ public class ScotlandYardModel extends ScotlandYard {
     
     //Changes the game-state to after a move has been played.
     void makeMove(MoveTicket move) {
+    	System.out.println("make move called");
     	PlayerInfo player = getPlayer(move.colour);
     	player.setLocation(move.target);
     	player.removeTickets(move.ticket);
@@ -127,15 +134,41 @@ public class ScotlandYardModel extends ScotlandYard {
     	if(player.getColour() != Colour.Black){
     		getPlayer(Colour.Black).addTickets(move.ticket);
     	}else{
+    		System.out.println("it's black players go");
     		if(Debug.debug)
     			System.out.println("Round Increment.");
     		round = round + 1;
-    		if(getRounds().get(getRound()) == true)
+    		if(getRounds().get(getRound()) == true){
+    			
         		MrXsLastKnownLocation = getPlayer(Colour.Black).getLocation();
+        		System.out.println("visible round so possible locations set back to "+ MrXsLastKnownLocation);
+        		mrXPossibleLocations = new HashSet<Integer>();
+        		mrXPossibleLocations.add(MrXsLastKnownLocation);
+    		}else{
+    			System.out.println("computing possible locations");
+    			mrXPossibleLocations = computePossibleLocations(mrXPossibleLocations, move.ticket);
+    		}
+    		
+    		
+    		
     	}
     }
     
-    //Creates a dummy ticket with Mr. X's last known location. 
+    private Set<Integer> computePossibleLocations(Set<Integer> possibleLocations, Ticket ticket) {
+		Set<Integer> newPos = new HashSet<Integer>();
+		
+		for(Integer location: possibleLocations){
+			for(Edge<Integer, Route> e: graph.getEdges()){	       	
+	    		if((e.source()==location||e.target()==location) && (Ticket.fromRoute(e.data()) == ticket || ticket == Ticket.SecretMove) && !playerPresent(e.other(location), Colour.Black)){   			
+	    			newPos.add(e.other(location));
+	        	}
+	        }
+		}
+		
+		return newPos;
+	}
+
+	//Creates a dummy ticket with Mr. X's last known location. 
     private scotlandyard.Move getDummyTicket(scotlandyard.MoveTicket move) {
     	return new scotlandyard.MoveTicket(Colour.Black, MrXsLastKnownLocation, move.ticket);
     }
@@ -376,7 +409,9 @@ public class ScotlandYardModel extends ScotlandYard {
     	return getPlayer(Colour.Black).getLocation();
     }
 
-    
+    public Set<Integer> getMrXPossibleLocations(){
+    	return mrXPossibleLocations;
+    }
   
 
 }
