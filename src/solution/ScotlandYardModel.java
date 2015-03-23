@@ -157,7 +157,7 @@ public class ScotlandYardModel extends ScotlandYard {
 				
 				if((e.source().equals(location)||e.target().equals(location))){
 					//System.out.println(e);
-		    		if((Ticket.fromRoute(e.data()) == ticket || ticket == Ticket.SecretMove)){   			
+		    		if((Ticket.fromRoute(e.data()) == ticket || ticket == Ticket.SecretMove) && !playerPresent(location, Colour.Black)){   			
 		    			newPos.add(e.other(location));
 		        	}
 				}
