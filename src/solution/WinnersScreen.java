@@ -72,7 +72,8 @@ public class WinnersScreen extends JFrame {
 			    chooser.showSaveDialog(container);
 			    
 			    File file = chooser.getSelectedFile();
-			    presenter.saveForReplay(file);
+			    if(file != null)
+			    	presenter.saveForReplay(file);
 			}
 		});
 		container.add(quit);

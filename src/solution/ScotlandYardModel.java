@@ -151,15 +151,19 @@ public class ScotlandYardModel extends ScotlandYard {
     
     private Set<Integer> computePossibleLocations(Set<Integer> possibleLocations, Ticket ticket) {
 		Set<Integer> newPos = new HashSet<Integer>();
-		
+		System.out.println("old"+possibleLocations);
 		for(Integer location: possibleLocations){
-			for(Edge<Integer, Route> e: graph.getEdges()){	       	
-	    		if((e.source()==location||e.target()==location) && (Ticket.fromRoute(e.data()) == ticket || ticket == Ticket.SecretMove) && !playerPresent(e.other(location), Colour.Black)){   			
-	    			newPos.add(e.other(location));
-	        	}
+			for(Edge<Integer, Route> e: graph.getEdges()){
+				
+				if((e.source().equals(location)||e.target().equals(location))){
+					//System.out.println(e);
+		    		if((Ticket.fromRoute(e.data()) == ticket || ticket == Ticket.SecretMove)){   			
+		    			newPos.add(e.other(location));
+		        	}
+				}
 	        }
 		}
-		
+		System.out.println("new "+newPos);
 		return newPos;
 	}
 
