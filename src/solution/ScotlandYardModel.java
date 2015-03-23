@@ -152,19 +152,16 @@ public class ScotlandYardModel extends ScotlandYard {
     //Find Mr. X's possible moves.
     private Set<Integer> computePossibleLocations(Set<Integer> possibleLocations, Ticket ticket) {
 		Set<Integer> newPos = new HashSet<Integer>();
-		System.out.println("old"+possibleLocations);
 		for(Integer location: possibleLocations){
 			for(Edge<Integer, Route> e: graph.getEdges()){
 				
 				if((e.source().equals(location)||e.target().equals(location))){
-					//System.out.println(e);
 		    		if((Ticket.fromRoute(e.data()) == ticket || ticket == Ticket.SecretMove) && !playerPresent(e.other(location), Colour.Black)){   			
 		    			newPos.add(e.other(location));
 		        	}
 				}
 	        }
 		}
-		System.out.println("new "+newPos);
 		return newPos;
 	}
 
