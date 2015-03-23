@@ -32,7 +32,7 @@ import scotlandyard.Player;
 import scotlandyard.Ticket;
 
 public class Presenter implements Player {
-	// boolean response;
+
 	private IntroScreen introGui;
 	private MainScreen mainGui;
 	private ScotlandYardModel model;
@@ -46,27 +46,21 @@ public class Presenter implements Player {
 		introGui.setupScreen(this);
 		mrXUsedTickets = new ArrayList<Ticket>();
 	}
-
-	public static void main(String[] args) {
-		Presenter p = new Presenter();
-	}
-
+	
+	
 	public void beginGame(Set<Colour> colours) {
 		introGui = null;
 
-		// Make Model
+		//Make Model.
 		try {
 			model = new ScotlandYardModel(colours.size() - 1,
 					Arrays.asList(false, false, false, true, false, false,
 							false, false, true, false, false, false, false,
 							true, false, false, false, false, true, false,
-							false, false, false, false, true),
-					"resources/graph.txt");
-		} catch (IOException e) {
-			System.err.println("File not Found.");
-		}
+							false, false, false, false, true), "resources/graph.txt");
+		} catch (IOException e) {System.err.println("File not Found.");}
 
-		// Add Players to model;
+		//Add Players to model.
 		gameData = new GameData();
 		for (Colour c : colours) {
 			int l = getStartingLocation(c);
@@ -75,13 +69,13 @@ public class Presenter implements Player {
 			gameData.addPlayer(c, l, t);
 		}
 
-		// Make gui
+		//Make GUI.
 		mainGui = new MainScreen(presenter, colours);
 
-		// game must be playable
+		//Game must be playable.
 		assert (!model.isReady() || model.isGameOver());
 
-		//update gui with initial data.
+		//Update GUI with initial data.
 		Colour c = model.getCurrentPlayer();
 		List<scotlandyard.Move> validMoves = model.validMoves(c);
 		mainGui.updateDisplay(c, Integer.toString(model.getRound()),
@@ -90,18 +84,20 @@ public class Presenter implements Player {
 				getUndergroundMoves(validMoves), getSecretMoves(validMoves),
 				getLocations(), model.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 	}
-
+	
+	//Get the number of rounds left.
 	private String getRoundsLeft() {
 		int total = model.getRounds().size();
 		int current = model.getRound();
 		return Integer.toString((total - current) - 1);
 	}
-
+	
+	//Get possible taxi moves.
 	Set<Integer> getTaxiMoves(List<Move> moves) {
 		if (moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
-		// REMOVE DOUBLE MOVES
+		//Remove double moves.
 		for (Move m : moves) {
 			if (!m.toString().contains("Move Double ")) {
 				newMoves.add(m);
@@ -116,12 +112,13 @@ public class Presenter implements Player {
 		}
 		return taximoves;
 	}
-
+	
+	//Get possible bus moves.
 	Set<Integer> getBusMoves(List<Move> moves) {
 		if (moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
-		// REMOVE DOUBLE MOVES
+		//Remove double moves.
 		for (Move m : moves) {
 			if (!m.toString().contains("Move Double ")) {
 				newMoves.add(m);
@@ -137,12 +134,13 @@ public class Presenter implements Player {
 
 		return busmoves;
 	}
-
+	
+	//Get possible underground moves.
 	Set<Integer> getUndergroundMoves(List<Move> moves) {
 		if (moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
-		// REMOVE DOUBLE MOVES
+		//Remove double moves.
 		for (Move m : moves) {
 			if (!m.toString().contains("Move Double ")) {
 				newMoves.add(m);
@@ -158,12 +156,13 @@ public class Presenter implements Player {
 
 		return undergroundmoves;
 	}
-
+	
+	//Get possible secret moves.
 	Set<Integer> getSecretMoves(List<Move> moves) {
 		if (moves.contains(new MovePass(model.getCurrentPlayer())))
 			moves.remove(new MovePass(model.getCurrentPlayer()));
 		List<Move> newMoves = new ArrayList<Move>();
-		// REMOVE DOUBLE MOVES
+		//Remove double moves.
 		for (Move m : moves) {
 			if (!m.toString().contains("Move Double ")) {
 				newMoves.add(m);
@@ -179,7 +178,8 @@ public class Presenter implements Player {
 
 		return secretmoves;
 	}
-
+	
+	//Get the location of each player.
 	Hashtable<Colour, Integer> getLocations() {
 		Hashtable<Colour, Integer> locations = new Hashtable<Colour, Integer>();
 		for (Colour p : model.getPlayers()) {
@@ -193,7 +193,8 @@ public class Presenter implements Player {
 			locations.remove(Colour.Black);
 		return locations;
 	}
-
+	
+	//Give players starting locations.
 	int getStartingLocation(Colour c) {
 		Random r = new Random();
 		int i;
@@ -203,7 +204,8 @@ public class Presenter implements Player {
 		} while (model.playerPresent(i + 1, c));
 		return i + 1;
 	}
-
+	
+	//Give players their starting tickets.
 	Map<Ticket, Integer> getStartingTickets(Colour c) {
 		if (c == Colour.Black) {
 			Map<Ticket, Integer> tickets = new HashMap<Ticket, Integer>();
@@ -223,34 +225,35 @@ public class Presenter implements Player {
 			return tickets;
 		}
 	}
-
+	
 	@Override
 	public Move notify(int location, List<Move> list) {
 		return null;
 	}
 
-	// Called by gui, tells model to play move
+	//GUI tells model to play a move.
 	public void sendMove(int target, Ticket t, Colour currentPlayer,
 			boolean moveDouble) {
-		gameData.addMove(new solution.MoveTicket(currentPlayer, target, t));
+		
 		Move m = null;
 		if (moveDouble) {
 			Move secondMove = new MoveTicket(currentPlayer, target, t);
 			m = new MoveDouble(currentPlayer, firstMove, secondMove);
-			mainGui.updateTicketPanel(((MoveTicket) firstMove).ticket,
-					model.getRound());
+			mainGui.updateTicketPanel(((MoveTicket) firstMove).ticket, model.getRound());
 			mrXUsedTickets.add(((MoveTicket) firstMove).ticket);
-			mainGui.updateTicketPanel(((MoveTicket) secondMove).ticket,
-					model.getRound() + 1);
+			mainGui.updateTicketPanel(((MoveTicket) secondMove).ticket, model.getRound() + 1);
 			mrXUsedTickets.add(((MoveTicket) secondMove).ticket);
+			gameData.addMove(new solution.MoveTicket(currentPlayer, ((MoveTicket) firstMove).target, ((MoveTicket) firstMove).ticket));		
 		} else {
 			m = new MoveTicket(currentPlayer, target, t);
 			if (currentPlayer == Colour.Black) {
 				mrXUsedTickets.add(((MoveTicket) m).ticket);
-				mainGui.updateTicketPanel(((MoveTicket) m).ticket,
-						model.getRound());
+				mainGui.updateTicketPanel(((MoveTicket) m).ticket, model.getRound());
 			}
 		}
+		
+		gameData.addMove(new solution.MoveTicket(currentPlayer, target, t));		
+		
 		if (Debug.debug) {
 			System.out.println("Move received: " + m
 					+ ", Sending move to model");
@@ -259,7 +262,7 @@ public class Presenter implements Player {
 		model.playMove(m, this);
 	}
 
-	// called by model, tells gui to update
+	//Model tells presenter to update the GUI.
 	public void notifyModelChange(List<Move> validMoves) {
 		if (Debug.debug) {
 			System.out.println("Presenter notified, updating gui");
@@ -278,7 +281,8 @@ public class Presenter implements Player {
 							.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 		}
 	}
-
+	
+	//Get the number of rounds until Mr. X is revealed.
 	private String getRoundsUntilReveal() {
 		int r = model.getRound();
 		int i = r;
@@ -288,7 +292,7 @@ public class Presenter implements Player {
 		i = i - r;
 		return Integer.toString(i);
 	}
-	
+	 
 	public int getLastRevealRound() {
 		int r = model.getRound();
 		int i = r;
@@ -299,10 +303,10 @@ public class Presenter implements Player {
 			}
 			i--;
 		}
-		
 		return i;
 	}
 
+	//Store the first move of a double move.
 	public void sendFirstMove(int target, Ticket t, Colour currentPlayer) {
 		firstMove = new MoveTicket(currentPlayer, target, t);
 		List<Move> moves = model.validMoves(model.getCurrentPlayer());
@@ -327,7 +331,8 @@ public class Presenter implements Player {
 				locations, tickets, model.getMrXPossibleLocations() );
 
 	}
-
+	
+	//Re-update the GUI after double move is unselected.
 	public void doubleMoveFalse() {
 		List<Move> validMoves = model.validMoves(model.getCurrentPlayer());
 		mainGui.updateDisplay(model.getCurrentPlayer(),
@@ -338,12 +343,10 @@ public class Presenter implements Player {
 				model.getPlayer(model.getCurrentPlayer()).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 	}
 
+	//Save the game.
 	public void saveCurrentState(File file) {
 
-		
-		
 		gameData.setTime(mainGui.currentTime);
-		
 		
 		try {
 			FileOutputStream fileOut = new FileOutputStream(file);
@@ -351,14 +354,12 @@ public class Presenter implements Player {
 			out.writeObject(gameData);
 			out.close();
 			fileOut.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (IOException e) {e.printStackTrace();}
 		if(Debug.debug)System.out.println("Saved");
 		
 	}
 
+	//Load the game.
 	public void loadGameState(File file) {
 		
 		try {
@@ -368,7 +369,7 @@ public class Presenter implements Player {
 	        in.close();
 	        fileIn.close();
 	        
-	        // Make gui
+	        //Make GUI.
 			introGui = null;
 			mainGui = new MainScreen(presenter, gameData.getColours());
 	        
@@ -386,7 +387,8 @@ public class Presenter implements Player {
 	        	if(m.colour == Colour.Black){
 	        		mainGui.updateTicketPanel(m.ticket, model.getRound());
 	        	}
-	        	model.makeMove(new MoveTicket(m.colour, m.target, m.ticket));
+	        	System.out.println(m);
+	        	model.play(new MoveTicket(m.colour, m.target, m.ticket));
 	        	lastPlayer = m.colour;
 	        }
 	        model.currentPlayer = lastPlayer;
@@ -400,23 +402,20 @@ public class Presenter implements Player {
 					getRoundsUntilReveal(), getRoundsLeft(),
 					getTaxiMoves(validMoves), getBusMoves(validMoves),
 					getUndergroundMoves(validMoves),
-					getSecretMoves(validMoves), getLocations(), model
-							.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
+					getSecretMoves(validMoves), getLocations(), model.getPlayer(c).getCopyOfAllTickets(), model.getMrXPossibleLocations() );
 	     
 	       
 		}catch(IOException e){
 			System.out.println(e.getMessage());
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-	
+
 	}
 
+	//Save the replay.
 	public void saveForReplay(File file) {
-		
-	
+
 	try {
 		FileOutputStream fileOut = new FileOutputStream(file);
 		ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -424,15 +423,14 @@ public class Presenter implements Player {
 		out.close();
 		fileOut.close();
 	} catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	
 	if(Debug.debug)System.out.println("Saved");
-		
-		
+
 	}
 
+	//Play a replay.
 	public void startReplay(File file) {
 		try {
 			FileInputStream fileIn = new FileInputStream(file);
@@ -460,23 +458,17 @@ public class Presenter implements Player {
 				oldLocations = newLocations;
 			}
 			
-
-			// Make gui
 			introGui = null;
 			
 			ReplayScreen replayScreen = new ReplayScreen(positions);
-			
-			
+
 			Presenter p = this;
 
 		}catch(IOException e){
 			System.out.println(e.getMessage());
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
-	
 
 }

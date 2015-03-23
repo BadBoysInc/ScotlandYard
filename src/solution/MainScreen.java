@@ -119,7 +119,9 @@ public class MainScreen extends JFrame {
 	Map<Ticket, Integer> tickets;
 	int selected;
 	int target;
+	boolean isLastRound;
 	boolean firstMove;
+	boolean doubleMove;
 	boolean rulesOpen;
 	boolean waiting;
 	boolean showPossibleLocations;
@@ -535,6 +537,7 @@ public class MainScreen extends JFrame {
 					undergroundButton.setSelected(false);
 					secretButton.setSelected(false);
 					firstMove = true;
+					doubleMove = true;
 					mainMap();
 				} else {
 					taxiButton.setSelected(false);
@@ -542,6 +545,7 @@ public class MainScreen extends JFrame {
 					undergroundButton.setSelected(false);
 					secretButton.setSelected(false);
 					presenter.doubleMoveFalse();
+					doubleMove = false;
 				}
 			}
 		});
@@ -551,11 +555,9 @@ public class MainScreen extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
 			    chooser.showSaveDialog(map);
-			    
 			    File file = chooser.getSelectedFile();
 			    if(file != null)
 			    	presenter.saveCurrentState(file);
-			    
 			}
 		});
 		
@@ -607,6 +609,7 @@ public class MainScreen extends JFrame {
 		setVisible(true);
 	}
 	
+	//Draw the show possible locations button.
 	private void drawXLocationsButton(Graphics2D g) {
 		if(currentPlayer != Colour.Black){
 			if(selected == -3){
@@ -619,6 +622,7 @@ public class MainScreen extends JFrame {
 		}
 	}
 	
+	//Draw Mr. X's possible locations.
 	private void drawXLocations(Graphics2D g) {
 		if(currentPlayer != Colour.Black){
 			if(showPossibleLocations){
@@ -753,8 +757,7 @@ public class MainScreen extends JFrame {
 
 		mapContainer.setVisible(true);
 	}
-	
-	
+
 	//Draws the map for taxi routes.
 	protected void taxiMap() {
 		mapContainer.setVisible(false);
@@ -848,14 +851,6 @@ public class MainScreen extends JFrame {
 		}
 	}
 	
-	private void addXlocations(Graphics2D g) {
-		if(locations.containsKey(Colour.Black)){
-			for(Integer i: MrXPossibleLocations){
-				g.drawImage(blackToken, position.getX(i) - 18, position.getY(i) - 18, null);
-			}
-		}
-	}
-	
 	//Adds text telling player to make first/second move in a double move.
 	private void addDoubleMoveText(Graphics2D g) {
 		if (doublemoveButton.isSelected() && firstMove) {
@@ -885,6 +880,7 @@ public class MainScreen extends JFrame {
 		tickets 		 = t;
 		MrXPossibleLocations = MrXPosLoc;
 		showPossibleLocations = false;
+		isLastRound = (Integer.parseInt(roundLeft) == 1);	
 		
 		//Update Ticket Numbers and Hide Buttons.
 		displayTicketNumbers(tickets);
@@ -898,16 +894,15 @@ public class MainScreen extends JFrame {
 		
 		//Set the state to waiting for player to confirm he is ready.
 		nextTurnMap(false);
-
-		if(firstMove == true){
+		
+		//Set the map as normal if double move is being used.
+		if(firstMove == true && doubleMove == false){
 			waiting = true;
 		}else{
+			doubleMove = false;
 			mainMap();
 			setButtonVisibility(tickets);
-		}
-		
-		
-		
+		}	
 	}
 	
 	//Set Button Visibility for Players.
@@ -924,6 +919,8 @@ public class MainScreen extends JFrame {
 			secretButton.setVisible(true);
 			doublemoveButton.setVisible(true);
 		}
+		if(isLastRound)
+			doublemoveButton.setEnabled(false);
 	}
 	
 	//Hide all Buttons.
@@ -946,7 +943,6 @@ public class MainScreen extends JFrame {
 		doublemoveButton.setText(String.format("Double Move (%d)",
 				tickets.get(Ticket.DoubleMove)));
 	}
-	
 	
 	//Draw Mr.X's last used ticket.
 	public void updateTicketPanel(Ticket ticket, int r) {
@@ -975,7 +971,5 @@ public class MainScreen extends JFrame {
 	public void rulesClosed() {
 		rulesOpen = false;	
 	}
-
-	
 
 }

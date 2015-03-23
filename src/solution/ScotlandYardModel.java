@@ -37,10 +37,9 @@ public class ScotlandYardModel extends ScotlandYard {
 	Colour currentPlayer;
 	int MrXsLastKnownLocation;
 	
-	//gameHelperStuff
+	//For Game Helper
 	private Set<Integer> mrXPossibleLocations;
 	
-
     public ScotlandYardModel(int numberOfDetectives, List<Boolean> rounds, String graphFileName) throws IOException {
     	
     	super(numberOfDetectives, rounds, graphFileName);
@@ -91,6 +90,7 @@ public class ScotlandYardModel extends ScotlandYard {
     	}
     }
     
+    //Play a move and tell the presenter to update the GUI.
     public void playMove(scotlandyard.Move move, Presenter p){
     	if(Debug.debug){System.out.println("Move recieved, playing move");}
     	play(move);
@@ -149,6 +149,7 @@ public class ScotlandYardModel extends ScotlandYard {
     	}
     }
     
+    //Find Mr. X's possible moves.
     private Set<Integer> computePossibleLocations(Set<Integer> possibleLocations, Ticket ticket) {
 		Set<Integer> newPos = new HashSet<Integer>();
 		System.out.println("old"+possibleLocations);
@@ -404,13 +405,14 @@ public class ScotlandYardModel extends ScotlandYard {
     	return null;
     }
     
+    //Get Mr.X's real location.
     public int getMrXLocation(){
     	return getPlayer(Colour.Black).getLocation();
     }
-
+    
+    //Returns Mr.X's possible locations.
     public Set<Integer> getMrXPossibleLocations(){
     	return mrXPossibleLocations;
     }
-  
 
 }

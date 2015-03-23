@@ -16,23 +16,15 @@ public class GraphDisplay {
 
 		File file = new File("resources/pos.txt");	
 		Scanner in = null;
-        try 
-        {
+        try{
 			in = new Scanner(file);
-		} 
-        catch (FileNotFoundException e) 
-        {
-			System.out.println(e);
-		}
-        coordinateMap = new HashMap<String, List<Integer>>();
+		} catch (FileNotFoundException e){System.out.println(e);}
         
-        // get the number of nodes
+        coordinateMap = new HashMap<String, List<Integer>>();
         String topLine = in.nextLine();
         int numberOfNodes = Integer.parseInt(topLine);
         
-        
-        for(int i = 0; i < numberOfNodes; i++)
-        {
+        for(int i = 0; i < numberOfNodes; i++){
         	String line = in.nextLine();
        
         	String[] parts = line.split(" ");
@@ -45,10 +37,12 @@ public class GraphDisplay {
         }
 	}
 	
+	//Get the x pixel from a location.
 	int getX(int i){
 		return coordinateMap.get(Integer.toString(i)).get(0);
 	}
 	
+	//Get the y pixel from a location.
 	int getY(int i){
 		return coordinateMap.get(Integer.toString(i)).get(1);
 	}

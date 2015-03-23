@@ -15,10 +15,8 @@ import javax.swing.JLabel;
 public class RulesScreen extends JFrame{
 	RulesScreen(final MainScreen m){
 		this.addWindowListener(new WindowListener() {
-
 			@Override
 			public void windowClosed(WindowEvent e) {m.rulesClosed();}
-			
 			@Override
 			public void windowOpened(WindowEvent e) {}
 			@Override

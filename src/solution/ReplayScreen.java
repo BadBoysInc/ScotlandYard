@@ -54,6 +54,8 @@ public class ReplayScreen extends JFrame {
 		selected = 0;
 		
 		this.setLayout(new BorderLayout());
+		
+		//Load Images.
 		try {
 			map = ImageIO.read(new File("resources/map.png"));
 			timeline = ImageIO.read(new File("resources/timeBar.png"));
@@ -65,12 +67,16 @@ public class ReplayScreen extends JFrame {
 			greenToken = ImageIO.read(new File("resources/GreenToken.png"));
 			redToken = ImageIO.read(new File("resources/RedToken.png"));
 		} catch (IOException e) {e.printStackTrace();}
+		
+		//Make Icons
 		mapImage = new ImageIcon();
 		timeImage = new ImageIcon();
 		
+		//Make JLabels.
 		maplabel = new JLabel();
 		timelabel = new JLabel();
 		
+		//Add Mouse Listeners.
 		timePanel = new JPanel();
 		timePanel.addMouseListener(new MouseListener() {
 
@@ -116,6 +122,8 @@ public class ReplayScreen extends JFrame {
 			public void mouseClicked(MouseEvent e) {}
 			
 		});
+		
+		//Finalise Panels.
 		mapPanel = new JPanel();
 		mapPanel.add(maplabel);
 		timePanel.add(timelabel);
@@ -149,6 +157,7 @@ public class ReplayScreen extends JFrame {
 		drawPointer();
 	}
 	
+	//Draw the player tokens to the map.
 	private void addPlayerTokens(Graphics2D g) {
 		for (Colour c : Colour.values()) {
 			if (locations.get(currentTurn).containsKey(c)) {
@@ -188,6 +197,7 @@ public class ReplayScreen extends JFrame {
 		}
 	}
 	
+	//Draw the time pointer.
 	private void drawPointer(){
 		timePanel.setVisible(false);
 
@@ -206,8 +216,7 @@ public class ReplayScreen extends JFrame {
 		g.dispose();
 		timeImage.setImage(timeline);
 		timelabel.setIcon(timeImage);
-		timePanel.setVisible(true);
-		
+		timePanel.setVisible(true);	
 	}
 	
 }

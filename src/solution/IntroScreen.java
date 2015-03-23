@@ -36,7 +36,6 @@ public class IntroScreen extends JFrame{
 		right.setLayout(new GridLayout(7,1));
 		final JPanel left = new JPanel();
 		left.setLayout(new GridLayout(3,1));
-		//Right Panel
 		
 		//Colour Buttons
 		final Map<String, JToggleButton> buttons = new HashMap<String, JToggleButton>();
@@ -56,6 +55,7 @@ public class IntroScreen extends JFrame{
 			});
 			b.setActionCommand(c.toString());
 		}
+		
 		//Start Button
 		final JButton start = new JButton("Start");
 		start.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -82,12 +82,12 @@ public class IntroScreen extends JFrame{
 		startPanel.setLayout(new BorderLayout());
 		startPanel.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 0));
 		startPanel.add(start);
-		//Finalize Panel
+		
+		//Right Panel
 		right.add(startPanel);
 		right.setBorder(BorderFactory.createTitledBorder("Choose Players"));
 		right.setPreferredSize(new Dimension(250, 1000));
 		
-		//Left Panel
 		//LoadGameButton
 		final JButton loadGame = new JButton("Load Game");
 		loadGame.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -105,9 +105,13 @@ public class IntroScreen extends JFrame{
 			    }
 			}			
 		});
+		JPanel loadPanel = new JPanel();
+		loadPanel.setLayout(new BorderLayout());
+		loadPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		loadPanel.add(loadGame);	
 		
 		
-		//QuitButton
+		//ReplayButton
 		final JButton replay = new JButton("Load Replay");
 		replay.setAlignmentX(Component.CENTER_ALIGNMENT);
 		replay.addActionListener(new ActionListener(){
@@ -124,16 +128,11 @@ public class IntroScreen extends JFrame{
 			    }
 			}			
 		});
-		
 		JPanel replayPanel = new JPanel();
 		replayPanel.setLayout(new BorderLayout());
 		replayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		replayPanel.add(replay);
 		
-		JPanel loadPanel = new JPanel();
-		loadPanel.setLayout(new BorderLayout());
-		loadPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		loadPanel.add(loadGame);		
 		//NewGameButton
 		final JToggleButton newGame = new JToggleButton("New Game");
 		newGame.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -164,8 +163,7 @@ public class IntroScreen extends JFrame{
 		newPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		newPanel.add(newGame);
 		
-		
-		//Add Buttons
+		//Left Panel
 		left.add(newPanel);
 		left.add(loadPanel);
 		left.add(replayPanel);

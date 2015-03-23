@@ -34,7 +34,6 @@ public class WinnersScreen extends JFrame {
 		presenter =  p;
 		String statement = "";
 		
-				
 		final JPanel container = new JPanel();
 		JLabel text = new JLabel(statement);
 		text.setFont(new Font("Serif", Font.PLAIN, 25));
@@ -78,7 +77,6 @@ public class WinnersScreen extends JFrame {
 		});
 		container.add(quit);
 		add(container);
-
 
 		add(background, BorderLayout.CENTER);
 		add(replay, BorderLayout.SOUTH);

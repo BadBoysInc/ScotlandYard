@@ -60,5 +60,4 @@ public class GameData implements Serializable{
 		return colours;
 	}
 	
-	
 }
