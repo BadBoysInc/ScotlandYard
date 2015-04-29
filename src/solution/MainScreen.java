@@ -670,8 +670,7 @@ public class MainScreen extends JFrame {
 		g.drawImage(imagesecret, 0, 0, null);
 		addPlayerTokens(g);		
 		for (int i : secretMoves) {
-			g.drawImage(secretOverlay, position.getX(i) - 17,
-					position.getY(i) - 17, null);
+			g.drawImage(secretOverlay, position.getX(i) - 17, position.getY(i) - 17, null);
 		}
 		if (selected > 0) {
 			g.drawImage(secretSelected, position.getX(selected) - 17, position.getY(selected) - 17, null);
